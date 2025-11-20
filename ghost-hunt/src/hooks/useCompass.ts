@@ -2,6 +2,12 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { CompassSmoother } from '../utils/compass';
 
+// Extend DeviceOrientationEvent for iOS webkit properties
+interface WebkitDeviceOrientationEvent extends DeviceOrientationEvent {
+  webkitCompassHeading?: number;
+  webkitCompassAccuracy?: number;
+}
+
 interface UseCompassOptions {
   onHeadingUpdate: (heading: number, accuracy: number) => void;
   onError?: (error: Error) => void;
@@ -75,10 +81,11 @@ export function useCompass(options: UseCompassOptions): UseCompassReturn {
       let heading: number | null = null;
       let accuracy = 20; // Default accuracy estimate
 
-      if (event.webkitCompassHeading !== undefined) {
+      const webkitEvent = event as WebkitDeviceOrientationEvent;
+      if (webkitEvent.webkitCompassHeading !== undefined) {
         // iOS - webkitCompassHeading gives true north
-        heading = event.webkitCompassHeading;
-        accuracy = event.webkitCompassAccuracy !== undefined ? event.webkitCompassAccuracy : 20;
+        heading = webkitEvent.webkitCompassHeading;
+        accuracy = webkitEvent.webkitCompassAccuracy !== undefined ? webkitEvent.webkitCompassAccuracy : 20;
       } else if (event.absolute && event.alpha !== null) {
         // Android - alpha with absolute=true gives magnetic north
         // Convert to 0-360 range (alpha is 0-360 but we need to invert)
@@ -102,8 +109,9 @@ export function useCompass(options: UseCompassOptions): UseCompassReturn {
     };
 
     // Try to use deviceorientationabsolute first (better for compass)
-    if ('ondeviceorientationabsolute' in window) {
-      window.addEventListener('deviceorientationabsolute', handleOrientation as any);
+    const hasAbsoluteOrientation = 'ondeviceorientationabsolute' in window;
+    if (hasAbsoluteOrientation) {
+      (window as any).addEventListener('deviceorientationabsolute', handleOrientation);
       listenerRef.current = handleOrientation;
       console.log('✅ Listening to deviceorientationabsolute');
     } else {
@@ -124,7 +132,7 @@ export function useCompass(options: UseCompassOptions): UseCompassReturn {
 
     // Remove both possible event listeners
     if ('ondeviceorientationabsolute' in window) {
-      window.removeEventListener('deviceorientationabsolute', listenerRef.current as any);
+      (window as any).removeEventListener('deviceorientationabsolute', listenerRef.current);
     }
     window.removeEventListener('deviceorientation', listenerRef.current);
 

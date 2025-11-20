@@ -33,7 +33,8 @@ export type ToolNode = {
   id: string;
   lat: number;
   lng: number;
-  tool: ToolType;
+  type: ToolType; // Changed from 'tool' to 'type' to match usage
+  rarity: Rarity; // Added rarity field
 };
 
 export type InventoryItem = {

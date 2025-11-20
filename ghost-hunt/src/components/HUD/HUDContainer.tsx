@@ -1,5 +1,5 @@
 // HUD Container - cohesive bottom bar
-import { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 interface HUDContainerProps {
   children: ReactNode;

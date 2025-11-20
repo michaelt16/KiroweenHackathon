@@ -41,7 +41,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
           item.type === toolType ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { type: toolType, quantity: 1 }];
+      return [...prev, { id: `${toolType}-${Date.now()}`, type: toolType, quantity: 1 }];
     });
   };
 
