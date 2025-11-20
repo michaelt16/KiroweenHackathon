@@ -8,6 +8,10 @@ import { FieldKitDrawer } from '../components/Investigation/FieldKitDrawer';
 import { SanityBar } from '../components/Investigation/SanityBar';
 import { InvestigationResultOverlay } from '../components/Investigation/InvestigationResultOverlay';
 import { useGhostBehavior } from '../hooks/useGhostBehavior';
+import { useGPS } from '../hooks/useGPS';
+import { useCompass } from '../hooks/useCompass';
+import { spawnGhostPosition } from '../utils/gps';
+import { useGameState } from '../context/GameStateContext';
 
 // Tool icon mapping
 const TOOL_ICONS: Record<string, string> = {
@@ -21,18 +25,92 @@ const TOOL_ICONS: Record<string, string> = {
 function InvestigationContent() {
   const { hotspotId } = useParams<{ hotspotId: string }>();
   const navigate = useNavigate();
-  const { ghostType, sanity, mode, activeTool, initializeSupplies, initializeInvestigation, resetInvestigation } = useInvestigation();
+  const {
+    ghostType,
+    sanity,
+    mode,
+    activeTool,
+    initializeSupplies,
+    initializeInvestigation,
+    resetInvestigation,
+    updatePlayerPosition,
+    updatePlayerHeading,
+    setGhostGPSPosition,
+    requestOrientationPermission,
+  } = useInvestigation();
   const { supplies } = useSupplies();
+  const { playerPosition } = useGameState();
   const [isFieldKitOpen, setIsFieldKitOpen] = useState(false);
 
   // Initialize ghost behavior engine
   useGhostBehavior();
+
+  // Initialize GPS tracking
+  const gps = useGPS({
+    onPositionUpdate: (position) => {
+      updatePlayerPosition(position);
+    },
+    onError: (error) => {
+      console.error('GPS error:', error);
+    },
+  });
+
+  // Initialize compass tracking
+  const compass = useCompass({
+    onHeadingUpdate: (heading, accuracy) => {
+      updatePlayerHeading(heading, accuracy);
+    },
+    onError: (error) => {
+      console.error('Compass error:', error);
+    },
+  });
 
   // Initialize investigation (randomize ghost type)
   useEffect(() => {
     console.log('🎲 Initializing investigation...');
     initializeInvestigation();
   }, [initializeInvestigation]); // Only run once on mount
+
+  // Initialize GPS and Compass sensors
+  useEffect(() => {
+    const initSensors = async () => {
+      console.log('🧭 Requesting orientation permission...');
+      await requestOrientationPermission();
+
+      console.log('📍 Starting GPS...');
+      gps.startWatching();
+
+      console.log('🧭 Starting compass...');
+      compass.startListening();
+    };
+
+    initSensors();
+
+    // Cleanup on unmount
+    return () => {
+      console.log('🛑 Stopping sensors...');
+      gps.stopWatching();
+      compass.stopListening();
+    };
+  }, [gps, compass, requestOrientationPermission]);
+
+  // Spawn ghost at random GPS position when player position is available
+  useEffect(() => {
+    if (playerPosition) {
+      console.log('👻 Spawning ghost near player...');
+      const ghostPos = spawnGhostPosition(
+        {
+          lat: playerPosition.lat,
+          lng: playerPosition.lng,
+          accuracy: 0,
+          timestamp: Date.now(),
+        },
+        30 // Spawn within 30 meters
+      );
+      setGhostGPSPosition(ghostPos);
+      console.log('👻 Ghost spawned at:', ghostPos);
+    }
+  }, [playerPosition, setGhostGPSPosition]);
 
   // Initialize supplies for this investigation run
   useEffect(() => {
