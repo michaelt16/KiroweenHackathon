@@ -9,7 +9,11 @@ import type {
   InvestigationMode,
 } from '../types/investigation';
 
+type ToolId = 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
+
 interface InvestigationContextType extends InvestigationState {
+  activeTool: ToolId;
+  setActiveTool: (tool: ToolId) => void;
   setGhostType: (type: GhostType) => void;
   setGhostPosition: (positionOrUpdater: GhostPosition | ((prev: GhostPosition) => GhostPosition)) => void;
   setSanity: (sanityOrUpdater: number | ((prev: number) => number)) => void;
@@ -40,6 +44,7 @@ const INITIAL_STATE: InvestigationState = {
 
 export function InvestigationProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<InvestigationState>(INITIAL_STATE);
+  const [activeTool, setActiveToolState] = useState<ToolId>('radar');
 
   const setGhostType = useCallback((type: GhostType) => {
     console.log('👻 Ghost type set:', type);
@@ -95,15 +100,23 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, mode }));
   }, []);
 
+  const setActiveTool = useCallback((tool: ToolId) => {
+    console.log('🔧 Active tool changed:', tool);
+    setActiveToolState(tool);
+  }, []);
+
   const resetInvestigation = useCallback(() => {
     console.log('🔄 Investigation reset');
     setState(INITIAL_STATE);
+    setActiveToolState('radar');
   }, []);
 
   return (
     <InvestigationContext.Provider
       value={{
         ...state,
+        activeTool,
+        setActiveTool,
         setGhostType,
         setGhostPosition,
         setSanity,
