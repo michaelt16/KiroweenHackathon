@@ -49,3 +49,52 @@ hooks:
         else
           echo "ℹ️ Branch $MILESTONE already exists"
         fi
+  
+  - name: "Complete phase and merge to main"
+    trigger:
+      type: "manual"
+    action:
+      type: "message"
+      message: |
+        # 🎉 Phase Completion Workflow
+        
+        When you finish a phase/milestone, run these commands:
+        
+        ```bash
+        # 1. Commit all changes
+        git add -A
+        git commit -m "feat: Complete [Phase Name] (Spec XXX)
+        
+        - Brief summary of what was implemented
+        - Key features added
+        - All phases/tasks complete"
+        
+        # 2. Switch to main and merge
+        git checkout main
+        git merge [branch-name] --no-ff -m "Merge [branch-name]: [Phase Name] Complete"
+        
+        # 3. Push to remote
+        git push origin main
+        git push origin [branch-name]
+        
+        # 4. Switch back to feature branch for continued work
+        git checkout [branch-name]
+        ```
+        
+        ## Example (what we just did):
+        ```bash
+        git add -A
+        git commit -m "feat: Complete Investigation Mode V2 overhaul (Spec 005)"
+        git checkout main
+        git merge 005-feature --no-ff -m "Merge 005-feature: Investigation Mode V2 Complete"
+        git push origin main
+        git push origin 005-feature
+        git checkout 005-feature
+        ```
+        
+        ## Best Practices:
+        - ✅ Keep feature branch alive for future iterations
+        - ✅ Use --no-ff to preserve branch history
+        - ✅ Write descriptive commit messages
+        - ✅ Merge to main only when phase is complete and tested
+        - ✅ Tag releases: `git tag v0.5.0 && git push origin v0.5.0`
