@@ -1,9 +1,34 @@
-// Compass utilities for heading and angle calculations
+/**
+ * Compass Utilities Module
+ * 
+ * Provides functions for compass heading and angle calculations including:
+ * - Angle normalization (handling wrap-around)
+ * - Circular mean for smoothing compass readings
+ * - Relative angle calculations
+ * - Forward cone detection for radar
+ * - Compass heading smoothing
+ * 
+ * Key Concepts:
+ * - Angles wrap around at 360° (e.g., 350° + 20° = 10°)
+ * - Circular mean prevents averaging issues (e.g., mean of 350° and 10° is 0°, not 180°)
+ * - Relative angles are -180° to 180° (negative = left, positive = right)
+ * 
+ * @module compass
+ */
 
 /**
  * Normalize angle to 0-360° range
- * @param angle Angle in degrees (can be negative or > 360)
+ * 
+ * Handles negative angles and angles > 360° by wrapping them into the
+ * standard compass range. Essential for all compass calculations.
+ * 
+ * @param angle Angle in degrees (can be any value)
  * @returns Normalized angle (0-360°)
+ * 
+ * @example
+ * normalizeAngle(-45);  // Returns 315°
+ * normalizeAngle(370);  // Returns 10°
+ * normalizeAngle(720);  // Returns 0°
  */
 export function normalizeAngle(angle: number): number {
   return ((angle % 360) + 360) % 360;
@@ -31,9 +56,25 @@ export function calculateRelativeAngle(bearing: number, heading: number): number
 
 /**
  * Calculate circular mean for a set of angles
- * Used for smoothing compass readings without wrap-around issues
- * @param angles Array of angles in degrees
- * @returns Mean angle (0-360°)
+ * 
+ * Standard arithmetic mean fails for angles due to wrap-around:
+ * - Mean of [350°, 10°] should be 0° (not 180°)
+ * - Mean of [0°, 90°, 180°, 270°] should be undefined (not 135°)
+ * 
+ * Circular mean algorithm:
+ * 1. Convert each angle to unit vector (sin, cos)
+ * 2. Average the vectors
+ * 3. Convert back to angle using atan2
+ * 
+ * This correctly handles wrap-around and produces intuitive results.
+ * 
+ * @param angles Array of angles in degrees (0-360°)
+ * @returns Mean angle (0-360°), or 0° if array is empty
+ * 
+ * @example
+ * circularMean([350, 10]);        // Returns ~0° (not 180°)
+ * circularMean([0, 90, 180, 270]); // Returns ~0° (vectors cancel out)
+ * circularMean([45, 50, 55]);      // Returns 50°
  */
 export function circularMean(angles: number[]): number {
   if (angles.length === 0) return 0;
@@ -80,8 +121,37 @@ export function isDirectlyAhead(bearing: number, heading: number, threshold: num
 }
 
 /**
- * Compass heading smoother to reduce jitter
- * Uses circular mean with weighted moving average
+ * Compass Heading Smoother
+ * 
+ * Reduces compass jitter by applying circular mean to heading history.
+ * Unlike GPS smoother, this uses unweighted circular mean because compass
+ * readings are typically more stable and don't need recency bias.
+ * 
+ * Algorithm:
+ * - Maintains history of last 5 headings
+ * - Applies circular mean (handles wrap-around correctly)
+ * - Returns smoothed heading
+ * 
+ * Calibration Process:
+ * Device compass calibration typically requires:
+ * 1. Move device in figure-8 pattern
+ * 2. Rotate device on all axes
+ * 3. Avoid magnetic interference (metal, electronics)
+ * 4. Calibration improves accuracy from ±30° to ±10°
+ * 
+ * @example
+ * const smoother = new CompassSmoother();
+ * 
+ * // Add headings as they arrive from device
+ * const smoothed1 = smoother.addHeading(45);   // Returns 45°
+ * const smoothed2 = smoother.addHeading(50);   // Returns ~47.5°
+ * const smoothed3 = smoother.addHeading(355);  // Handles wrap-around correctly
+ * 
+ * // Check how many readings are stored
+ * console.log(smoother.count); // 3
+ * 
+ * // Reset when needed (e.g., after long pause)
+ * smoother.reset();
  */
 export class CompassSmoother {
   private headings: number[] = [];

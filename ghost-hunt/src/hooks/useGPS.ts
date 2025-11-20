@@ -1,6 +1,7 @@
 // GPS hook for watching player position
 import { useEffect, useRef, useCallback } from 'react';
 import { GPSSmoother, type GPSPosition } from '../utils/gps';
+import { throttle } from '../utils/throttle';
 
 interface UseGPSOptions {
   onPositionUpdate: (position: GPSPosition) => void;
@@ -32,6 +33,13 @@ export function useGPS(options: UseGPSOptions): UseGPSReturn {
 
   const watchIdRef = useRef<number | null>(null);
   const smootherRef = useRef(new GPSSmoother());
+  
+  // Throttle position updates to 1Hz (1000ms) for battery optimization
+  const throttledUpdateRef = useRef(
+    throttle((position: GPSPosition) => {
+      onPositionUpdate(position);
+    }, 1000)
+  );
 
   const requestPermission = useCallback(async (): Promise<PermissionState> => {
     try {
@@ -73,7 +81,8 @@ export function useGPS(options: UseGPSOptions): UseGPSReturn {
           `📍 GPS update: ${smoothedPosition.lat.toFixed(6)}, ${smoothedPosition.lng.toFixed(6)} (±${smoothedPosition.accuracy.toFixed(0)}m)`
         );
 
-        onPositionUpdate(smoothedPosition);
+        // Throttled update (1Hz max)
+        throttledUpdateRef.current(smoothedPosition);
       },
       (error) => {
         console.error('❌ GPS error:', error.message);

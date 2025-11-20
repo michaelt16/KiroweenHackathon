@@ -1,17 +1,54 @@
-// GPS utilities for distance and bearing calculations
+/**
+ * GPS Utilities Module
+ * 
+ * Provides functions for GPS position calculations including:
+ * - Distance calculation using Haversine formula
+ * - Bearing calculation for navigation
+ * - Position smoothing to reduce GPS jitter
+ * - Ghost spawning within radius
+ * 
+ * @module gps
+ */
 
+/**
+ * GPS Position interface
+ * Represents a geographic coordinate with accuracy and timestamp
+ */
 export interface GPSPosition {
+  /** Latitude in decimal degrees (-90 to 90) */
   lat: number;
+  /** Longitude in decimal degrees (-180 to 180) */
   lng: number;
-  accuracy: number; // Meters
+  /** Position accuracy in meters (lower is better) */
+  accuracy: number;
+  /** Unix timestamp in milliseconds */
   timestamp: number;
 }
 
 /**
  * Calculate distance between two GPS positions using Haversine formula
- * @param pos1 First GPS position
- * @param pos2 Second GPS position
- * @returns Distance in meters
+ * 
+ * The Haversine formula calculates the great-circle distance between two points
+ * on a sphere given their longitudes and latitudes. This is accurate for most
+ * use cases on Earth (assumes spherical Earth, not ellipsoid).
+ * 
+ * Formula:
+ * a = sin²(Δlat/2) + cos(lat1) × cos(lat2) × sin²(Δlng/2)
+ * c = 2 × atan2(√a, √(1−a))
+ * d = R × c
+ * 
+ * Where R is Earth's radius (6,371,000 meters)
+ * 
+ * @param pos1 First GPS position (starting point)
+ * @param pos2 Second GPS position (destination point)
+ * @returns Distance in meters (accurate to ~0.5% for distances up to ~1000km)
+ * 
+ * @example
+ * const distance = haversineDistance(
+ *   { lat: 40.7128, lng: -74.0060, accuracy: 10, timestamp: Date.now() },
+ *   { lat: 40.7580, lng: -73.9855, accuracy: 10, timestamp: Date.now() }
+ * );
+ * console.log(`Distance: ${distance.toFixed(0)}m`); // ~5800m
  */
 export function haversineDistance(pos1: GPSPosition, pos2: GPSPosition): number {
   const R = 6371000; // Earth radius in meters
@@ -32,9 +69,26 @@ export function haversineDistance(pos1: GPSPosition, pos2: GPSPosition): number 
 
 /**
  * Calculate bearing from one GPS position to another
- * @param from Starting GPS position
- * @param to Target GPS position
- * @returns Bearing in degrees (0-360°, where 0° is north)
+ * 
+ * Calculates the initial bearing (forward azimuth) from the starting point
+ * to the destination point. The bearing is the angle between north and the
+ * direction to the target, measured clockwise.
+ * 
+ * Formula:
+ * y = sin(Δlng) × cos(lat2)
+ * x = cos(lat1) × sin(lat2) − sin(lat1) × cos(lat2) × cos(Δlng)
+ * bearing = atan2(y, x)
+ * 
+ * @param from Starting GPS position (observer location)
+ * @param to Target GPS position (destination)
+ * @returns Bearing in degrees (0-360°, where 0° = North, 90° = East, 180° = South, 270° = West)
+ * 
+ * @example
+ * const bearing = calculateBearing(
+ *   { lat: 40.7128, lng: -74.0060, accuracy: 10, timestamp: Date.now() },
+ *   { lat: 40.7580, lng: -73.9855, accuracy: 10, timestamp: Date.now() }
+ * );
+ * console.log(`Bearing: ${bearing.toFixed(0)}°`); // ~23° (NNE)
  */
 export function calculateBearing(from: GPSPosition, to: GPSPosition): number {
   const lat1 = (from.lat * Math.PI) / 180;
@@ -61,9 +115,24 @@ export function normalizeDistance(meters: number, maxDistance: number = 50): num
 
 /**
  * Spawn a ghost at a random position within radius of a hotspot
- * @param hotspotPosition Center position (hotspot)
- * @param spawnRadius Radius in meters (default: 50m)
- * @returns Random GPS position within radius
+ * 
+ * Generates a random GPS position within a circular area around the hotspot.
+ * Uses polar coordinates (angle + distance) for uniform distribution.
+ * 
+ * Conversion approximations:
+ * - 1° latitude ≈ 111km (constant)
+ * - 1° longitude ≈ 111km × cos(latitude) (varies by latitude)
+ * 
+ * @param hotspotPosition Center position (hotspot/player location)
+ * @param spawnRadius Maximum spawn radius in meters (default: 50m)
+ * @returns Random GPS position within the specified radius
+ * 
+ * @example
+ * const ghostPos = spawnGhostPosition(
+ *   { lat: 40.7128, lng: -74.0060, accuracy: 10, timestamp: Date.now() },
+ *   30 // Spawn within 30 meters
+ * );
+ * console.log(`Ghost spawned at: ${ghostPos.lat}, ${ghostPos.lng}`);
  */
 export function spawnGhostPosition(hotspotPosition: GPSPosition, spawnRadius: number = 50): GPSPosition {
   // Random angle (0-2π)
@@ -86,8 +155,28 @@ export function spawnGhostPosition(hotspotPosition: GPSPosition, spawnRadius: nu
 }
 
 /**
- * GPS position smoother to reduce jitter
- * Uses weighted moving average with more weight on recent positions
+ * GPS Position Smoother
+ * 
+ * Reduces GPS jitter by applying a weighted moving average to position history.
+ * More recent positions are weighted higher to maintain responsiveness while
+ * smoothing out noise.
+ * 
+ * Algorithm:
+ * - Maintains history of last 3 positions
+ * - Applies weights: [0.2, 0.3, 0.5] (most recent = highest weight)
+ * - Returns weighted average of lat/lng
+ * - Preserves worst-case accuracy from history
+ * 
+ * @example
+ * const smoother = new GPSSmoother();
+ * 
+ * // Add positions as they arrive
+ * const smoothed1 = smoother.addPosition(rawPosition1);
+ * const smoothed2 = smoother.addPosition(rawPosition2);
+ * const smoothed3 = smoother.addPosition(rawPosition3);
+ * 
+ * // Reset when needed
+ * smoother.reset();
  */
 export class GPSSmoother {
   private positions: GPSPosition[] = [];
