@@ -14,7 +14,7 @@ export function RadarCanvas({
   playerHeading = null,
   ghostBearing,
   compassAccuracy = 20,
-}: RadarCanvasProps = {}) {
+}: RadarCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animationRef = useRef<number>();
 

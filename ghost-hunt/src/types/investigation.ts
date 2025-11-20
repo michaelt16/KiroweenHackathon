@@ -1,7 +1,7 @@
 // Investigation mode types
 export type GhostType = 'Wraith' | 'Shade' | 'Poltergeist';
 
-export type InvestigationMode = 'investigating' | 'deducing' | 'ritual' | 'complete';
+export type InvestigationMode = 'investigating' | 'deducing' | 'ritual' | 'complete' | 'success' | 'failure';
 
 export type AnomalyType = 'emf' | 'cold' | 'whisper' | 'motion' | 'static' | 'silhouette';
 

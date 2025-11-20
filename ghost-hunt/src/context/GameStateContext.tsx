@@ -1,5 +1,5 @@
 // Game state context for player position, dev mode, and inventory
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import type { Position, InventoryItem, ToolType } from '../types/game';
 import { DEFAULT_POSITION } from '../data/mockData';
 

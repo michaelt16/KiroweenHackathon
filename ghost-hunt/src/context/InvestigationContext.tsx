@@ -1,5 +1,5 @@
 // Investigation state context
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type {
   GhostType,
   InvestigationState,

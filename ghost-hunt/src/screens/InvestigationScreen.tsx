@@ -21,10 +21,9 @@ const TOOL_ICONS: Record<string, string> = {
 function InvestigationContent() {
   const { hotspotId } = useParams<{ hotspotId: string }>();
   const navigate = useNavigate();
-  const { ghostType, sanity, mode, activeTool, suppliesForRun, initializeSupplies, initializeInvestigation, resetInvestigation } = useInvestigation();
+  const { ghostType, sanity, mode, activeTool, initializeSupplies, initializeInvestigation, resetInvestigation } = useInvestigation();
   const { supplies } = useSupplies();
   const [isFieldKitOpen, setIsFieldKitOpen] = useState(false);
-  const [initialFilm] = useState(supplies.film); // Track initial film for consumption
 
   // Initialize ghost behavior engine
   useGhostBehavior();
