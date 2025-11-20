@@ -4,7 +4,14 @@ This document tracks the major development milestones for the Ghost Hunt project
 
 ## Branch Structure
 
-### `003-investigation-mode-mvp` (Current)
+### `004-investigation-overworld-update` (Current)
+**In Progress**: Overworld Supplies System
+- Supply-based resource management
+- Film, Boosts, Charms, and Artifacts
+- Updated collection mechanics
+- Field Kit Prep inventory
+
+### `003-investigation-mode-mvp`
 **Completed**: Investigation Mode MVP
 - Full-screen radar interface with sweeping animation
 - Ghost behavior engine with 3 ghost types (Wraith, Shade, Poltergeist)
@@ -56,9 +63,16 @@ This document tracks the major development milestones for the Ghost Hunt project
 **Status**: Branch created (`003-investigation-mode-mvp`)
 **Features**: See above
 
-### 004 - [Next Milestone]
-**Status**: Upcoming
-**Planned Features**: TBD
+### 004 - Overworld Supplies Update
+**Status**: Branch created (`004-investigation-overworld-update`)
+**Planned Features**:
+- Replace tool collection with supply system
+- Film rolls for camera ammo
+- Scanner boosts for clarity
+- Charms for sanity resistance
+- Rare artifacts (optional)
+- Updated inventory UI (Field Kit Prep)
+- Supply-based resource management
 
 ---
 
