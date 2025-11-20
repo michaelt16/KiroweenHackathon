@@ -49,10 +49,13 @@ interface InvestigationContextType extends InvestigationState {
   
   // GPS/Compass state
   playerPosition: GPSPosition | null;
+  playerHeading: number | null; // 0-360° or null if no compass
   ghostGPSPosition: GPSPosition | null;
   ghostDistance: number; // Meters
   ghostBearing: number; // 0-360°
   gpsAccuracy: number; // Meters
+  compassAccuracy: number; // Degrees
+  hasOrientationPermission: boolean;
   
   setActiveTool: (tool: ToolId) => void;
   setGhostType: (type: GhostType) => void;
@@ -71,6 +74,10 @@ interface InvestigationContextType extends InvestigationState {
   // GPS methods
   updatePlayerPosition: (position: GPSPosition) => void;
   setGhostGPSPosition: (position: GPSPosition) => void;
+  
+  // Compass methods
+  updatePlayerHeading: (heading: number, accuracy: number) => void;
+  requestOrientationPermission: () => Promise<boolean>;
   
   resetInvestigation: () => void;
 }
@@ -117,10 +124,13 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
   
   // GPS/Compass state
   const [playerPosition, setPlayerPosition] = useState<GPSPosition | null>(null);
+  const [playerHeading, setPlayerHeading] = useState<number | null>(null);
   const [ghostGPSPosition, setGhostGPSPosition] = useState<GPSPosition | null>(null);
   const [ghostDistance, setGhostDistance] = useState<number>(0);
   const [ghostBearing, setGhostBearing] = useState<number>(0);
   const [gpsAccuracy, setGpsAccuracy] = useState<number>(0);
+  const [compassAccuracy, setCompassAccuracy] = useState<number>(20);
+  const [hasOrientationPermission, setHasOrientationPermission] = useState<boolean>(false);
 
   const setGhostType = useCallback((type: GhostType) => {
     console.log('👻 Ghost type set:', type);
@@ -329,6 +339,34 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     }
   }, [ghostGPSPosition]);
 
+  // Compass Methods
+  const updatePlayerHeading = useCallback((heading: number, accuracy: number) => {
+    console.log(`🧭 Player heading updated: ${heading.toFixed(0)}° (±${accuracy.toFixed(0)}°)`);
+    setPlayerHeading(heading);
+    setCompassAccuracy(accuracy);
+  }, []);
+
+  const requestOrientationPermission = useCallback(async (): Promise<boolean> => {
+    // iOS 13+ requires explicit permission
+    if (typeof DeviceOrientationEvent !== 'undefined' && 
+        typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        const permission = await (DeviceOrientationEvent as any).requestPermission();
+        const granted = permission === 'granted';
+        setHasOrientationPermission(granted);
+        console.log('🧭 Orientation permission:', permission);
+        return granted;
+      } catch (error) {
+        console.error('❌ Orientation permission error:', error);
+        return false;
+      }
+    } else {
+      // Android or older iOS - permission not required
+      setHasOrientationPermission(true);
+      return true;
+    }
+  }, []);
+
   const updateGhostGPSPosition = useCallback((position: GPSPosition) => {
     console.log('👻 Ghost GPS position set:', position);
     setGhostGPSPosition(position);
@@ -370,10 +408,13 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
         
         // GPS/Compass state
         playerPosition,
+        playerHeading,
         ghostGPSPosition,
         ghostDistance,
         ghostBearing,
         gpsAccuracy,
+        compassAccuracy,
+        hasOrientationPermission,
         
         setActiveTool,
         setGhostType,
@@ -392,6 +433,10 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
         // GPS methods
         updatePlayerPosition,
         setGhostGPSPosition: updateGhostGPSPosition,
+        
+        // Compass methods
+        updatePlayerHeading,
+        requestOrientationPermission,
         
         resetInvestigation,
       }}
