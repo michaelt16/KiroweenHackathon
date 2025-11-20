@@ -1,11 +1,14 @@
+/* Import Monochrome Green Color Palette */
+@import './styles/monochrome-green.css';
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Courier New', 'Courier', monospace;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  color-scheme: dark;
+  color: #00ff41;
+  background-color: #0a0e0f;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;

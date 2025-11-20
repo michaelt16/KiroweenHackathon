@@ -11,6 +11,7 @@ import { ManualRotationControls } from '../components/Investigation/ManualRotati
 import { DevModeControls } from '../components/Investigation/DevModeControls';
 import { DebugOverlay } from '../components/Investigation/DebugOverlay';
 import { LoadingOverlay } from '../components/Investigation/LoadingOverlay';
+import { CRTOverlay } from '../components/Effects/CRTOverlay';
 import { useGhostBehavior } from '../hooks/useGhostBehavior';
 import { useGPS } from '../hooks/useGPS';
 import { useCompass } from '../hooks/useCompass';
@@ -237,6 +238,14 @@ function InvestigationContent() {
         overflow: 'hidden',
       }}
     >
+      {/* CRT Overlay - Analog Horror Effects */}
+      <CRTOverlay 
+        intensity={0.6}
+        scanlineSpacing={3}
+        staticOpacity={0.08}
+        flickerEnabled={true}
+      />
+
       {/* Loading Overlay */}
       <LoadingOverlay
         isLoading={isLoading}
