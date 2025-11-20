@@ -1,0 +1,78 @@
+/* Tool bar styles */
+.tool-bar {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(30, 41, 59, 0.9);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.tool-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 60px;
+}
+
+.tool-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(45, 212, 191, 0.5);
+  transform: translateY(-2px);
+}
+
+.tool-button:active {
+  transform: translateY(0) scale(0.95);
+}
+
+.tool-button.active {
+  background: rgba(45, 212, 191, 0.2);
+  border-color: #2dd4bf;
+  box-shadow: 0 0 20px rgba(45, 212, 191, 0.4);
+}
+
+.tool-icon {
+  font-size: 24px;
+  filter: grayscale(0.5);
+  transition: filter 0.2s;
+}
+
+.tool-button.active .tool-icon {
+  filter: grayscale(0);
+  animation: toolPulse 2s ease-in-out infinite;
+}
+
+.tool-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tool-button.active .tool-name {
+  color: #2dd4bf;
+}
+
+@keyframes toolPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}

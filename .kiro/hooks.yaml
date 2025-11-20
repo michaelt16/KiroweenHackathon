@@ -1,0 +1,25 @@
+version: 1
+hooks:
+  - name: "Run tests on save"
+    trigger:
+      type: "file_saved"
+      pattern: "ghost-hunt/src/**/*.{ts,tsx}"
+    action:
+      type: "shell"
+      command: "cd ghost-hunt && npm test -- --run"
+    
+  - name: "Type check on save"
+    trigger:
+      type: "file_saved"
+      pattern: "ghost-hunt/src/**/*.{ts,tsx}"
+    action:
+      type: "shell"
+      command: "cd ghost-hunt && npm run tsc -- --noEmit"
+    
+  - name: "Lint on save"
+    trigger:
+      type: "file_saved"
+      pattern: "ghost-hunt/src/**/*.{ts,tsx}"
+    action:
+      type: "shell"
+      command: "cd ghost-hunt && npm run lint"
