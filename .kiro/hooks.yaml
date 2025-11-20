@@ -23,3 +23,29 @@ hooks:
     action:
       type: "shell"
       command: "cd ghost-hunt && npm run lint"
+  
+  - name: "Create milestone branch on new spec"
+    trigger:
+      type: "file_saved"
+      pattern: ".kiro/specs/*/design.md"
+    action:
+      type: "shell"
+      command: |
+        # Extract milestone number from path (e.g., 004-overworld-supplies-mvp)
+        SPEC_DIR=$(dirname "$KIRO_FILE_PATH")
+        MILESTONE=$(basename "$SPEC_DIR")
+        
+        # Check if branch already exists
+        if ! git rev-parse --verify "$MILESTONE" >/dev/null 2>&1; then
+          # Commit current changes
+          git add .
+          git commit -m "docs: Add design for milestone $MILESTONE" || true
+          
+          # Create and push new branch
+          git branch "$MILESTONE"
+          git push origin "$MILESTONE"
+          
+          echo "✅ Created and pushed branch: $MILESTONE"
+        else
+          echo "ℹ️ Branch $MILESTONE already exists"
+        fi
