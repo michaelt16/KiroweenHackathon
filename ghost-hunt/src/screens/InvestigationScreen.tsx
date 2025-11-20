@@ -2,11 +2,11 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { InvestigationProvider, useInvestigation } from '../context/InvestigationContext';
+import { useSupplies } from '../context/SuppliesContext';
 import { FieldScanner } from '../components/Investigation/FieldScanner';
 import { FieldKitDrawer } from '../components/Investigation/FieldKitDrawer';
 import { SanityBar } from '../components/Investigation/SanityBar';
-import { DeductionButton } from '../components/Investigation/DeductionButton';
-import { DeductionUI } from '../components/Investigation/DeductionUI';
+import { InvestigationResultOverlay } from '../components/Investigation/InvestigationResultOverlay';
 import { useGhostBehavior } from '../hooks/useGhostBehavior';
 
 // Tool icon mapping
@@ -21,11 +21,37 @@ const TOOL_ICONS: Record<string, string> = {
 function InvestigationContent() {
   const { hotspotId } = useParams<{ hotspotId: string }>();
   const navigate = useNavigate();
-  const { ghostType, sanity, mode, activeTool, resetInvestigation } = useInvestigation();
+  const { ghostType, sanity, mode, activeTool, suppliesForRun, initializeSupplies, initializeInvestigation, resetInvestigation } = useInvestigation();
+  const { supplies } = useSupplies();
   const [isFieldKitOpen, setIsFieldKitOpen] = useState(false);
+  const [initialFilm] = useState(supplies.film); // Track initial film for consumption
 
   // Initialize ghost behavior engine
   useGhostBehavior();
+
+  // Initialize investigation (randomize ghost type)
+  useEffect(() => {
+    console.log('🎲 Initializing investigation...');
+    initializeInvestigation();
+  }, [initializeInvestigation]); // Only run once on mount
+
+  // Initialize supplies for this investigation run
+  useEffect(() => {
+    console.log('📦 Initializing investigation with supplies:', supplies);
+    initializeSupplies({
+      film: supplies.film,
+      boosts: supplies.boosts,
+      charms: supplies.charms,
+    });
+    
+    // TODO (Spec 006+): Apply boosts to investigation
+    // - Scanner clarity enhancement
+    // - Anomaly signal strength
+    
+    // TODO (Spec 006+): Apply charms to investigation
+    // - Sanity drain resistance
+    // - Ghost aggression reduction
+  }, [initializeSupplies]); // Only run once on mount
 
   useEffect(() => {
     console.log('🔍 Investigation started for hotspot:', hotspotId);
@@ -62,13 +88,10 @@ function InvestigationContent() {
         activeToolIcon={TOOL_ICONS[activeTool]}
       />
 
-      {/* Deduction Button (only show in investigating mode) - TODO: Remove in Phase 5 */}
-      {mode === 'investigating' && <DeductionButton />}
+      {/* Investigation Result Overlay (shows on success/failure) */}
+      {(mode === 'success' || mode === 'failure') && <InvestigationResultOverlay />}
 
-      {/* Deduction UI (only show in deducing mode) - TODO: Replace with Codex flow in Phase 5 */}
-      {mode === 'deducing' && <DeductionUI />}
-
-      {/* Debug Info (top-left) */}
+      {/* Debug Info (top-left) - TODO: Remove or hide in production */}
       <div
         style={{
           position: 'absolute',

@@ -54,11 +54,14 @@ export function useGhostBehavior() {
   const {
     ghostType,
     setGhostPosition,
-    setSanity,
     addAnomaly,
+    applySanityImpact,
   } = useInvestigation();
 
-  // Task 8: Ghost Movement Loop
+  // TODO (Spec 006+): Ghost Movement Loop - Currently disabled for 005
+  // Ghost position is static for MVP v2 to allow consistent Radar/EMF testing
+  // Uncomment and adapt this code when implementing dynamic ghost movement
+  /*
   useEffect(() => {
     console.log('🚀 Ghost movement loop started for:', ghostType);
     const profile = GHOST_PROFILES[ghostType];
@@ -86,8 +89,16 @@ export function useGhostBehavior() {
       clearInterval(movementInterval);
     };
   }, [ghostType, setGhostPosition]);
+  */
 
-  // Task 9: Behavior Loop - Generate anomalies
+  // Set ghost to static position for 005
+  useEffect(() => {
+    console.log('👻 Setting ghost to static position for MVP v2');
+    // Fixed position: 45 degrees, medium distance
+    setGhostPosition({ angle: 45, distance: 0.6 });
+  }, [setGhostPosition]);
+
+  // Behavior Loop - Generate anomalies with sanity impacts
   useEffect(() => {
     const profile = GHOST_PROFILES[ghostType];
 
@@ -101,23 +112,40 @@ export function useGhostBehavior() {
         if (roll < cumulative) {
           const intensity = Math.random() * 0.5 + 0.5; // 0.5 to 1.0
           addAnomaly(anomalyType as AnomalyType, intensity);
+          
+          // Apply sanity impact based on anomaly type
+          switch (anomalyType) {
+            case 'whisper':
+              applySanityImpact('whisper', intensity * 2);
+              break;
+            case 'static':
+            case 'silhouette':
+              applySanityImpact('static', intensity * 3);
+              break;
+            case 'motion':
+              // Motion doesn't directly impact sanity
+              break;
+            default:
+              // Other anomalies have small impact
+              applySanityImpact('ambient', intensity);
+          }
+          
           break;
         }
       }
     }, 1500);
 
     return () => clearInterval(behaviorInterval);
-  }, [ghostType, addAnomaly]);
+  }, [ghostType, addAnomaly, applySanityImpact]);
 
-  // Task 10: Sanity System
+  // Ambient sanity drain - low frequency, small impact
+  // This creates constant tension without linear per-second drain
   useEffect(() => {
-    const profile = GHOST_PROFILES[ghostType];
+    const ambientInterval = setInterval(() => {
+      // Small ambient drain every 5 seconds
+      applySanityImpact('ambient', 0.5);
+    }, 5000);
 
-    const sanityInterval = setInterval(() => {
-      // Use functional update to avoid stale closure
-      setSanity((prevSanity) => prevSanity - profile.sanityDrain);
-    }, 1000);
-
-    return () => clearInterval(sanityInterval);
-  }, [ghostType, setSanity]);
+    return () => clearInterval(ambientInterval);
+  }, [applySanityImpact]);
 }

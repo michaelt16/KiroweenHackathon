@@ -1,13 +1,16 @@
 // Field Scanner - Main radar view component
 import { useState, useEffect } from 'react';
+import { useInvestigation } from '../../context/InvestigationContext';
 import { RadarCanvas } from '../Radar/RadarCanvas';
 import { GhostBlip } from '../Radar/GhostBlip';
 import { NoiseOverlay } from '../Radar/NoiseOverlay';
 import { EMFMeter } from '../Tools/EMFMeter';
 import { ThermalScanner } from '../Tools/ThermalScanner';
 import { AudioReceiver } from '../Tools/AudioReceiver';
+import { Camera } from '../Tools/Camera';
 
 export function FieldScanner() {
+  const { activeTool } = useInvestigation();
   const [radarSize, setRadarSize] = useState(0);
   const [sweepAngle, setSweepAngle] = useState(0);
 
@@ -28,19 +31,22 @@ export function FieldScanner() {
         zIndex: 1,
       }}
     >
-      {/* Radar Canvas */}
-      <RadarCanvas onSweepAngleChange={setSweepAngle} />
+      {/* Radar Canvas - Always visible for 'radar' tool */}
+      {activeTool === 'radar' && <RadarCanvas onSweepAngleChange={setSweepAngle} />}
+      
+      {/* Ghost Blip - Only show on radar tool */}
+      {activeTool === 'radar' && radarSize > 0 && (
+        <GhostBlip radarSize={radarSize} sweepAngle={sweepAngle} />
+      )}
 
-      {/* Ghost Blip */}
-      {radarSize > 0 && <GhostBlip radarSize={radarSize} sweepAngle={sweepAngle} />}
-
-      {/* Noise Overlay */}
+      {/* Noise Overlay - Always present */}
       <NoiseOverlay />
 
-      {/* Tool Effects - TODO: These will be controlled by activeTool in Phase 3 */}
-      <EMFMeter />
-      <ThermalScanner />
-      <AudioReceiver />
+      {/* Tool-specific displays */}
+      {activeTool === 'emf' && <EMFMeter />}
+      {activeTool === 'thermal' && <ThermalScanner />}
+      {activeTool === 'audio' && <AudioReceiver />}
+      {activeTool === 'camera' && <Camera />}
     </div>
   );
 }
