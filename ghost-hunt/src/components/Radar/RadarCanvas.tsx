@@ -9,6 +9,13 @@ interface RadarCanvasProps {
   compassAccuracy?: number; // Compass accuracy in degrees
 }
 
+// Helper function to get cardinal direction from heading
+function getCardinalDirection(heading: number): string {
+  const directions = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+  const index = Math.round(heading / 22.5) % 16;
+  return directions[index];
+}
+
 export function RadarCanvas({
   onSweepAngleChange,
   playerHeading = null,
@@ -111,47 +118,119 @@ export function RadarCanvas({
 
       ctx.restore();
 
-      // Draw north indicator (rotates opposite to heading)
+      // Draw compass rose (cardinal directions)
       ctx.save();
       if (playerHeading !== null) {
-        // North indicator stays fixed to true north
+        // Compass rose stays fixed to true directions
         const northAngle = (playerHeading * Math.PI) / 180;
         ctx.rotate(northAngle);
       }
 
-      // North marker
-      ctx.fillStyle = '#ef4444';
-      ctx.font = 'bold 16px monospace';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText('N', 0, -maxRadius - 25);
+      const directions = [
+        { label: 'N', angle: 0, color: '#ef4444' },
+        { label: 'E', angle: Math.PI / 2, color: '#94a3b8' },
+        { label: 'S', angle: Math.PI, color: '#94a3b8' },
+        { label: 'W', angle: (3 * Math.PI) / 2, color: '#94a3b8' },
+      ];
 
-      // North arrow
-      ctx.strokeStyle = '#ef4444';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(0, -maxRadius - 15);
-      ctx.lineTo(-5, -maxRadius - 10);
-      ctx.moveTo(0, -maxRadius - 15);
-      ctx.lineTo(5, -maxRadius - 10);
-      ctx.stroke();
+      directions.forEach(({ label, angle, color }) => {
+        ctx.save();
+        ctx.rotate(angle);
+
+        // Direction label
+        ctx.fillStyle = color;
+        ctx.font = label === 'N' ? 'bold 20px monospace' : 'bold 16px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(label, 0, -maxRadius - 30);
+
+        // Direction tick mark
+        ctx.strokeStyle = color;
+        ctx.lineWidth = label === 'N' ? 3 : 2;
+        ctx.beginPath();
+        ctx.moveTo(0, -maxRadius - 10);
+        ctx.lineTo(0, -maxRadius - 18);
+        ctx.stroke();
+
+        ctx.restore();
+      });
+
+      // Draw degree markings every 30°
+      for (let i = 0; i < 12; i++) {
+        const angle = (i * Math.PI) / 6; // 30° increments
+        // Skip cardinal directions (already drawn)
+        if (i % 3 !== 0) {
+          ctx.save();
+          ctx.rotate(angle);
+
+          // Small tick mark
+          ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(0, -maxRadius - 5);
+          ctx.lineTo(0, -maxRadius - 12);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+      }
 
       ctx.restore();
 
       ctx.restore(); // Restore main rotation
 
+      // Draw forward direction indicator (always points up - your heading)
+      if (playerHeading !== null) {
+        ctx.save();
+        ctx.translate(centerX, centerY);
+
+        // Forward arrow/chevron
+        ctx.strokeStyle = '#2dd4bf';
+        ctx.fillStyle = 'rgba(45, 212, 191, 0.3)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(0, -maxRadius + 15);
+        ctx.lineTo(-8, -maxRadius + 25);
+        ctx.lineTo(0, -maxRadius + 20);
+        ctx.lineTo(8, -maxRadius + 25);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+
+        // Forward line
+        ctx.strokeStyle = 'rgba(45, 212, 191, 0.5)';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.beginPath();
+        ctx.moveTo(0, -maxRadius + 30);
+        ctx.lineTo(0, -30);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.restore();
+      }
+
       // Draw center player marker (always centered, not rotated)
       ctx.fillStyle = '#2dd4bf';
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
       ctx.fill();
 
       // Outer glow
-      ctx.strokeStyle = 'rgba(45, 212, 191, 0.5)';
+      ctx.strokeStyle = 'rgba(45, 212, 191, 0.8)';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
       ctx.stroke();
+
+      // Player direction indicator (small triangle pointing up)
+      ctx.fillStyle = '#2dd4bf';
+      ctx.beginPath();
+      ctx.moveTo(centerX, centerY - 15);
+      ctx.lineTo(centerX - 6, centerY - 8);
+      ctx.lineTo(centerX + 6, centerY - 8);
+      ctx.closePath();
+      ctx.fill();
 
       // Update sweep angle
       sweepAngle += 0.02;
@@ -186,22 +265,26 @@ export function RadarCanvas({
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: 'rgba(11, 15, 26, 0.8)',
-            border: '1px solid rgba(45, 212, 191, 0.3)',
-            borderRadius: '8px',
-            padding: '8px 16px',
+            background: 'rgba(11, 15, 26, 0.9)',
+            border: '2px solid rgba(45, 212, 191, 0.5)',
+            borderRadius: '12px',
+            padding: '12px 20px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
             zIndex: 10,
+            boxShadow: '0 0 20px rgba(45, 212, 191, 0.3)',
           }}
         >
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Heading
+          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            🧭 Heading
           </div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#2dd4bf' }}>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2dd4bf', fontFamily: 'monospace' }}>
             {Math.round(playerHeading)}°
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b' }}>
+            {getCardinalDirection(playerHeading)}
           </div>
         </div>
       )}
@@ -213,22 +296,26 @@ export function RadarCanvas({
             position: 'absolute',
             top: '20px',
             right: '20px',
-            background: 'rgba(11, 15, 26, 0.8)',
-            border: '1px solid rgba(239, 68, 68, 0.3)',
-            borderRadius: '8px',
-            padding: '8px 16px',
+            background: 'rgba(11, 15, 26, 0.9)',
+            border: '2px solid rgba(239, 68, 68, 0.5)',
+            borderRadius: '12px',
+            padding: '12px 20px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
             zIndex: 10,
+            boxShadow: '0 0 20px rgba(239, 68, 68, 0.3)',
           }}
         >
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase' }}>
-            Target
+          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            👻 Target
           </div>
-          <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#ef4444' }}>
+          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444', fontFamily: 'monospace' }}>
             {Math.round(ghostBearing)}°
+          </div>
+          <div style={{ fontSize: '11px', color: '#64748b' }}>
+            {getCardinalDirection(ghostBearing)}
           </div>
         </div>
       )}
