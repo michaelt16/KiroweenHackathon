@@ -5,14 +5,16 @@ export type Position = {
   lng: number;
 };
 
-export type ToolType = 'EMF' | 'SpiritBox' | 'ThermalCam' | 'Salt';
-export type Rarity = 'Common' | 'Rare' | 'Epic';
+// Supply system types
+export type SupplyType = 'film' | 'boost' | 'charm';
+export type Rarity = 'common' | 'uncommon' | 'rare';
 
-export type ToolNode = {
+export type SupplyNode = {
   id: string;
   lat: number;
   lng: number;
-  type: ToolType;
+  type: SupplyType;
+  amount: number;
   rarity: Rarity;
 };
 
@@ -22,9 +24,4 @@ export type Hotspot = {
   lng: number;
   name: string;
   status: 'locked' | 'unlocked';
-};
-
-export type InventoryItem = {
-  type: ToolType;
-  quantity: number;
 };

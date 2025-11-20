@@ -1,99 +1,62 @@
 // Mock data as per design spec
-import type { Position, ToolNode, Hotspot } from '../types/game';
+import type { Position, SupplyNode, Hotspot, SupplyType } from '../types/game';
 
 // Default starting position (San Francisco)
 export const DEFAULT_POSITION: Position = { lat: 37.7749, lng: -122.4194 };
 
-// Example tool nodes scattered around starting position
-export const MOCK_TOOL_NODES: ToolNode[] = [
-  // Close to player
-  {
-    id: 'tool-1',
-    lat: 37.7750,
-    lng: -122.4190,
-    type: 'EMF',
-    rarity: 'Common',
-  },
-  {
-    id: 'tool-2',
-    lat: 37.7745,
-    lng: -122.4200,
-    type: 'SpiritBox',
-    rarity: 'Rare',
-  },
-  {
-    id: 'tool-3',
-    lat: 37.7755,
-    lng: -122.4185,
-    type: 'ThermalCam',
-    rarity: 'Epic',
-  },
-  {
-    id: 'tool-4',
-    lat: 37.7740,
-    lng: -122.4195,
-    type: 'Salt',
-    rarity: 'Common',
-  },
-  // More scattered around
-  {
-    id: 'tool-5',
-    lat: 37.7752,
-    lng: -122.4198,
-    type: 'EMF',
-    rarity: 'Common',
-  },
-  {
-    id: 'tool-6',
-    lat: 37.7747,
-    lng: -122.4188,
-    type: 'ThermalCam',
-    rarity: 'Rare',
-  },
-  {
-    id: 'tool-7',
-    lat: 37.7758,
-    lng: -122.4192,
-    type: 'Salt',
-    rarity: 'Common',
-  },
-  {
-    id: 'tool-8',
-    lat: 37.7742,
-    lng: -122.4202,
-    type: 'SpiritBox',
-    rarity: 'Epic',
-  },
-  // Further out
-  {
-    id: 'tool-9',
-    lat: 37.7765,
-    lng: -122.4175,
-    type: 'EMF',
-    rarity: 'Rare',
-  },
-  {
-    id: 'tool-10',
-    lat: 37.7738,
-    lng: -122.4208,
-    type: 'ThermalCam',
-    rarity: 'Epic',
-  },
-  {
-    id: 'tool-11',
-    lat: 37.7754,
-    lng: -122.4178,
-    type: 'Salt',
-    rarity: 'Common',
-  },
-  {
-    id: 'tool-12',
-    lat: 37.7744,
-    lng: -122.4212,
-    type: 'SpiritBox',
-    rarity: 'Rare',
-  },
-];
+// Supply amounts by type
+const SUPPLY_AMOUNTS = {
+  film: () => Math.floor(Math.random() * 3) + 3, // 3-5
+  boost: () => 1,
+  charm: () => 1,
+};
+
+// Generate supply nodes (60% film, 20% boost, 20% charm)
+const generateSupplyNodes = (): SupplyNode[] => {
+  const positions = [
+    { lat: 37.7750, lng: -122.4190 },
+    { lat: 37.7745, lng: -122.4200 },
+    { lat: 37.7755, lng: -122.4185 },
+    { lat: 37.7740, lng: -122.4195 },
+    { lat: 37.7752, lng: -122.4198 },
+    { lat: 37.7747, lng: -122.4188 },
+    { lat: 37.7758, lng: -122.4192 },
+    { lat: 37.7742, lng: -122.4202 },
+    { lat: 37.7765, lng: -122.4175 },
+    { lat: 37.7738, lng: -122.4208 },
+    { lat: 37.7754, lng: -122.4178 },
+    { lat: 37.7744, lng: -122.4212 },
+  ];
+
+  return positions.map((pos, index) => {
+    // Distribution: 60% film, 20% boost, 20% charm
+    const roll = Math.random();
+    let type: SupplyType;
+    let rarity: 'common' | 'uncommon';
+
+    if (roll < 0.6) {
+      type = 'film';
+      rarity = 'common';
+    } else if (roll < 0.8) {
+      type = 'boost';
+      rarity = 'uncommon';
+    } else {
+      type = 'charm';
+      rarity = 'uncommon';
+    }
+
+    return {
+      id: `supply-${index + 1}`,
+      lat: pos.lat,
+      lng: pos.lng,
+      type,
+      amount: SUPPLY_AMOUNTS[type](),
+      rarity,
+    };
+  });
+};
+
+export const MOCK_SUPPLY_NODES: SupplyNode[] = generateSupplyNodes();
 
 // Example hotspots
 export const MOCK_HOTSPOTS: Hotspot[] = [

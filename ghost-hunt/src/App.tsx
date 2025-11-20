@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { GameStateProvider } from './context/GameStateContext';
 import { MapDataProvider } from './context/MapDataContext';
+import { SuppliesProvider } from './context/SuppliesContext';
 import { MapRootScreen } from './screens/MapRootScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { CodexScreen } from './screens/CodexScreen';
@@ -54,40 +55,42 @@ function ScreenLayout({ children }: { children: React.ReactNode }) {
 function App() {
   return (
     <BrowserRouter>
-      <GameStateProvider>
-        <MapDataProvider>
-          <div className="app">
-            <Routes>
-              <Route path="/" element={<MapLayout />} />
-              <Route
-                path="/inventory"
-                element={
-                  <ScreenLayout>
-                    <InventoryScreen />
-                  </ScreenLayout>
-                }
-              />
-              <Route
-                path="/codex"
-                element={
-                  <ScreenLayout>
-                    <CodexScreen />
-                  </ScreenLayout>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ScreenLayout>
-                    <ProfilePanel />
-                  </ScreenLayout>
-                }
-              />
-              <Route path="/investigate/:hotspotId" element={<InvestigationScreen />} />
-            </Routes>
-          </div>
-        </MapDataProvider>
-      </GameStateProvider>
+      <SuppliesProvider>
+        <GameStateProvider>
+          <MapDataProvider>
+            <div className="app">
+              <Routes>
+                <Route path="/" element={<MapLayout />} />
+                <Route
+                  path="/inventory"
+                  element={
+                    <ScreenLayout>
+                      <InventoryScreen />
+                    </ScreenLayout>
+                  }
+                />
+                <Route
+                  path="/codex"
+                  element={
+                    <ScreenLayout>
+                      <CodexScreen />
+                    </ScreenLayout>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ScreenLayout>
+                      <ProfilePanel />
+                    </ScreenLayout>
+                  }
+                />
+                <Route path="/investigate/:hotspotId" element={<InvestigationScreen />} />
+              </Routes>
+            </div>
+          </MapDataProvider>
+        </GameStateProvider>
+      </SuppliesProvider>
     </BrowserRouter>
   );
 }

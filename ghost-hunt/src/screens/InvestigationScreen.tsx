@@ -1,36 +1,61 @@
-// Investigation Mode Screen - Radar-based ghost hunting
+// Investigation Mode Screen - Field Scanner + Field Kit
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { InvestigationProvider, useInvestigation } from '../context/InvestigationContext';
-import { RadarCanvas } from '../components/Radar/RadarCanvas';
-import { GhostBlip } from '../components/Radar/GhostBlip';
-import { NoiseOverlay } from '../components/Radar/NoiseOverlay';
-import { ToolBar } from '../components/Tools/ToolBar';
-import { EMFMeter } from '../components/Tools/EMFMeter';
-import { ThermalScanner } from '../components/Tools/ThermalScanner';
-import { AudioReceiver } from '../components/Tools/AudioReceiver';
+import { useSupplies } from '../context/SuppliesContext';
+import { FieldScanner } from '../components/Investigation/FieldScanner';
+import { FieldKitDrawer } from '../components/Investigation/FieldKitDrawer';
 import { SanityBar } from '../components/Investigation/SanityBar';
-import { DeductionButton } from '../components/Investigation/DeductionButton';
-import { DeductionUI } from '../components/Investigation/DeductionUI';
+import { InvestigationResultOverlay } from '../components/Investigation/InvestigationResultOverlay';
 import { useGhostBehavior } from '../hooks/useGhostBehavior';
+
+// Tool icon mapping
+const TOOL_ICONS: Record<string, string> = {
+  radar: '📡',
+  emf: '📊',
+  thermal: '🌡️',
+  audio: '📻',
+  camera: '📷',
+};
 
 function InvestigationContent() {
   const { hotspotId } = useParams<{ hotspotId: string }>();
   const navigate = useNavigate();
-  const { ghostType, sanity, mode, resetInvestigation } = useInvestigation();
-  const [radarSize, setRadarSize] = useState(0);
-  const [sweepAngle, setSweepAngle] = useState(0);
+  const { ghostType, sanity, mode, activeTool, suppliesForRun, initializeSupplies, initializeInvestigation, resetInvestigation } = useInvestigation();
+  const { supplies } = useSupplies();
+  const [isFieldKitOpen, setIsFieldKitOpen] = useState(false);
+  const [initialFilm] = useState(supplies.film); // Track initial film for consumption
 
   // Initialize ghost behavior engine
   useGhostBehavior();
 
+  // Initialize investigation (randomize ghost type)
+  useEffect(() => {
+    console.log('🎲 Initializing investigation...');
+    initializeInvestigation();
+  }, [initializeInvestigation]); // Only run once on mount
+
+  // Initialize supplies for this investigation run
+  useEffect(() => {
+    console.log('📦 Initializing investigation with supplies:', supplies);
+    initializeSupplies({
+      film: supplies.film,
+      boosts: supplies.boosts,
+      charms: supplies.charms,
+    });
+    
+    // TODO (Spec 006+): Apply boosts to investigation
+    // - Scanner clarity enhancement
+    // - Anomaly signal strength
+    
+    // TODO (Spec 006+): Apply charms to investigation
+    // - Sanity drain resistance
+    // - Ghost aggression reduction
+  }, [initializeSupplies]); // Only run once on mount
+
   useEffect(() => {
     console.log('🔍 Investigation started for hotspot:', hotspotId);
     console.log('👻 Ghost type:', ghostType);
-    
-    // Calculate radar size
-    const size = Math.min(window.innerWidth, window.innerHeight);
-    setRadarSize(size);
   }, [hotspotId, ghostType]);
 
   const handleExit = () => {
@@ -50,33 +75,23 @@ function InvestigationContent() {
         overflow: 'hidden',
       }}
     >
-      {/* Radar Canvas */}
-      <RadarCanvas onSweepAngleChange={setSweepAngle} />
-
-      {/* Ghost Blip */}
-      {radarSize > 0 && <GhostBlip radarSize={radarSize} sweepAngle={sweepAngle} />}
-
-      {/* Noise Overlay */}
-      <NoiseOverlay />
-
-      {/* Tool Effects */}
-      <EMFMeter />
-      <ThermalScanner />
-      <AudioReceiver />
+      {/* Field Scanner (Main Radar View) */}
+      <FieldScanner />
 
       {/* Sanity Bar */}
       <SanityBar />
 
-      {/* Deduction Button (only show in investigating mode) */}
-      {mode === 'investigating' && <DeductionButton />}
+      {/* Field Kit Drawer */}
+      <FieldKitDrawer
+        isOpen={isFieldKitOpen}
+        onClose={() => setIsFieldKitOpen(!isFieldKitOpen)}
+        activeToolIcon={TOOL_ICONS[activeTool]}
+      />
 
-      {/* Deduction UI (only show in deducing mode) */}
-      {mode === 'deducing' && <DeductionUI />}
+      {/* Investigation Result Overlay (shows on success/failure) */}
+      {(mode === 'success' || mode === 'failure') && <InvestigationResultOverlay />}
 
-      {/* Tool Bar */}
-      <ToolBar />
-
-      {/* Debug Info (top-left) */}
+      {/* Debug Info (top-left) - TODO: Remove or hide in production */}
       <div
         style={{
           position: 'absolute',

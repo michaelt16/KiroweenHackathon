@@ -8,14 +8,55 @@ import type {
   AnomalyType,
   InvestigationMode,
 } from '../types/investigation';
+import type { TraitState, EvidenceTrait } from '../data/ghosts';
+
+type ToolId = 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
+
+// Supplies available for this investigation run
+export interface SuppliesForRun {
+  film: number;
+  boosts: number;
+  charms: number;
+}
+
+// Photo captured during investigation
+export interface Photo {
+  id: string;
+  timestamp: number;
+  status: 'developing' | 'ready';
+  quality: 'none' | 'faint' | 'strong';
+  ghostDistance: number; // Distance when photo was taken
+}
+
+// Evidence state for manual logging
+export type EvidenceState = Record<EvidenceTrait, TraitState>;
+
+// Sanity impact event types
+export type SanityImpactType = 
+  | 'whisper'
+  | 'static'
+  | 'manifestation'
+  | 'proximity'
+  | 'ambient';
 
 interface InvestigationContextType extends InvestigationState {
+  activeTool: ToolId;
+  suppliesForRun: SuppliesForRun;
+  photos: Photo[];
+  evidence: EvidenceState;
+  setActiveTool: (tool: ToolId) => void;
   setGhostType: (type: GhostType) => void;
   setGhostPosition: (positionOrUpdater: GhostPosition | ((prev: GhostPosition) => GhostPosition)) => void;
   setSanity: (sanityOrUpdater: number | ((prev: number) => number)) => void;
+  applySanityImpact: (type: SanityImpactType, magnitude?: number) => void;
   addAnomaly: (type: AnomalyType, intensity: number) => void;
   toggleTool: (tool: keyof InvestigationState['toolsEnabled']) => void;
   setMode: (mode: InvestigationMode) => void;
+  takePhoto: () => boolean;
+  initializeSupplies: (supplies: SuppliesForRun) => void;
+  initializeInvestigation: () => void;
+  setEvidenceTrait: (trait: EvidenceTrait, state: TraitState) => void;
+  completeInvestigation: (selectedGhostId: GhostType) => void;
   resetInvestigation: () => void;
 }
 
@@ -38,8 +79,26 @@ const INITIAL_STATE: InvestigationState = {
   mode: 'investigating',
 };
 
+const INITIAL_EVIDENCE: EvidenceState = {
+  emf: 'unknown',
+  whispers: 'unknown',
+  cold: 'unknown',
+  static: 'unknown',
+  photos: 'unknown',
+  sanityBehavior: 'unknown',
+  movement: 'unknown',
+};
+
 export function InvestigationProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<InvestigationState>(INITIAL_STATE);
+  const [activeTool, setActiveToolState] = useState<ToolId>('radar');
+  const [suppliesForRun, setSuppliesForRun] = useState<SuppliesForRun>({
+    film: 0,
+    boosts: 0,
+    charms: 0,
+  });
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [evidence, setEvidence] = useState<EvidenceState>(INITIAL_EVIDENCE);
 
   const setGhostType = useCallback((type: GhostType) => {
     console.log('👻 Ghost type set:', type);
@@ -61,9 +120,37 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
       const newSanity = typeof sanityOrUpdater === 'function' 
         ? sanityOrUpdater(prev.sanity)
         : sanityOrUpdater;
-      return { ...prev, sanity: Math.max(0, Math.min(100, newSanity)) };
+      const clampedSanity = Math.max(0, Math.min(100, newSanity));
+      
+      // Check for sanity reaching 0 (hard fail)
+      if (clampedSanity === 0 && prev.sanity > 0) {
+        console.log('💀 Sanity reached 0 - Investigation failed');
+        // Trigger failure mode
+        setTimeout(() => {
+          setState((current) => ({ ...current, mode: 'failure' }));
+        }, 100);
+      }
+      
+      return { ...prev, sanity: clampedSanity };
     });
   }, []);
+
+  const applySanityImpact = useCallback((type: SanityImpactType, magnitude?: number) => {
+    // Default magnitudes for different event types
+    const defaultMagnitudes: Record<SanityImpactType, number> = {
+      whisper: 2,        // Small impact from audio
+      static: 3,         // Medium impact from visual distortion
+      manifestation: 5,  // Large impact from strong photo/visual
+      proximity: 4,      // Medium-high impact from being close
+      ambient: 0.5,      // Very small ambient drain
+    };
+
+    const impact = magnitude ?? defaultMagnitudes[type];
+    
+    console.log(`😰 Sanity impact: ${type} (-${impact})`);
+    
+    setSanity((prev) => prev - impact);
+  }, [setSanity]);
 
   const addAnomaly = useCallback((type: AnomalyType, intensity: number) => {
     const anomaly: Anomaly = {
@@ -95,21 +182,143 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     setState((prev) => ({ ...prev, mode }));
   }, []);
 
+  const setActiveTool = useCallback((tool: ToolId) => {
+    console.log('🔧 Active tool changed:', tool);
+    setActiveToolState(tool);
+  }, []);
+
+  const initializeSupplies = useCallback((supplies: SuppliesForRun) => {
+    console.log('📦 Initializing investigation supplies:', supplies);
+    setSuppliesForRun(supplies);
+  }, []);
+
+  const takePhoto = useCallback((): boolean => {
+    if (suppliesForRun.film <= 0) {
+      console.warn('📸 No film available');
+      return false;
+    }
+
+    // Decrement film in local run supplies
+    setSuppliesForRun((prev) => ({
+      ...prev,
+      film: prev.film - 1,
+    }));
+    
+    // Note: Global supplies will be consumed via useSupplies().consumeFilm() 
+    // in the InvestigationScreen component
+
+    // Create new photo with developing status
+    const photoId = `photo-${Date.now()}`;
+    const newPhoto: Photo = {
+      id: photoId,
+      timestamp: Date.now(),
+      status: 'developing',
+      quality: 'none',
+      ghostDistance: state.ghostPosition.distance,
+    };
+
+    setPhotos((prev) => [...prev, newPhoto]);
+    console.log('📸 Photo taken:', photoId, 'Film remaining:', suppliesForRun.film - 1);
+
+    // Start 7-second development timer
+    setTimeout(() => {
+      setPhotos((prev) =>
+        prev.map((photo) => {
+          if (photo.id === photoId) {
+            // Determine quality based on ghost distance when photo was taken
+            // Closer = better chance of strong manifestation
+            const distance = photo.ghostDistance;
+            let quality: Photo['quality'] = 'none';
+
+            const roll = Math.random();
+            if (distance < 0.3) {
+              // Very close: 60% strong, 30% faint, 10% none
+              quality = roll < 0.6 ? 'strong' : roll < 0.9 ? 'faint' : 'none';
+            } else if (distance < 0.6) {
+              // Medium: 20% strong, 50% faint, 30% none
+              quality = roll < 0.2 ? 'strong' : roll < 0.7 ? 'faint' : 'none';
+            } else {
+              // Far: 5% strong, 25% faint, 70% none
+              quality = roll < 0.05 ? 'strong' : roll < 0.3 ? 'faint' : 'none';
+            }
+
+            console.log(`📷 Photo ${photoId} developed: ${quality}`);
+            
+            // Apply sanity impact based on photo quality
+            if (quality === 'strong') {
+              applySanityImpact('manifestation', 5);
+            } else if (quality === 'faint') {
+              applySanityImpact('manifestation', 2);
+            }
+            
+            return { ...photo, status: 'ready', quality };
+          }
+          return photo;
+        })
+      );
+    }, 7000);
+
+    return true;
+  }, [suppliesForRun.film, state.ghostPosition.distance, applySanityImpact]);
+
+  const setEvidenceTrait = useCallback((trait: EvidenceTrait, newState: TraitState) => {
+    console.log(`📋 Evidence updated: ${trait} = ${newState}`);
+    setEvidence((prev) => ({
+      ...prev,
+      [trait]: newState,
+    }));
+  }, []);
+
+  const completeInvestigation = useCallback((selectedGhostId: GhostType) => {
+    console.log('🎯 Investigation completed. Selected:', selectedGhostId, 'Actual:', state.ghostType);
+    const isCorrect = selectedGhostId === state.ghostType;
+    
+    // Set mode to show result
+    setState((prev) => ({
+      ...prev,
+      mode: isCorrect ? 'success' : 'failure',
+    }));
+  }, [state.ghostType]);
+
+  const initializeInvestigation = useCallback(() => {
+    // Randomize ghost type
+    const ghostTypes: GhostType[] = ['Wraith', 'Shade', 'Poltergeist'];
+    const randomGhost = ghostTypes[Math.floor(Math.random() * ghostTypes.length)];
+    
+    console.log('🎲 Randomized ghost type:', randomGhost);
+    setGhostType(randomGhost);
+  }, [setGhostType]);
+
   const resetInvestigation = useCallback(() => {
     console.log('🔄 Investigation reset');
     setState(INITIAL_STATE);
+    setActiveToolState('radar');
+    setSuppliesForRun({ film: 0, boosts: 0, charms: 0 });
+    setPhotos([]);
+    setEvidence(INITIAL_EVIDENCE);
   }, []);
 
   return (
     <InvestigationContext.Provider
       value={{
         ...state,
+        activeTool,
+        suppliesForRun,
+        photos,
+        evidence,
+        setActiveTool,
         setGhostType,
         setGhostPosition,
         setSanity,
+        applySanityImpact,
         addAnomaly,
         toggleTool,
         setMode,
+        takePhoto,
+        initializeSupplies,
+        initializeInvestigation,
+        setEvidenceTrait,
+        completeInvestigation,
         resetInvestigation,
       }}
     >
