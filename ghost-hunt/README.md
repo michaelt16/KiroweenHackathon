@@ -49,6 +49,32 @@ npm run dev
 npm run build
 ```
 
+### Deploy to Vercel
+
+This project is configured for Vercel deployment:
+
+1. **Push to GitHub** (already connected)
+2. **Import in Vercel**:
+   - Go to [vercel.com](https://vercel.com)
+   - Click "Add New Project"
+   - Select your GitHub repository
+   - Vercel will auto-detect the Vite framework
+   - Click "Deploy"
+
+3. **Project Settings** (auto-configured via `vercel.json`):
+   - Framework: Vite
+   - Build Command: `npm run build`
+   - Output Directory: `dist`
+   - Root Directory: `ghost-hunt`
+
+4. **Environment Variables** (if needed):
+   - None required for MVP
+
+**Important for Mobile Testing:**
+- The compass/GPS features require HTTPS (Vercel provides this automatically)
+- Test on a real mobile device, not desktop browser
+- Grant location and orientation permissions when prompted
+
 ## Features (Task 1 Complete)
 
 ✅ Project initialized with Vite + React + TypeScript

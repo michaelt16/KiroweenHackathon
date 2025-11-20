@@ -25,3 +25,20 @@ export type Hotspot = {
   name: string;
   status: 'locked' | 'unlocked';
 };
+
+// Legacy types for backward compatibility
+export type ToolType = 'emf' | 'thermal' | 'audio' | 'camera' | 'radar';
+
+export type ToolNode = {
+  id: string;
+  lat: number;
+  lng: number;
+  type: ToolType; // Changed from 'tool' to 'type' to match usage
+  rarity: Rarity; // Added rarity field
+};
+
+export type InventoryItem = {
+  id: string;
+  type: ToolType | SupplyType;
+  quantity: number;
+};

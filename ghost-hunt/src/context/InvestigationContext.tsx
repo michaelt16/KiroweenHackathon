@@ -1,5 +1,5 @@
 // Investigation state context
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import type {
   GhostType,
   InvestigationState,
@@ -9,6 +9,8 @@ import type {
   InvestigationMode,
 } from '../types/investigation';
 import type { TraitState, EvidenceTrait } from '../data/ghosts';
+import type { GPSPosition } from '../utils/gps';
+import { haversineDistance, calculateBearing } from '../utils/gps';
 
 type ToolId = 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
 
@@ -44,6 +46,17 @@ interface InvestigationContextType extends InvestigationState {
   suppliesForRun: SuppliesForRun;
   photos: Photo[];
   evidence: EvidenceState;
+  
+  // GPS/Compass state
+  playerPosition: GPSPosition | null;
+  playerHeading: number | null; // 0-360° or null if no compass
+  ghostGPSPosition: GPSPosition | null;
+  ghostDistance: number; // Meters
+  ghostBearing: number; // 0-360°
+  gpsAccuracy: number; // Meters
+  compassAccuracy: number; // Degrees
+  hasOrientationPermission: boolean;
+  
   setActiveTool: (tool: ToolId) => void;
   setGhostType: (type: GhostType) => void;
   setGhostPosition: (positionOrUpdater: GhostPosition | ((prev: GhostPosition) => GhostPosition)) => void;
@@ -57,6 +70,15 @@ interface InvestigationContextType extends InvestigationState {
   initializeInvestigation: () => void;
   setEvidenceTrait: (trait: EvidenceTrait, state: TraitState) => void;
   completeInvestigation: (selectedGhostId: GhostType) => void;
+  
+  // GPS methods
+  updatePlayerPosition: (position: GPSPosition) => void;
+  setGhostGPSPosition: (position: GPSPosition) => void;
+  
+  // Compass methods
+  updatePlayerHeading: (heading: number, accuracy: number) => void;
+  requestOrientationPermission: () => Promise<boolean>;
+  
   resetInvestigation: () => void;
 }
 
@@ -99,6 +121,16 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
   });
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [evidence, setEvidence] = useState<EvidenceState>(INITIAL_EVIDENCE);
+  
+  // GPS/Compass state
+  const [playerPosition, setPlayerPosition] = useState<GPSPosition | null>(null);
+  const [playerHeading, setPlayerHeading] = useState<number | null>(null);
+  const [ghostGPSPosition, setGhostGPSPosition] = useState<GPSPosition | null>(null);
+  const [ghostDistance, setGhostDistance] = useState<number>(0);
+  const [ghostBearing, setGhostBearing] = useState<number>(0);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number>(0);
+  const [compassAccuracy, setCompassAccuracy] = useState<number>(20);
+  const [hasOrientationPermission, setHasOrientationPermission] = useState<boolean>(false);
 
   const setGhostType = useCallback((type: GhostType) => {
     console.log('👻 Ghost type set:', type);
@@ -289,6 +321,66 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     setGhostType(randomGhost);
   }, [setGhostType]);
 
+  // GPS Methods
+  const updatePlayerPosition = useCallback((position: GPSPosition) => {
+    console.log('📍 Player position updated:', position);
+    setPlayerPosition(position);
+    setGpsAccuracy(position.accuracy);
+    
+    // Recalculate distance and bearing if ghost position exists
+    if (ghostGPSPosition) {
+      const distance = haversineDistance(position, ghostGPSPosition);
+      const bearing = calculateBearing(position, ghostGPSPosition);
+      
+      console.log(`📏 Distance: ${distance.toFixed(1)}m, Bearing: ${bearing.toFixed(0)}°`);
+      
+      setGhostDistance(distance);
+      setGhostBearing(bearing);
+    }
+  }, [ghostGPSPosition]);
+
+  // Compass Methods
+  const updatePlayerHeading = useCallback((heading: number, accuracy: number) => {
+    console.log(`🧭 Player heading updated: ${heading.toFixed(0)}° (±${accuracy.toFixed(0)}°)`);
+    setPlayerHeading(heading);
+    setCompassAccuracy(accuracy);
+  }, []);
+
+  const requestOrientationPermission = useCallback(async (): Promise<boolean> => {
+    // iOS 13+ requires explicit permission
+    if (typeof DeviceOrientationEvent !== 'undefined' && 
+        typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+      try {
+        const permission = await (DeviceOrientationEvent as any).requestPermission();
+        const granted = permission === 'granted';
+        setHasOrientationPermission(granted);
+        console.log('🧭 Orientation permission:', permission);
+        return granted;
+      } catch (error) {
+        console.error('❌ Orientation permission error:', error);
+        return false;
+      }
+    } else {
+      // Android or older iOS - permission not required
+      setHasOrientationPermission(true);
+      return true;
+    }
+  }, []);
+
+  const updateGhostGPSPosition = useCallback((position: GPSPosition) => {
+    console.log('👻 Ghost GPS position set:', position);
+    setGhostGPSPosition(position);
+    
+    // Recalculate distance and bearing if player position exists
+    if (playerPosition) {
+      const distance = haversineDistance(playerPosition, position);
+      const bearing = calculateBearing(playerPosition, position);
+      
+      setGhostDistance(distance);
+      setGhostBearing(bearing);
+    }
+  }, [playerPosition]);
+
   const resetInvestigation = useCallback(() => {
     console.log('🔄 Investigation reset');
     setState(INITIAL_STATE);
@@ -296,6 +388,13 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     setSuppliesForRun({ film: 0, boosts: 0, charms: 0 });
     setPhotos([]);
     setEvidence(INITIAL_EVIDENCE);
+    
+    // Reset GPS state
+    setPlayerPosition(null);
+    setGhostGPSPosition(null);
+    setGhostDistance(0);
+    setGhostBearing(0);
+    setGpsAccuracy(0);
   }, []);
 
   return (
@@ -306,6 +405,17 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
         suppliesForRun,
         photos,
         evidence,
+        
+        // GPS/Compass state
+        playerPosition,
+        playerHeading,
+        ghostGPSPosition,
+        ghostDistance,
+        ghostBearing,
+        gpsAccuracy,
+        compassAccuracy,
+        hasOrientationPermission,
+        
         setActiveTool,
         setGhostType,
         setGhostPosition,
@@ -319,6 +429,15 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
         initializeInvestigation,
         setEvidenceTrait,
         completeInvestigation,
+        
+        // GPS methods
+        updatePlayerPosition,
+        setGhostGPSPosition: updateGhostGPSPosition,
+        
+        // Compass methods
+        updatePlayerHeading,
+        requestOrientationPermission,
+        
         resetInvestigation,
       }}
     >

@@ -10,7 +10,12 @@ import { AudioReceiver } from '../Tools/AudioReceiver';
 import { Camera } from '../Tools/Camera';
 
 export function FieldScanner() {
-  const { activeTool } = useInvestigation();
+  const {
+    activeTool,
+    playerHeading,
+    ghostBearing,
+    compassAccuracy,
+  } = useInvestigation();
   const [radarSize, setRadarSize] = useState(0);
   const [sweepAngle, setSweepAngle] = useState(0);
 
@@ -32,11 +37,23 @@ export function FieldScanner() {
       }}
     >
       {/* Radar Canvas - Always visible for 'radar' tool */}
-      {activeTool === 'radar' && <RadarCanvas onSweepAngleChange={setSweepAngle} />}
-      
+      {activeTool === 'radar' && (
+        <RadarCanvas
+          onSweepAngleChange={setSweepAngle}
+          playerHeading={playerHeading}
+          ghostBearing={ghostBearing}
+          compassAccuracy={compassAccuracy}
+        />
+      )}
+
       {/* Ghost Blip - Only show on radar tool */}
       {activeTool === 'radar' && radarSize > 0 && (
-        <GhostBlip radarSize={radarSize} sweepAngle={sweepAngle} />
+        <GhostBlip
+          radarSize={radarSize}
+          sweepAngle={sweepAngle}
+          playerHeading={playerHeading}
+          ghostBearing={ghostBearing}
+        />
       )}
 
       {/* Noise Overlay - Always present */}

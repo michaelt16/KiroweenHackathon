@@ -1,5 +1,5 @@
 // Game state context for player position, dev mode, and inventory
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, type ReactNode } from 'react';
 import type { Position, InventoryItem, ToolType } from '../types/game';
 import { DEFAULT_POSITION } from '../data/mockData';
 
@@ -41,7 +41,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
           item.type === toolType ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { type: toolType, quantity: 1 }];
+      return [...prev, { id: `${toolType}-${Date.now()}`, type: toolType, quantity: 1 }];
     });
   };
 

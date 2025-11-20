@@ -3,11 +3,22 @@ import { useState } from 'react';
 import { useInvestigation } from '../../context/InvestigationContext';
 
 export function Camera() {
-  const { suppliesForRun, takePhoto } = useInvestigation();
+  const { suppliesForRun, photos, takePhoto } = useInvestigation();
   const [isFlashing, setIsFlashing] = useState(false);
   const [showNoFilmWarning, setShowNoFilmWarning] = useState(false);
+  const [showDevelopingWarning, setShowDevelopingWarning] = useState(false);
+
+  // Check if there's a photo currently developing
+  const hasPhotosDeveloping = photos.some((photo) => photo.status === 'developing');
 
   const handleShutterClick = () => {
+    // Check if a photo is still developing
+    if (hasPhotosDeveloping) {
+      setShowDevelopingWarning(true);
+      setTimeout(() => setShowDevelopingWarning(false), 2000);
+      return;
+    }
+
     const success = takePhoto();
     
     if (success) {
@@ -151,10 +162,37 @@ export function Camera() {
         </div>
       )}
 
+      {/* Photo developing warning */}
+      {showDevelopingWarning && (
+        <div
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            padding: '16px 24px',
+            backgroundColor: 'rgba(255, 165, 0, 0.9)',
+            border: '2px solid #ffa500',
+            borderRadius: '8px',
+            color: 'white',
+            fontFamily: 'monospace',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            textAlign: 'center',
+            animation: 'pulse 0.5s ease-in-out',
+          }}
+        >
+          PHOTO DEVELOPING<br />
+          <span style={{ fontSize: '12px', opacity: 0.8 }}>
+            Wait for current photo to develop
+          </span>
+        </div>
+      )}
+
       {/* Shutter button */}
       <button
         onClick={handleShutterClick}
-        disabled={suppliesForRun.film === 0}
+        disabled={suppliesForRun.film === 0 || hasPhotosDeveloping}
         style={{
           position: 'absolute',
           bottom: '40px',
@@ -163,19 +201,29 @@ export function Camera() {
           width: '80px',
           height: '80px',
           borderRadius: '50%',
-          border: '4px solid rgba(0, 255, 255, 0.5)',
-          backgroundColor: suppliesForRun.film > 0 ? 'rgba(0, 255, 255, 0.2)' : 'rgba(100, 100, 100, 0.2)',
-          cursor: suppliesForRun.film > 0 ? 'pointer' : 'not-allowed',
+          border: `4px solid ${
+            hasPhotosDeveloping
+              ? 'rgba(255, 165, 0, 0.5)'
+              : 'rgba(0, 255, 255, 0.5)'
+          }`,
+          backgroundColor:
+            suppliesForRun.film > 0 && !hasPhotosDeveloping
+              ? 'rgba(0, 255, 255, 0.2)'
+              : 'rgba(100, 100, 100, 0.2)',
+          cursor:
+            suppliesForRun.film > 0 && !hasPhotosDeveloping
+              ? 'pointer'
+              : 'not-allowed',
           pointerEvents: 'auto',
           transition: 'all 0.2s',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: '32px',
-          opacity: suppliesForRun.film > 0 ? 1 : 0.5,
+          opacity: suppliesForRun.film > 0 && !hasPhotosDeveloping ? 1 : 0.5,
         }}
         onMouseDown={(e) => {
-          if (suppliesForRun.film > 0) {
+          if (suppliesForRun.film > 0 && !hasPhotosDeveloping) {
             e.currentTarget.style.transform = 'translateX(-50%) scale(0.9)';
           }
         }}
@@ -186,7 +234,7 @@ export function Camera() {
           e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
         }}
       >
-        📸
+        {hasPhotosDeveloping ? '⏳' : '📸'}
       </button>
 
       <style>
