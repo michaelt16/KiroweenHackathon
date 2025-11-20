@@ -1,49 +1,108 @@
-// EMF Meter - Electromagnetic Field Detector
-import { useEffect, useState } from 'react';
+// EMF Meter - Electromagnetic Field Detector (Distance-Only via Beeping)
+import { useEffect, useState, useRef } from 'react';
 import { useInvestigation } from '../../context/InvestigationContext';
 
+// Beep interval calculation based on distance
+// Closer = faster beeps
+function calculateBeepInterval(distanceMeters: number, ghostType: string): number {
+  // Ghost type multipliers for beep frequency
+  const multipliers: Record<string, number> = {
+    Wraith: 1.5,      // Faster beeps (high EMF)
+    Shade: 0.5,       // Slower beeps (low EMF)
+    Poltergeist: 0.8, // Medium beeps
+  };
+  
+  const multiplier = multipliers[ghostType] || 1;
+  
+  // Base interval: 50m = 3000ms, 0m = 200ms
+  const baseInterval = Math.max(200, Math.min(3000, 200 + (distanceMeters * 56)));
+  
+  // Apply ghost type multiplier (lower = faster)
+  return baseInterval / multiplier;
+}
+
+// Get proximity level from distance
+function getProximityLevel(distanceMeters: number): { level: number; label: string; color: string } {
+  if (distanceMeters > 30) return { level: 1, label: 'FAR', color: '#10b981' };
+  if (distanceMeters > 20) return { level: 2, label: 'MEDIUM', color: '#10b981' };
+  if (distanceMeters > 10) return { level: 3, label: 'CLOSE', color: '#f59e0b' };
+  if (distanceMeters > 5) return { level: 4, label: 'VERY CLOSE', color: '#ef4444' };
+  return { level: 5, label: 'EXTREMELY CLOSE', color: '#ef4444' };
+}
+
 export function EMFMeter() {
-  const { ghostPosition, ghostType } = useInvestigation();
-  const [emfLevel, setEmfLevel] = useState(0);
-  const [peakLevel, setPeakLevel] = useState(0);
+  const { ghostDistance, ghostType } = useInvestigation();
+  const [isBeeping, setIsBeeping] = useState(false);
+  const [bpm, setBpm] = useState(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const beepIntervalRef = useRef<number | null>(null);
 
+  // Initialize Web Audio API
   useEffect(() => {
-    const interval = setInterval(() => {
-      // EMF multiplier based on ghost type
-      const emfMultipliers: Record<string, number> = {
-        Wraith: 2.5,      // Very high EMF (key trait)
-        Shade: 0.3,       // Very low EMF
-        Poltergeist: 0.8, // Low-medium EMF
-      };
-      
-      const multiplier = emfMultipliers[ghostType] || 1;
-      
-      // EMF increases when ghost is closer, modified by ghost type
-      const baseLevel = (1 - ghostPosition.distance) * 100 * multiplier;
-      const noise = Math.random() * 15 - 7.5;
-      const newLevel = Math.max(0, Math.min(100, baseLevel + noise));
-      setEmfLevel(newLevel);
-      
-      // Track peak
-      if (newLevel > peakLevel) {
-        setPeakLevel(newLevel);
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    return () => {
+      if (audioContextRef.current) {
+        audioContextRef.current.close();
       }
-    }, 200);
+    };
+  }, []);
 
-    return () => clearInterval(interval);
-  }, [ghostPosition.distance, ghostType, peakLevel]);
+  // Beep function using Web Audio API
+  const playBeep = () => {
+    if (!audioContextRef.current) return;
 
-  // Get EMF level category
-  const getLevel = () => {
-    if (emfLevel < 20) return 1;
-    if (emfLevel < 40) return 2;
-    if (emfLevel < 60) return 3;
-    if (emfLevel < 80) return 4;
-    return 5;
+    const ctx = audioContextRef.current;
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(ctx.destination);
+
+    oscillator.frequency.value = 800; // 800Hz sine wave
+    oscillator.type = 'sine';
+
+    gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.1);
+
+    oscillator.start(ctx.currentTime);
+    oscillator.stop(ctx.currentTime + 0.1);
+
+    // Visual feedback
+    setIsBeeping(true);
+    setTimeout(() => setIsBeeping(false), 100);
+
+    // Optional vibration
+    if (navigator.vibrate) {
+      navigator.vibrate(50);
+    }
   };
 
-  const level = getLevel();
-  const isHighActivity = level >= 4;
+  // Beeping loop based on distance
+  useEffect(() => {
+    if (beepIntervalRef.current) {
+      clearInterval(beepIntervalRef.current);
+    }
+
+    const interval = calculateBeepInterval(ghostDistance, ghostType);
+    const beatsPerMinute = Math.round(60000 / interval);
+    setBpm(beatsPerMinute);
+
+    // Start beeping
+    playBeep(); // Initial beep
+    beepIntervalRef.current = window.setInterval(() => {
+      playBeep();
+    }, interval);
+
+    return () => {
+      if (beepIntervalRef.current) {
+        clearInterval(beepIntervalRef.current);
+      }
+    };
+  }, [ghostDistance, ghostType]);
+
+  const proximity = getProximityLevel(ghostDistance);
+  const isHighActivity = proximity.level >= 4;
 
   return (
     <div
@@ -102,28 +161,30 @@ export function EMFMeter() {
           </div>
         </div>
 
-        {/* Digital Display */}
+        {/* Beep Frequency Display */}
         <div
           style={{
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
-            border: '2px solid rgba(16, 185, 129, 0.3)',
+            border: `3px solid ${isBeeping ? proximity.color : 'rgba(16, 185, 129, 0.3)'}`,
             borderRadius: '8px',
             padding: '20px',
             marginBottom: '24px',
             textAlign: 'center',
             fontFamily: 'monospace',
+            transition: 'border-color 0.1s',
+            boxShadow: isBeeping ? `0 0 20px ${proximity.color}` : 'none',
           }}
         >
           <div
             style={{
               fontSize: '48px',
-              color: isHighActivity ? '#ef4444' : '#10b981',
+              color: proximity.color,
               fontWeight: 'bold',
-              textShadow: `0 0 20px ${isHighActivity ? '#ef4444' : '#10b981'}`,
-              animation: isHighActivity ? 'pulse 0.5s ease-in-out infinite' : 'none',
+              textShadow: `0 0 20px ${proximity.color}`,
+              animation: isBeeping ? 'pulse 0.1s ease-in-out' : 'none',
             }}
           >
-            {emfLevel.toFixed(1)}
+            {bpm}
           </div>
           <div
             style={{
@@ -132,11 +193,11 @@ export function EMFMeter() {
               marginTop: '4px',
             }}
           >
-            mG (milligauss)
+            BPM (beeps per minute)
           </div>
         </div>
 
-        {/* Level Bars */}
+        {/* Proximity Bars (5-bar indicator) */}
         <div
           style={{
             display: 'flex',
@@ -152,7 +213,7 @@ export function EMFMeter() {
                 flex: 1,
                 height: `${20 + barLevel * 8}px`,
                 backgroundColor:
-                  level >= barLevel
+                  proximity.level >= barLevel
                     ? barLevel >= 4
                       ? '#ef4444'
                       : barLevel >= 3
@@ -162,7 +223,7 @@ export function EMFMeter() {
                 borderRadius: '4px',
                 transition: 'all 0.2s',
                 boxShadow:
-                  level >= barLevel
+                  proximity.level >= barLevel
                     ? `0 0 10px ${barLevel >= 4 ? '#ef4444' : barLevel >= 3 ? '#f59e0b' : '#10b981'}`
                     : 'none',
               }}
@@ -170,40 +231,31 @@ export function EMFMeter() {
           ))}
         </div>
 
-        {/* Status Text */}
+        {/* Proximity Status */}
         <div
           style={{
             textAlign: 'center',
             fontFamily: 'monospace',
-            fontSize: '14px',
-            color: isHighActivity ? '#ef4444' : '#10b981',
+            fontSize: '16px',
+            color: proximity.color,
             fontWeight: 'bold',
-            letterSpacing: '1px',
+            letterSpacing: '2px',
+            marginBottom: '12px',
           }}
         >
-          {level === 1 && 'NORMAL'}
-          {level === 2 && 'SLIGHT ACTIVITY'}
-          {level === 3 && 'MODERATE ACTIVITY'}
-          {level === 4 && '⚠️ HIGH ACTIVITY'}
-          {level === 5 && '🚨 EXTREME ACTIVITY'}
+          {proximity.label}
         </div>
 
-        {/* Peak Reading */}
+        {/* Hint Text */}
         <div
           style={{
-            marginTop: '16px',
-            padding: '8px',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            borderRadius: '4px',
-            display: 'flex',
-            justifyContent: 'space-between',
+            textAlign: 'center',
             fontSize: '11px',
-            color: 'rgba(16, 185, 129, 0.7)',
-            fontFamily: 'monospace',
+            color: 'rgba(148, 163, 184, 0.7)',
+            fontStyle: 'italic',
           }}
         >
-          <span>PEAK:</span>
-          <span>{peakLevel.toFixed(1)} mG</span>
+          {isHighActivity ? '🚨 Walk toward the beeping!' : '📡 Listen for faster beeps'}
         </div>
       </div>
 

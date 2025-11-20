@@ -1,6 +1,7 @@
 // Compass hook for watching device orientation
 import { useEffect, useRef, useCallback } from 'react';
 import { CompassSmoother } from '../utils/compass';
+import { throttle } from '../utils/throttle';
 
 // Extend DeviceOrientationEvent for iOS webkit properties
 interface WebkitDeviceOrientationEvent extends DeviceOrientationEvent {
@@ -31,6 +32,13 @@ export function useCompass(options: UseCompassOptions): UseCompassReturn {
   const smootherRef = useRef(new CompassSmoother());
   const listenerRef = useRef<((event: DeviceOrientationEvent) => void) | null>(null);
   const isListeningRef = useRef(false);
+  
+  // Throttle heading updates to 10Hz (100ms) for performance
+  const throttledUpdateRef = useRef(
+    throttle((heading: number, accuracy: number) => {
+      onHeadingUpdate(heading, accuracy);
+    }, 100)
+  );
 
   // Check if device orientation is supported
   const isSupported = typeof DeviceOrientationEvent !== 'undefined';
@@ -104,7 +112,8 @@ export function useCompass(options: UseCompassOptions): UseCompassReturn {
           `🧭 Compass update: ${smoothedHeading.toFixed(0)}° (±${accuracy.toFixed(0)}°)`
         );
 
-        onHeadingUpdate(smoothedHeading, accuracy);
+        // Throttled update (10Hz max)
+        throttledUpdateRef.current(smoothedHeading, accuracy);
       }
     };
 

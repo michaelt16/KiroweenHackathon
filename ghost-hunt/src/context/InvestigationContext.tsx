@@ -1,5 +1,5 @@
 // Investigation state context
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useRef, type ReactNode } from 'react';
 import type {
   GhostType,
   InvestigationState,
@@ -11,6 +11,7 @@ import type {
 import type { TraitState, EvidenceTrait } from '../data/ghosts';
 import type { GPSPosition } from '../utils/gps';
 import { haversineDistance, calculateBearing } from '../utils/gps';
+import { throttle } from '../utils/throttle';
 
 type ToolId = 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
 
@@ -131,6 +132,19 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
   const [gpsAccuracy, setGpsAccuracy] = useState<number>(0);
   const [compassAccuracy, setCompassAccuracy] = useState<number>(20);
   const [hasOrientationPermission, setHasOrientationPermission] = useState<boolean>(false);
+  
+  // Throttle distance/bearing calculations to 5Hz (200ms) for performance
+  const throttledCalculateDistanceBearing = useRef(
+    throttle((playerPos: GPSPosition, ghostPos: GPSPosition) => {
+      const distance = haversineDistance(playerPos, ghostPos);
+      const bearing = calculateBearing(playerPos, ghostPos);
+      
+      console.log(`📏 Distance: ${distance.toFixed(1)}m, Bearing: ${bearing.toFixed(0)}°`);
+      
+      setGhostDistance(distance);
+      setGhostBearing(bearing);
+    }, 200)
+  );
 
   const setGhostType = useCallback((type: GhostType) => {
     console.log('👻 Ghost type set:', type);
@@ -327,15 +341,9 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     setPlayerPosition(position);
     setGpsAccuracy(position.accuracy);
     
-    // Recalculate distance and bearing if ghost position exists
+    // Throttled recalculation of distance and bearing (5Hz max)
     if (ghostGPSPosition) {
-      const distance = haversineDistance(position, ghostGPSPosition);
-      const bearing = calculateBearing(position, ghostGPSPosition);
-      
-      console.log(`📏 Distance: ${distance.toFixed(1)}m, Bearing: ${bearing.toFixed(0)}°`);
-      
-      setGhostDistance(distance);
-      setGhostBearing(bearing);
+      throttledCalculateDistanceBearing.current(position, ghostGPSPosition);
     }
   }, [ghostGPSPosition]);
 
