@@ -170,3 +170,14 @@ button:active {
     opacity: 0.3;
   }
 }
+
+
+/* Supply marker pulse animation */
+@keyframes supplyPulse {
+  0%, 100% {
+    filter: drop-shadow(0 0 20px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 30px currentColor);
+  }
+}

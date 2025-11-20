@@ -1,12 +1,12 @@
 // Main map screen
 import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, useMap } from 'react-leaflet';
 import type { Map } from 'leaflet';
 import { useGameState } from '../context/GameStateContext';
 import { useMapData } from '../context/MapDataContext';
 import { DevModeBadge } from '../components/DevModeBadge';
 import { MapClickHandler } from '../components/MapClickHandler';
-import { ToolMarker } from '../components/ToolMarker';
+import { SupplyMarker } from '../components/SupplyMarker';
 import { HotspotMarker } from '../components/HotspotMarker';
 import { CollectionRadius } from '../components/CollectionRadius';
 import { PlayerMarker } from '../components/PlayerMarker';
@@ -40,7 +40,7 @@ function MapRefController({ mapRef }: { mapRef: React.MutableRefObject<Map | nul
 
 export function MapRootScreen() {
   const { playerPosition } = useGameState();
-  const { toolNodes, hotspots, removeToolNode } = useMapData();
+  const { supplyNodes, hotspots, removeSupplyNode } = useMapData();
   const mapRef = useRef<Map | null>(null);
 
   const handleRecenter = () => {
@@ -74,9 +74,9 @@ export function MapRootScreen() {
         {/* Collection radius circle */}
         <CollectionRadius />
 
-        {/* Tool node markers */}
-        {toolNodes.map((tool) => (
-          <ToolMarker key={tool.id} tool={tool} onCollect={removeToolNode} />
+        {/* Supply node markers */}
+        {supplyNodes.map((supply) => (
+          <SupplyMarker key={supply.id} supply={supply} onCollect={removeSupplyNode} />
         ))}
 
         {/* Hotspot markers */}

@@ -1,26 +1,27 @@
-// Map data context for tool nodes and hotspots
-import { createContext, useContext, useState, ReactNode } from 'react';
-import type { ToolNode, Hotspot } from '../types/game';
-import { MOCK_TOOL_NODES, MOCK_HOTSPOTS } from '../data/mockData';
+// Map data context for supply nodes and hotspots
+import { createContext, useContext, useState, type ReactNode } from 'react';
+import type { SupplyNode, Hotspot } from '../types/game';
+import { MOCK_SUPPLY_NODES, MOCK_HOTSPOTS } from '../data/mockData';
 
 interface MapDataContextType {
-  toolNodes: ToolNode[];
+  supplyNodes: SupplyNode[];
   hotspots: Hotspot[];
-  removeToolNode: (id: string) => void;
+  removeSupplyNode: (id: string) => void;
 }
 
 const MapDataContext = createContext<MapDataContextType | undefined>(undefined);
 
 export function MapDataProvider({ children }: { children: ReactNode }) {
-  const [toolNodes, setToolNodes] = useState<ToolNode[]>(MOCK_TOOL_NODES);
+  const [supplyNodes, setSupplyNodes] = useState<SupplyNode[]>(MOCK_SUPPLY_NODES);
   const [hotspots] = useState<Hotspot[]>(MOCK_HOTSPOTS);
 
-  const removeToolNode = (id: string) => {
-    setToolNodes((prev) => prev.filter((node) => node.id !== id));
+  const removeSupplyNode = (id: string) => {
+    console.log('🗑️ Removing supply node:', id);
+    setSupplyNodes((prev) => prev.filter((node) => node.id !== id));
   };
 
   return (
-    <MapDataContext.Provider value={{ toolNodes, hotspots, removeToolNode }}>
+    <MapDataContext.Provider value={{ supplyNodes, hotspots, removeSupplyNode }}>
       {children}
     </MapDataContext.Provider>
   );
