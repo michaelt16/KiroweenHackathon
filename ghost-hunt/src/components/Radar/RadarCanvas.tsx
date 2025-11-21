@@ -44,8 +44,8 @@ export function RadarCanvas({
     let sweepAngle = 0;
 
     const animate = () => {
-      // Clear canvas
-      ctx.fillStyle = '#0b0f1a';
+      // Clear canvas with dark background
+      ctx.fillStyle = '#0a0f14';
       ctx.fillRect(0, 0, size, size);
 
       // Save context for rotation
@@ -60,8 +60,8 @@ export function RadarCanvas({
         ctx.rotate(headingRad);
       }
 
-      // Draw concentric rings
-      ctx.strokeStyle = 'rgba(45, 212, 191, 0.2)';
+      // Draw concentric rings - subtle
+      ctx.strokeStyle = 'rgba(45, 212, 191, 0.15)';
       ctx.lineWidth = 1;
       for (let i = 1; i <= 4; i++) {
         ctx.beginPath();
@@ -70,7 +70,7 @@ export function RadarCanvas({
       }
 
       // Draw crosshairs
-      ctx.strokeStyle = 'rgba(45, 212, 191, 0.15)';
+      ctx.strokeStyle = 'rgba(45, 212, 191, 0.1)';
       ctx.lineWidth = 1;
       ctx.beginPath();
       ctx.moveTo(0, -maxRadius);
@@ -88,8 +88,8 @@ export function RadarCanvas({
         ctx.closePath();
         ctx.fill();
 
-        // Cone edges
-        ctx.strokeStyle = 'rgba(45, 212, 191, 0.2)';
+        // Cone edges - subtle
+        ctx.strokeStyle = 'rgba(45, 212, 191, 0.25)';
         ctx.lineWidth = 1;
         ctx.beginPath();
         ctx.moveTo(0, 0);
@@ -99,22 +99,25 @@ export function RadarCanvas({
         ctx.stroke();
       }
 
-      // Draw sweeping line
+      // Draw sweeping line - subtle
       ctx.save();
       ctx.rotate(sweepAngle);
 
       // Gradient for sweep
       const gradient = ctx.createLinearGradient(0, 0, maxRadius, 0);
       gradient.addColorStop(0, 'rgba(45, 212, 191, 0)');
-      gradient.addColorStop(0.5, 'rgba(45, 212, 191, 0.3)');
-      gradient.addColorStop(1, 'rgba(45, 212, 191, 0.8)');
+      gradient.addColorStop(0.5, 'rgba(45, 212, 191, 0.2)');
+      gradient.addColorStop(1, 'rgba(45, 212, 191, 0.5)');
 
       ctx.strokeStyle = gradient;
       ctx.lineWidth = 2;
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(45, 212, 191, 0.3)';
       ctx.beginPath();
       ctx.moveTo(0, 0);
       ctx.lineTo(maxRadius, 0);
       ctx.stroke();
+      ctx.shadowBlur = 0;
 
       ctx.restore();
 
@@ -127,26 +130,31 @@ export function RadarCanvas({
       }
 
       const directions = [
-        { label: 'N', angle: 0, color: '#ef4444' },
-        { label: 'E', angle: Math.PI / 2, color: '#94a3b8' },
-        { label: 'S', angle: Math.PI, color: '#94a3b8' },
-        { label: 'W', angle: (3 * Math.PI) / 2, color: '#94a3b8' },
+        { label: 'N', angle: 0, color: '#2dd4bf' },
+        { label: 'E', angle: Math.PI / 2, color: '#64748b' },
+        { label: 'S', angle: Math.PI, color: '#64748b' },
+        { label: 'W', angle: (3 * Math.PI) / 2, color: '#64748b' },
       ];
 
       directions.forEach(({ label, angle, color }) => {
         ctx.save();
         ctx.rotate(angle);
 
-        // Direction label
+        // Direction label - subtle
         ctx.fillStyle = color;
-        ctx.font = label === 'N' ? 'bold 20px monospace' : 'bold 16px monospace';
+        ctx.font = label === 'N' ? 'bold 18px monospace' : 'bold 14px monospace';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
+        if (label === 'N') {
+          ctx.shadowBlur = 6;
+          ctx.shadowColor = 'rgba(45, 212, 191, 0.4)';
+        }
         ctx.fillText(label, 0, -maxRadius - 30);
+        ctx.shadowBlur = 0;
 
         // Direction tick mark
         ctx.strokeStyle = color;
-        ctx.lineWidth = label === 'N' ? 3 : 2;
+        ctx.lineWidth = label === 'N' ? 2 : 1;
         ctx.beginPath();
         ctx.moveTo(0, -maxRadius - 10);
         ctx.lineTo(0, -maxRadius - 18);
@@ -164,7 +172,7 @@ export function RadarCanvas({
           ctx.rotate(angle);
 
           // Small tick mark
-          ctx.strokeStyle = 'rgba(148, 163, 184, 0.4)';
+          ctx.strokeStyle = 'rgba(45, 212, 191, 0.2)';
           ctx.lineWidth = 1;
           ctx.beginPath();
           ctx.moveTo(0, -maxRadius - 5);
@@ -184,10 +192,12 @@ export function RadarCanvas({
         ctx.save();
         ctx.translate(centerX, centerY);
 
-        // Forward arrow/chevron
+        // Forward arrow/chevron - subtle
         ctx.strokeStyle = '#2dd4bf';
-        ctx.fillStyle = 'rgba(45, 212, 191, 0.3)';
-        ctx.lineWidth = 3;
+        ctx.fillStyle = 'rgba(45, 212, 191, 0.2)';
+        ctx.lineWidth = 2;
+        ctx.shadowBlur = 6;
+        ctx.shadowColor = 'rgba(45, 212, 191, 0.3)';
         ctx.beginPath();
         ctx.moveTo(0, -maxRadius + 15);
         ctx.lineTo(-8, -maxRadius + 25);
@@ -196,10 +206,11 @@ export function RadarCanvas({
         ctx.closePath();
         ctx.fill();
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
         // Forward line
-        ctx.strokeStyle = 'rgba(45, 212, 191, 0.5)';
-        ctx.lineWidth = 2;
+        ctx.strokeStyle = 'rgba(45, 212, 191, 0.3)';
+        ctx.lineWidth = 1;
         ctx.setLineDash([5, 5]);
         ctx.beginPath();
         ctx.moveTo(0, -maxRadius + 30);
@@ -212,23 +223,26 @@ export function RadarCanvas({
 
       // Draw center player marker (always centered, not rotated)
       ctx.fillStyle = '#2dd4bf';
+      ctx.shadowBlur = 8;
+      ctx.shadowColor = 'rgba(45, 212, 191, 0.5)';
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 8, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, 6, 0, Math.PI * 2);
       ctx.fill();
+      ctx.shadowBlur = 0;
 
-      // Outer glow
-      ctx.strokeStyle = 'rgba(45, 212, 191, 0.8)';
-      ctx.lineWidth = 2;
+      // Outer ring
+      ctx.strokeStyle = 'rgba(45, 212, 191, 0.6)';
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 10, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, 9, 0, Math.PI * 2);
       ctx.stroke();
 
       // Player direction indicator (small triangle pointing up)
       ctx.fillStyle = '#2dd4bf';
       ctx.beginPath();
-      ctx.moveTo(centerX, centerY - 15);
-      ctx.lineTo(centerX - 6, centerY - 8);
-      ctx.lineTo(centerX + 6, centerY - 8);
+      ctx.moveTo(centerX, centerY - 14);
+      ctx.lineTo(centerX - 5, centerY - 8);
+      ctx.lineTo(centerX + 5, centerY - 8);
       ctx.closePath();
       ctx.fill();
 
@@ -265,25 +279,25 @@ export function RadarCanvas({
             top: '20px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: 'rgba(11, 15, 26, 0.9)',
-            border: '2px solid rgba(45, 212, 191, 0.5)',
-            borderRadius: '12px',
-            padding: '12px 20px',
+            background: 'rgba(10, 15, 20, 0.95)',
+            border: '1px solid rgba(51, 65, 85, 0.8)',
+            borderRadius: '4px',
+            padding: '10px 16px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
             zIndex: 10,
-            boxShadow: '0 0 20px rgba(45, 212, 191, 0.3)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
           }}
         >
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            🧭 Heading
+          <div style={{ fontSize: '9px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: 'monospace' }}>
+            HEADING
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#2dd4bf', fontFamily: 'monospace' }}>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#cbd5e1', fontFamily: 'monospace' }}>
             {Math.round(playerHeading)}°
           </div>
-          <div style={{ fontSize: '11px', color: '#64748b' }}>
+          <div style={{ fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>
             {getCardinalDirection(playerHeading)}
           </div>
         </div>
@@ -296,25 +310,25 @@ export function RadarCanvas({
             position: 'absolute',
             top: '20px',
             right: '20px',
-            background: 'rgba(11, 15, 26, 0.9)',
-            border: '2px solid rgba(239, 68, 68, 0.5)',
-            borderRadius: '12px',
-            padding: '12px 20px',
+            background: 'rgba(10, 15, 20, 0.95)',
+            border: '1px solid rgba(45, 212, 191, 0.4)',
+            borderRadius: '4px',
+            padding: '10px 16px',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             gap: '4px',
             zIndex: 10,
-            boxShadow: '0 0 20px rgba(239, 68, 68, 0.3)',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5), 0 0 8px rgba(45, 212, 191, 0.2)',
           }}
         >
-          <div style={{ fontSize: '10px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            👻 Target
+          <div style={{ fontSize: '9px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1.5px', fontFamily: 'monospace' }}>
+            TARGET
           </div>
-          <div style={{ fontSize: '28px', fontWeight: 'bold', color: '#ef4444', fontFamily: 'monospace' }}>
+          <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#2dd4bf', fontFamily: 'monospace' }}>
             {Math.round(ghostBearing)}°
           </div>
-          <div style={{ fontSize: '11px', color: '#64748b' }}>
+          <div style={{ fontSize: '10px', color: '#94a3b8', fontFamily: 'monospace' }}>
             {getCardinalDirection(ghostBearing)}
           </div>
         </div>
@@ -328,20 +342,21 @@ export function RadarCanvas({
             bottom: '80px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: 'rgba(251, 191, 36, 0.9)',
-            border: '1px solid rgba(245, 158, 11, 0.5)',
-            borderRadius: '8px',
+            background: 'rgba(10, 15, 20, 0.95)',
+            border: '1px solid rgba(251, 191, 36, 0.5)',
+            borderRadius: '4px',
             padding: '8px 12px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             zIndex: 10,
             maxWidth: '80%',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
           }}
         >
-          <span style={{ fontSize: '16px' }}>⚠️</span>
-          <div style={{ fontSize: '12px', color: '#78350f' }}>
-            Low compass accuracy (±{Math.round(compassAccuracy)}°)
+          <span style={{ fontSize: '14px' }}>⚠️</span>
+          <div style={{ fontSize: '11px', color: '#fbbf24', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
+            Low accuracy (±{Math.round(compassAccuracy)}°)
           </div>
         </div>
       )}
@@ -354,20 +369,21 @@ export function RadarCanvas({
             bottom: '80px',
             left: '50%',
             transform: 'translateX(-50%)',
-            background: 'rgba(71, 85, 105, 0.9)',
-            border: '1px solid rgba(100, 116, 139, 0.5)',
-            borderRadius: '8px',
+            background: 'rgba(10, 15, 20, 0.95)',
+            border: '1px solid rgba(51, 65, 85, 0.8)',
+            borderRadius: '4px',
             padding: '8px 12px',
             display: 'flex',
             alignItems: 'center',
             gap: '8px',
             zIndex: 10,
             maxWidth: '80%',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
           }}
         >
-          <span style={{ fontSize: '16px' }}>🧭</span>
-          <div style={{ fontSize: '12px', color: '#e2e8f0' }}>
-            Rotate your body to scan for the ghost
+          <span style={{ fontSize: '14px' }}>🧭</span>
+          <div style={{ fontSize: '11px', color: '#94a3b8', fontFamily: 'monospace', letterSpacing: '0.5px' }}>
+            Rotate to scan
           </div>
         </div>
       )}

@@ -21,10 +21,12 @@ function MapLayout() {
       <MapRootScreen />
       <HUDContainer>
         <ProfileButton onOpenProfile={() => navigate('/profile')} />
-        <BackpackMenu
-          onOpenInventory={() => navigate('/inventory')}
-          onOpenCodex={() => navigate('/codex')}
-        />
+        <div style={{ flex: 1, display: 'flex', justifyContent: 'center', pointerEvents: 'none' }}>
+          <BackpackMenu
+            onOpenInventory={() => navigate('/inventory')}
+            onOpenCodex={() => navigate('/codex')}
+          />
+        </div>
         <ClippyAssistant />
       </HUDContainer>
     </>

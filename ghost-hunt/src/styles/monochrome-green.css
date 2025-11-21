@@ -1,188 +1,165 @@
 /**
  * Monochrome Green Color Palette
- * Analog Horror / CRT Terminal Aesthetic
- * Inspired by 1980s-90s paranormal investigation equipment
+ * Analog Horror / Retro Tech Aesthetic
+ * 
+ * Based on classic CRT monitors and oscilloscopes
  */
 
 :root {
-  /* Primary Green Colors */
-  --color-primary: #00ff41;           /* Bright CRT green */
-  --color-primary-dark: #00cc33;      /* Darker green */
-  --color-primary-light: #00ff88;     /* Lighter green */
+  /* Muted Teal/Cyan Palette - More atmospheric, less tacky */
+  --color-primary-darkest: #0a1a1a;
+  --color-primary-darker: #0f2626;
+  --color-primary-dark: #1a3d3d;
+  --color-primary-base: #2dd4bf;
+  --color-primary-bright: #5eead4;
+  --color-primary-glow: #7dd3d0;
   
   /* Background Colors */
-  --color-bg-deep: #0a0e0f;           /* Almost black */
-  --color-bg-dark: #0f1419;           /* Dark gray */
-  --color-bg-medium: #1a1f24;         /* Medium gray */
+  --bg-black: #000000;
+  --bg-dark: #0a0f14;
+  --bg-darker: #0a1a1a;
+  --bg-panel: #0f1a1f;
   
-  /* Accent Colors */
-  --color-accent-dark: #003311;       /* Very dark green */
-  --color-accent-medium: #005522;     /* Medium dark green */
+  /* Text Colors */
+  --text-primary: #94a3b8;
+  --text-secondary: #64748b;
+  --text-bright: #cbd5e1;
+  --text-dim: #475569;
+  --text-accent: var(--color-primary-base);
   
-  /* Glow Colors (with alpha) */
-  --color-glow-soft: #00ff4144;       /* 27% opacity */
-  --color-glow-medium: #00ff4188;     /* 53% opacity */
-  --color-glow-strong: #00ff41cc;     /* 80% opacity */
+  /* UI Element Colors */
+  --border-color: #1e293b;
+  --border-bright: #334155;
+  --border-accent: var(--color-primary-dark);
+  --glow-color: var(--color-primary-base);
   
-  /* Special States */
-  --color-warning: #ffaa00;           /* Amber (for low sanity) */
-  --color-danger: #ff4444;            /* Red (for critical states) */
+  /* Opacity Variants */
+  --primary-10: rgba(45, 212, 191, 0.1);
+  --primary-20: rgba(45, 212, 191, 0.2);
+  --primary-30: rgba(45, 212, 191, 0.3);
+  --primary-50: rgba(45, 212, 191, 0.5);
+  --primary-70: rgba(45, 212, 191, 0.7);
+  
+  /* Glow Effects - Much more subtle */
+  --glow-sm: 0 0 4px rgba(45, 212, 191, 0.3);
+  --glow-md: 0 0 8px rgba(45, 212, 191, 0.4);
+  --glow-lg: 0 0 12px rgba(45, 212, 191, 0.5);
+  --glow-xl: 0 0 16px rgba(45, 212, 191, 0.6);
   
   /* Typography */
-  --font-mono: 'Courier New', 'Courier', monospace;
-  --font-display: 'Share Tech Mono', monospace;
+  --font-mono: 'Courier New', Courier, monospace;
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.25rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
   
-  /* Font Sizes */
-  --text-xs: 10px;
-  --text-sm: 12px;
-  --text-md: 14px;
-  --text-lg: 16px;
-  --text-xl: 20px;
-  --text-xxl: 24px;
-  
-  /* Letter Spacing */
-  --spacing-tight: 0.5px;
-  --spacing-normal: 1px;
-  --spacing-wide: 2px;
-  --spacing-wider: 3px;
-  
-  /* Glow Effects */
-  --glow-blur: 10px;
-  --glow-spread: 2px;
-  --glow-blur-strong: 15px;
-  --glow-spread-strong: 5px;
-  
-  /* Scanline Settings */
-  --scanline-spacing: 3px;
-  --scanline-opacity: 0.2;
-  
-  /* Static/Noise Settings */
-  --static-opacity: 0.08;
-  
-  /* Chromatic Aberration */
-  --chromatic-offset: 1px;
-  
-  /* Animation Timings */
-  --transition-fast: 0.15s;
-  --transition-normal: 0.3s;
-  --transition-slow: 0.5s;
+  --letter-spacing-wide: 0.1em;
+  --letter-spacing-wider: 0.15em;
+  --letter-spacing-widest: 0.2em;
 }
 
 /* Utility Classes */
 
 .text-primary {
-  color: var(--color-primary);
+  color: var(--text-primary);
 }
 
-.text-primary-light {
-  color: var(--color-primary-light);
+.text-bright {
+  color: var(--text-bright);
 }
 
-.text-warning {
-  color: var(--color-warning);
+.text-dim {
+  color: var(--text-dim);
 }
 
-.text-danger {
-  color: var(--color-danger);
+.text-accent {
+  color: var(--text-accent);
 }
 
-.bg-deep {
-  background-color: var(--color-bg-deep);
+.bg-black {
+  background-color: var(--bg-black);
 }
 
 .bg-dark {
-  background-color: var(--color-bg-dark);
+  background-color: var(--bg-dark);
 }
 
-.bg-medium {
-  background-color: var(--color-bg-medium);
+.bg-panel {
+  background-color: var(--bg-panel);
 }
 
-/* Glow Effects */
-
-.glow-soft {
-  text-shadow: 0 0 var(--glow-blur) var(--color-glow-soft);
+.border-default {
+  border-color: var(--border-color);
 }
 
-.glow-medium {
-  text-shadow: 0 0 var(--glow-blur) var(--color-glow-medium);
+.border-bright {
+  border-color: var(--border-bright);
 }
 
-.glow-strong {
-  text-shadow: 0 0 var(--glow-blur-strong) var(--color-glow-strong);
+/* Glow Utilities */
+.glow-sm {
+  text-shadow: var(--glow-sm);
 }
 
-.box-glow-soft {
-  box-shadow: 0 0 var(--glow-blur) var(--color-glow-soft);
+.glow-md {
+  text-shadow: var(--glow-md);
 }
 
-.box-glow-medium {
-  box-shadow: 0 0 var(--glow-blur) var(--color-glow-medium);
+.glow-lg {
+  text-shadow: var(--glow-lg);
 }
 
-.box-glow-strong {
-  box-shadow: 0 0 var(--glow-blur-strong) var(--color-glow-strong);
+.glow-xl {
+  text-shadow: var(--glow-xl);
+}
+
+.box-glow-sm {
+  box-shadow: var(--glow-sm);
+}
+
+.box-glow-md {
+  box-shadow: var(--glow-md);
+}
+
+.box-glow-lg {
+  box-shadow: var(--glow-lg);
 }
 
 /* Typography Utilities */
-
 .font-mono {
   font-family: var(--font-mono);
 }
 
-.font-display {
-  font-family: var(--font-display);
-}
-
-.text-uppercase {
+.uppercase-spaced {
   text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wide);
 }
 
-.letter-spacing-wide {
-  letter-spacing: var(--spacing-wide);
+.stencil-text {
+  text-transform: uppercase;
+  letter-spacing: var(--letter-spacing-wider);
+  font-weight: bold;
 }
 
-.letter-spacing-wider {
-  letter-spacing: var(--spacing-wider);
-}
-
-/* Border Utilities */
-
-.border-primary {
-  border: 2px solid var(--color-primary);
-}
-
-.border-primary-light {
-  border: 2px solid var(--color-primary-light);
-}
-
-.border-accent-dark {
-  border: 2px solid var(--color-accent-dark);
-}
-
-/* Retro Tech Styling */
-
-.retro-tech {
-  background: var(--color-bg-deep);
-  border: 2px solid var(--color-primary);
+/* Retro Tech Effects */
+.retro-border {
+  border: 1px solid var(--border-color);
   box-shadow: 
-    0 0 10px var(--color-glow-soft),
-    inset 0 0 20px rgba(0, 255, 65, 0.1);
-  font-family: var(--font-mono);
-  color: var(--color-primary);
+    inset 0 0 10px var(--primary-10),
+    0 0 8px var(--primary-10);
 }
 
-.retro-tech-header {
-  font-family: var(--font-mono);
-  font-size: var(--text-md);
-  letter-spacing: var(--spacing-wide);
-  text-transform: uppercase;
-  color: var(--color-primary);
-  text-shadow: 0 0 10px var(--color-glow-medium);
+.retro-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-bright);
+  box-shadow: 
+    inset 0 0 20px var(--primary-10),
+    0 0 10px var(--primary-20);
 }
 
-/* Corner Brackets (using pseudo-elements) */
-
+/* Corner Brackets (CSS-only) */
 .corner-brackets {
   position: relative;
 }
@@ -191,127 +168,46 @@
 .corner-brackets::after {
   content: '';
   position: absolute;
-  width: 20px;
-  height: 20px;
-  border: 2px solid var(--color-primary-light);
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--border-bright);
+  opacity: 0.5;
 }
 
 .corner-brackets::before {
-  top: -2px;
-  left: -2px;
+  top: 0;
+  left: 0;
   border-right: none;
   border-bottom: none;
 }
 
 .corner-brackets::after {
-  bottom: -2px;
-  right: -2px;
+  top: 0;
+  right: 0;
   border-left: none;
-  border-top: none;
-}
-
-/* Pulse Animation */
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
-
-@keyframes pulse-glow {
-  0%, 100% {
-    box-shadow: 0 0 10px var(--color-glow-soft);
-  }
-  50% {
-    box-shadow: 0 0 20px var(--color-glow-strong);
-  }
-}
-
-@keyframes pulse-border {
-  0%, 100% {
-    border-color: var(--color-primary-light);
-  }
-  50% {
-    border-color: var(--color-primary);
-  }
-}
-
-.pulse {
-  animation: pulse 1s ease-in-out infinite;
-}
-
-.pulse-glow {
-  animation: pulse-glow 1s ease-in-out infinite;
-}
-
-.pulse-border {
-  animation: pulse-border 1s ease-in-out infinite;
+  border-bottom: none;
 }
 
 /* Flicker Animation */
-
 @keyframes flicker {
-  0%, 100% {
-    opacity: 1;
-  }
-  10% {
-    opacity: 0.8;
-  }
-  20% {
-    opacity: 1;
-  }
-  30% {
-    opacity: 0.9;
-  }
-  40% {
-    opacity: 1;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
 }
 
 .flicker {
-  animation: flicker 0.3s ease-in-out;
+  animation: flicker 0.15s infinite;
 }
 
-/* Glitch Text Effect */
-
-@keyframes glitch {
-  0% {
-    transform: translate(0);
+/* Pulse Animation */
+@keyframes pulse-glow {
+  0%, 100% { 
+    text-shadow: var(--glow-sm);
   }
-  20% {
-    transform: translate(-2px, 2px);
-  }
-  40% {
-    transform: translate(-2px, -2px);
-  }
-  60% {
-    transform: translate(2px, 2px);
-  }
-  80% {
-    transform: translate(2px, -2px);
-  }
-  100% {
-    transform: translate(0);
+  50% { 
+    text-shadow: var(--glow-lg);
   }
 }
 
-.glitch {
-  animation: glitch 0.3s ease-in-out;
-}
-
-/* Transitions */
-
-.transition-fast {
-  transition: all var(--transition-fast) ease;
-}
-
-.transition-normal {
-  transition: all var(--transition-normal) ease;
-}
-
-.transition-slow {
-  transition: all var(--transition-slow) ease;
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }

@@ -1,0 +1,209 @@
+/* Photos Tab - Film Strip with White Borders */
+
+.photos-tab {
+  padding: 16px;
+  height: 100%;
+  overflow-y: auto;
+}
+
+.photos-tab-title {
+  margin: 0 0 20px 0;
+  color: rgba(45, 212, 191, 1);
+  font-family: 'Courier New', monospace;
+  font-size: 16px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.photos-empty {
+  text-align: center;
+  padding: 32px 16px;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+}
+
+/* Film Strip Container */
+.film-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Film Photo - Printable Style with White Border */
+.film-photo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: photo-appear 0.3s ease-out;
+}
+
+@keyframes photo-appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* White Border - Printable Photo Style */
+.photo-border {
+  background: white;
+  padding: 8px;
+  border-radius: 4px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+/* Photo Content Area */
+.photo-content {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: linear-gradient(135deg, rgba(10, 15, 26, 0.9) 0%, rgba(15, 23, 42, 0.9) 100%);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Developing Photo */
+.photo-developing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  height: 100%;
+}
+
+.developing-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(251, 191, 36, 0.3);
+  border-top-color: rgba(251, 191, 36, 1);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+.developing-text {
+  font-size: 11px;
+  color: rgba(251, 191, 36, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Photo Result */
+.photo-result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 100%;
+}
+
+.photo-icon {
+  font-size: 48px;
+  filter: drop-shadow(0 0 8px currentColor);
+}
+
+.photo-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+}
+
+/* Photo Quality Styles */
+.photo-strong {
+  color: rgba(45, 212, 191, 1);
+  text-shadow: 0 0 12px rgba(45, 212, 191, 0.6);
+}
+
+.photo-faint {
+  color: rgba(156, 163, 175, 0.8);
+  text-shadow: 0 0 8px rgba(156, 163, 175, 0.4);
+}
+
+.photo-none {
+  color: rgba(107, 114, 128, 0.6);
+}
+
+/* Photo Info */
+.photo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(45, 212, 191, 0.2);
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+
+.photo-time {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.photo-quality {
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.photo-quality.strong {
+  color: rgba(45, 212, 191, 1);
+  text-shadow: 0 0 8px rgba(45, 212, 191, 0.4);
+}
+
+.photo-quality.faint {
+  color: rgba(156, 163, 175, 0.9);
+}
+
+.photo-quality.none {
+  color: rgba(107, 114, 128, 0.7);
+}
+
+/* Developing Photo Animation */
+.film-photo.developing .photo-border {
+  animation: developing-glow 2s ease-in-out infinite;
+}
+
+@keyframes developing-glow {
+  0%, 100% {
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.4),
+      0 0 0 1px rgba(0, 0, 0, 0.1),
+      0 0 20px rgba(251, 191, 36, 0.3);
+  }
+}
+

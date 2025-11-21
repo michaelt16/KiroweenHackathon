@@ -4,28 +4,23 @@ import { useEffect, useState } from 'react';
 import { InvestigationProvider, useInvestigation } from '../context/InvestigationContext';
 import { useSupplies } from '../context/SuppliesContext';
 import { FieldScanner } from '../components/Investigation/FieldScanner';
-import { FieldKitDrawer } from '../components/Investigation/FieldKitDrawer';
-import { SanityBar } from '../components/Investigation/SanityBar';
+import { CRTOverlay } from '../components/Effects/CRTOverlay';
+import { AtmosphereLayer } from '../components/Investigation/AtmosphereLayer';
+import { TopStatusBar } from '../components/HUD/TopStatusBar';
+
 import { InvestigationResultOverlay } from '../components/Investigation/InvestigationResultOverlay';
 import { ManualRotationControls } from '../components/Investigation/ManualRotationControls';
 import { DevModeControls } from '../components/Investigation/DevModeControls';
 import { DebugOverlay } from '../components/Investigation/DebugOverlay';
 import { LoadingOverlay } from '../components/Investigation/LoadingOverlay';
-import { CRTOverlay } from '../components/Effects/CRTOverlay';
+import { FieldKitDrawer } from '../components/Investigation/FieldKitDrawer';
 import { useGhostBehavior } from '../hooks/useGhostBehavior';
 import { useGPS } from '../hooks/useGPS';
 import { useCompass } from '../hooks/useCompass';
 import { spawnGhostPosition } from '../utils/gps';
 import type { GPSPosition } from '../utils/gps';
 
-// Tool icon mapping
-const TOOL_ICONS: Record<string, string> = {
-  radar: '📡',
-  emf: '📊',
-  thermal: '🌡️',
-  audio: '📻',
-  camera: '📷',
-};
+
 
 function InvestigationContent() {
   const { hotspotId } = useParams<{ hotspotId: string }>();
@@ -51,11 +46,10 @@ function InvestigationContent() {
     playerHeading,
   } = useInvestigation();
   const { supplies } = useSupplies();
-  const [isFieldKitOpen, setIsFieldKitOpen] = useState(false);
   const [manualHeading, setManualHeading] = useState(0);
   const [useManualRotation, setUseManualRotation] = useState(false);
   const [devMode, setDevMode] = useState(false);
-  const [showDebug, setShowDebug] = useState(false);
+  const [isFieldKitOpen, setIsFieldKitOpen] = useState(false);
   const [devPosition, setDevPosition] = useState<GPSPosition>({
     lat: 40.7128,
     lng: -74.006,
@@ -222,9 +216,19 @@ function InvestigationContent() {
   }, [hotspotId, ghostType]);
 
   const handleExit = () => {
-    console.log('🚪 Exiting investigation');
-    resetInvestigation();
-    navigate('/');
+    console.log('🚪 Exit button clicked - leaving investigation');
+    try {
+      // Navigate first, then reset will happen on unmount
+      navigate('/');
+      console.log('✅ Navigation to map initiated');
+      // Reset after a small delay to ensure navigation happens first
+      setTimeout(() => {
+        resetInvestigation();
+        console.log('✅ Investigation reset complete');
+      }, 100);
+    } catch (error) {
+      console.error('❌ Error during exit:', error);
+    }
   };
 
   return (
@@ -232,18 +236,50 @@ function InvestigationContent() {
       style={{
         width: '100vw',
         height: '100vh',
-        backgroundColor: '#0b0f1a',
+        backgroundColor: '#0a0f14',
         color: 'white',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      {/* CRT Overlay - Analog Horror Effects */}
-      <CRTOverlay 
-        intensity={0.6}
-        scanlineSpacing={3}
-        staticOpacity={0.08}
-        flickerEnabled={true}
+      {/* Subtle CRT Overlay - Match main screen */}
+      <CRTOverlay intensity={0.15} scanlineSpacing={4} staticOpacity={0.01} flickerEnabled={false} />
+
+      {/* Top Status Bar - Match main screen */}
+      <TopStatusBar />
+
+      {/* Atmosphere Layer - Vignette and particles */}
+      <AtmosphereLayer sanity={sanity} />
+
+      {/* Gradient Overlay - Match main screen */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: 'none',
+          zIndex: 400,
+          background: `
+            radial-gradient(circle at center, transparent 0%, rgba(11, 15, 26, 0.2) 60%, rgba(11, 15, 26, 0.4) 100%),
+            linear-gradient(to top, rgba(11, 15, 26, 0.5) 0%, rgba(11, 15, 26, 0.2) 30%, transparent 60%)
+          `,
+        }}
+      />
+
+      {/* Vignette effect - Match main screen */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          pointerEvents: 'none',
+          zIndex: 401,
+          background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.2) 100%)',
+        }}
       />
 
       {/* Loading Overlay */}
@@ -255,9 +291,6 @@ function InvestigationContent() {
 
       {/* Field Scanner (Main Radar View) */}
       <FieldScanner />
-
-      {/* Sanity Bar */}
-      <SanityBar />
 
       {/* Dev Mode Controls (for desktop testing) */}
       {devMode && (
@@ -278,95 +311,71 @@ function InvestigationContent() {
         />
       )}
 
-      {/* Field Kit Drawer */}
-      <FieldKitDrawer
-        isOpen={isFieldKitOpen}
-        onClose={() => setIsFieldKitOpen(!isFieldKitOpen)}
-        activeToolIcon={TOOL_ICONS[activeTool]}
-      />
+
 
       {/* Investigation Result Overlay (shows on success/failure) */}
       {(mode === 'success' || mode === 'failure') && <InvestigationResultOverlay />}
 
-      {/* Debug Overlay (bottom-right) */}
-      {showDebug && (
-        <DebugOverlay
-          playerPosition={investigationPlayerPosition}
-          playerHeading={playerHeading}
-          ghostPosition={ghostGPSPosition}
-          ghostDistance={ghostDistance}
-          ghostBearing={ghostBearing}
-          gpsAccuracy={gpsAccuracy}
-          compassAccuracy={compassAccuracy}
-          ghostType={ghostType}
-          sanity={sanity}
-        />
-      )}
+      {/* Debug Overlay (always available, manages own visibility) */}
+      <DebugOverlay
+        playerPosition={investigationPlayerPosition}
+        playerHeading={playerHeading}
+        ghostPosition={ghostGPSPosition}
+        ghostDistance={ghostDistance}
+        ghostBearing={ghostBearing}
+        gpsAccuracy={gpsAccuracy}
+        compassAccuracy={compassAccuracy}
+        ghostType={ghostType}
+        sanity={sanity}
+      />
 
-      {/* Quick Controls (top-left) */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          zIndex: 1000,
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          padding: '8px 12px',
-          borderRadius: '8px',
-          fontSize: '12px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '4px',
-        }}
-      >
-        <button
-          onClick={() => setDevMode(!devMode)}
-          style={{
-            padding: '4px 8px',
-            backgroundColor: devMode ? '#8b5cf6' : '#374151',
-            border: 'none',
-            borderRadius: '4px',
-            color: 'white',
-            fontSize: '10px',
-            cursor: 'pointer',
-          }}
-        >
-          {devMode ? '🎮 Dev Mode ON' : '🎮 Dev Mode OFF'}
-        </button>
-        <button
-          onClick={() => setShowDebug(!showDebug)}
-          style={{
-            padding: '4px 8px',
-            backgroundColor: showDebug ? '#22c55e' : '#374151',
-            border: 'none',
-            borderRadius: '4px',
-            color: 'white',
-            fontSize: '10px',
-            cursor: 'pointer',
-          }}
-        >
-          {showDebug ? '🐛 Debug ON' : '🐛 Debug OFF'}
-        </button>
-      </div>
+      {/* Field Kit Drawer */}
+      <FieldKitDrawer
+        isOpen={isFieldKitOpen}
+        onClose={() => setIsFieldKitOpen(!isFieldKitOpen)}
+        activeToolIcon={activeTool === 'radar' ? '📡' : activeTool === 'emf' ? '📊' : activeTool === 'thermal' ? '🌡️' : activeTool === 'audio' ? '🎤' : '📷'}
+      />
 
-      {/* Exit Button */}
+      {/* Exit Button - Match main screen style */}
       <button
         onClick={handleExit}
         style={{
           position: 'absolute',
-          top: '10px',
-          right: '10px',
+          top: '70px',
+          right: '12px',
           zIndex: 1000,
-          padding: '10px 20px',
-          backgroundColor: '#ef4444',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
+          width: '44px',
+          height: '44px',
+          padding: '0',
+          backgroundColor: 'rgba(239, 68, 68, 0.9)',
+          border: '1px solid rgba(220, 38, 38, 0.5)',
+          borderRadius: '10px',
           cursor: 'pointer',
-          fontWeight: 'bold',
+          fontSize: '18px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: 
+            '0 4px 12px rgba(0, 0, 0, 0.5), ' +
+            'inset 0 1px 0 rgba(239, 68, 68, 0.1)',
+          transition: 'all 0.2s ease',
+          color: 'white',
         }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.7)';
+          e.currentTarget.style.boxShadow = 
+            '0 0 16px rgba(239, 68, 68, 0.4), ' +
+            'inset 0 0 12px rgba(239, 68, 68, 0.1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.5)';
+          e.currentTarget.style.boxShadow = 
+            '0 4px 12px rgba(0, 0, 0, 0.5), ' +
+            'inset 0 1px 0 rgba(239, 68, 68, 0.1)';
+        }}
+        title="Exit Investigation"
       >
-        Exit
+        ✕
       </button>
     </div>
   );

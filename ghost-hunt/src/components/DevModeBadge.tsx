@@ -14,20 +14,21 @@ export function DevModeBadge() {
     <div
       style={{
         position: 'absolute',
-        top: '10px',
-        left: '50%',
-        transform: 'translateX(-50%)',
+        top: '70px',
+        right: '12px',
         zIndex: 1000,
-        backgroundColor: devModeEnabled ? '#ff6b6b' : '#4a5568',
+        backgroundColor: devModeEnabled ? 'rgba(255, 107, 107, 0.9)' : 'rgba(74, 85, 104, 0.9)',
         color: 'white',
-        padding: '8px 16px',
-        borderRadius: '20px',
-        fontSize: '14px',
+        padding: '6px 12px',
+        borderRadius: '8px',
+        fontSize: '11px',
         fontWeight: 'bold',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
         display: 'flex',
         alignItems: 'center',
-        gap: '8px',
+        gap: '6px',
+        border: `1px solid ${devModeEnabled ? 'rgba(255, 107, 107, 0.5)' : 'rgba(74, 85, 104, 0.5)'}`,
+        backdropFilter: 'blur(4px)',
       }}
     >
       <span>{devModeEnabled ? '🔧 DEV MODE' : '🔒 NORMAL MODE'}</span>

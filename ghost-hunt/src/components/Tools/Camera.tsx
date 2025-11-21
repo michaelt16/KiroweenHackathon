@@ -1,12 +1,14 @@
-// Camera tool - Flash photography with film consumption
-import { useState } from 'react';
+// Camera tool - Film Camera with vintage aesthetic
+import { useState, useEffect } from 'react';
 import { useInvestigation } from '../../context/InvestigationContext';
+import './Camera.css';
 
 export function Camera() {
   const { suppliesForRun, photos, takePhoto } = useInvestigation();
   const [isFlashing, setIsFlashing] = useState(false);
   const [showNoFilmWarning, setShowNoFilmWarning] = useState(false);
   const [showDevelopingWarning, setShowDevelopingWarning] = useState(false);
+  const [shutterPressed, setShutterPressed] = useState(false);
 
   // Check if there's a photo currently developing
   const hasPhotosDeveloping = photos.some((photo) => photo.status === 'developing');
@@ -22,9 +24,13 @@ export function Camera() {
     const success = takePhoto();
     
     if (success) {
+      // Shutter press animation
+      setShutterPressed(true);
+      setTimeout(() => setShutterPressed(false), 100);
+      
       // Flash effect
       setIsFlashing(true);
-      setTimeout(() => setIsFlashing(false), 200);
+      setTimeout(() => setIsFlashing(false), 300);
     } else {
       // Show "no film" warning
       setShowNoFilmWarning(true);
@@ -33,222 +39,105 @@ export function Camera() {
   };
 
   return (
-    <div
-      style={{
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        pointerEvents: 'none',
-      }}
-    >
-      {/* Flash overlay */}
-      {isFlashing && (
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'white',
-            opacity: 0.9,
-            animation: 'flash 0.2s ease-out',
-            pointerEvents: 'none',
-          }}
-        />
-      )}
+    <div className="camera-container">
+      {/* Film Camera Viewfinder Frame */}
+      <div className="camera-viewfinder">
+        {/* Viewfinder corners */}
+        <div className="viewfinder-corner viewfinder-tl" />
+        <div className="viewfinder-corner viewfinder-tr" />
+        <div className="viewfinder-corner viewfinder-bl" />
+        <div className="viewfinder-corner viewfinder-br" />
+        
+        {/* Center crosshair */}
+        <div className="viewfinder-crosshair">
+          <div className="crosshair-line crosshair-h" />
+          <div className="crosshair-line crosshair-v" />
+          <div className="crosshair-dot" />
+        </div>
 
-      {/* Camera viewfinder overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '80%',
-          height: '60%',
-          border: '2px solid rgba(0, 255, 255, 0.3)',
-          borderRadius: '8px',
-          pointerEvents: 'none',
-        }}
-      >
-        {/* Crosshair */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '40px',
-            height: '40px',
-            border: '2px solid rgba(0, 255, 255, 0.5)',
-            borderRadius: '50%',
-          }}
-        >
-          <div
-            style={{
-              position: 'absolute',
-              top: '50%',
-              left: '0',
-              width: '100%',
-              height: '2px',
-              backgroundColor: 'rgba(0, 255, 255, 0.5)',
-              transform: 'translateY(-50%)',
-            }}
-          />
-          <div
-            style={{
-              position: 'absolute',
-              top: '0',
-              left: '50%',
-              width: '2px',
-              height: '100%',
-              backgroundColor: 'rgba(0, 255, 255, 0.5)',
-              transform: 'translateX(-50%)',
-            }}
-          />
+        {/* Focus indicator */}
+        <div className="focus-indicator">
+          <div className="focus-ring" />
         </div>
       </div>
 
-      {/* Film count display */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '20px',
-          right: '20px',
-          padding: '8px 16px',
-          backgroundColor: 'rgba(0, 0, 0, 0.7)',
-          border: '1px solid rgba(0, 255, 255, 0.3)',
-          borderRadius: '8px',
-          color: suppliesForRun.film > 0 ? '#00ffff' : '#ff4444',
-          fontFamily: 'monospace',
-          fontSize: '16px',
-          fontWeight: 'bold',
-        }}
-      >
-        🎞️ {suppliesForRun.film}
+      {/* Film Camera Body - Bottom Panel */}
+      <div className="camera-body">
+        {/* Film Counter Display */}
+        <div className="film-counter">
+          <div className="film-counter-label">FILM</div>
+          <div className={`film-counter-value ${suppliesForRun.film === 0 ? 'empty' : ''}`}>
+            {suppliesForRun.film > 0 ? suppliesForRun.film : '00'}
+          </div>
+          <div className="film-counter-icon">🎞️</div>
+        </div>
+
+        {/* Camera Info Display */}
+        <div className="camera-info">
+          <div className="camera-info-item">
+            <span className="info-label">F/</span>
+            <span className="info-value">2.8</span>
+          </div>
+          <div className="camera-info-item">
+            <span className="info-label">ISO</span>
+            <span className="info-value">400</span>
+          </div>
+          <div className="camera-info-item">
+            <span className="info-label">1/60</span>
+          </div>
+        </div>
       </div>
 
-      {/* No film warning */}
-      {showNoFilmWarning && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            padding: '16px 24px',
-            backgroundColor: 'rgba(255, 68, 68, 0.9)',
-            border: '2px solid #ff4444',
-            borderRadius: '8px',
-            color: 'white',
-            fontFamily: 'monospace',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            animation: 'pulse 0.5s ease-in-out',
-          }}
-        >
-          NO FILM LEFT<br />
-          <span style={{ fontSize: '12px', opacity: 0.8 }}>
-            Collect more supplies
-          </span>
-        </div>
-      )}
-
-      {/* Photo developing warning */}
-      {showDevelopingWarning && (
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            padding: '16px 24px',
-            backgroundColor: 'rgba(255, 165, 0, 0.9)',
-            border: '2px solid #ffa500',
-            borderRadius: '8px',
-            color: 'white',
-            fontFamily: 'monospace',
-            fontSize: '14px',
-            fontWeight: 'bold',
-            textAlign: 'center',
-            animation: 'pulse 0.5s ease-in-out',
-          }}
-        >
-          PHOTO DEVELOPING<br />
-          <span style={{ fontSize: '12px', opacity: 0.8 }}>
-            Wait for current photo to develop
-          </span>
-        </div>
-      )}
-
-      {/* Shutter button */}
+      {/* Shutter Button - Big Film Camera Style */}
       <button
         onClick={handleShutterClick}
         disabled={suppliesForRun.film === 0 || hasPhotosDeveloping}
-        style={{
-          position: 'absolute',
-          bottom: '40px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '80px',
-          height: '80px',
-          borderRadius: '50%',
-          border: `4px solid ${
-            hasPhotosDeveloping
-              ? 'rgba(255, 165, 0, 0.5)'
-              : 'rgba(0, 255, 255, 0.5)'
-          }`,
-          backgroundColor:
-            suppliesForRun.film > 0 && !hasPhotosDeveloping
-              ? 'rgba(0, 255, 255, 0.2)'
-              : 'rgba(100, 100, 100, 0.2)',
-          cursor:
-            suppliesForRun.film > 0 && !hasPhotosDeveloping
-              ? 'pointer'
-              : 'not-allowed',
-          pointerEvents: 'auto',
-          transition: 'all 0.2s',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '32px',
-          opacity: suppliesForRun.film > 0 && !hasPhotosDeveloping ? 1 : 0.5,
-        }}
-        onMouseDown={(e) => {
-          if (suppliesForRun.film > 0 && !hasPhotosDeveloping) {
-            e.currentTarget.style.transform = 'translateX(-50%) scale(0.9)';
-          }
-        }}
-        onMouseUp={(e) => {
-          e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-        }}
+        className={`camera-shutter ${shutterPressed ? 'pressed' : ''} ${hasPhotosDeveloping ? 'developing' : ''} ${suppliesForRun.film === 0 ? 'no-film' : ''}`}
+        title={hasPhotosDeveloping ? 'Photo developing...' : suppliesForRun.film === 0 ? 'No film' : 'Take photo'}
       >
-        {hasPhotosDeveloping ? '⏳' : '📸'}
+        <div className="shutter-button-inner">
+          {hasPhotosDeveloping ? (
+            <div className="developing-indicator">
+              <div className="developing-spinner" />
+              <span>DEVELOPING</span>
+            </div>
+          ) : (
+            <div className="shutter-icon">📸</div>
+          )}
+        </div>
       </button>
 
-      <style>
-        {`
-          @keyframes flash {
-            0% { opacity: 0.9; }
-            100% { opacity: 0; }
-          }
-          @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.05); }
-          }
-        `}
-      </style>
+      {/* Flash Effect */}
+      {isFlashing && (
+        <div className="camera-flash">
+          <div className="flash-overlay" />
+        </div>
+      )}
+
+      {/* Film Grain Overlay */}
+      <div className="film-grain" />
+
+      {/* No Film Warning */}
+      {showNoFilmWarning && (
+        <div className="camera-warning no-film-warning">
+          <div className="warning-icon">⚠️</div>
+          <div className="warning-text">
+            <div className="warning-title">NO FILM</div>
+            <div className="warning-subtitle">Collect film supplies</div>
+          </div>
+        </div>
+      )}
+
+      {/* Developing Warning */}
+      {showDevelopingWarning && (
+        <div className="camera-warning developing-warning">
+          <div className="warning-icon">⏳</div>
+          <div className="warning-text">
+            <div className="warning-title">DEVELOPING</div>
+            <div className="warning-subtitle">Wait for photo to develop</div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,0 +1,120 @@
+/* Tool Frame - Retro Tech Styling */
+
+.tool-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-darker-green, #001a00);
+  border: 3px solid var(--border-bright, #00ff00);
+  box-shadow: 
+    inset 0 0 30px rgba(0, 255, 0, 0.1),
+    0 0 20px rgba(0, 255, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.tool-frame-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(0, 77, 0, 0.5);
+  border-bottom: 2px solid var(--border-color, #004d00);
+}
+
+.tool-frame-title {
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--text-primary, #00ff00);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+}
+
+.tool-frame-status {
+  font-family: var(--font-mono, 'Courier New', monospace);
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tool-frame-status-active {
+  color: var(--text-primary, #00ff00);
+  text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.tool-frame-status-standby {
+  color: var(--text-dim, #006600);
+}
+
+.tool-frame-status-error {
+  color: #ff0000;
+  text-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+  animation: flicker 0.15s infinite;
+}
+
+/* Content Area */
+.tool-frame-content {
+  flex: 1;
+  padding: 16px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Corner Brackets */
+.tool-frame-bracket {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 3px solid var(--border-bright, #00ff00);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.tool-frame-bracket-tl {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.tool-frame-bracket-tr {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.tool-frame-bracket-bl {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
+}
+
+.tool-frame-bracket-br {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+
+/* Animations */
+@keyframes pulse-glow {
+  0%, 100% { 
+    text-shadow: 0 0 8px rgba(0, 255, 0, 0.8);
+  }
+  50% { 
+    text-shadow: 0 0 15px rgba(0, 255, 0, 1);
+  }
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}

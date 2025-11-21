@@ -1,0 +1,227 @@
+/* Profile Badge - Game-like Mobile UI (Pokemon Go inspired) */
+
+.profile-badge {
+  position: relative;
+  width: 100%;
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid rgba(45, 212, 191, 0.3);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 24px rgba(45, 212, 191, 0.2),
+    inset 0 2px 0 rgba(45, 212, 191, 0.1);
+  padding: 24px 20px;
+  font-family: 'Courier New', monospace;
+  backdrop-filter: blur(8px);
+}
+
+/* Header */
+.profile-badge-header {
+  text-align: center;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 2px solid rgba(45, 212, 191, 0.2);
+  position: relative;
+}
+
+.profile-badge-title {
+  font-size: 18px;
+  font-weight: bold;
+  color: rgba(45, 212, 191, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 12px rgba(45, 212, 191, 0.4);
+  margin-bottom: 8px;
+  font-family: 'Courier New', monospace;
+}
+
+.profile-badge-clearance {
+  font-size: 12px;
+  color: rgba(45, 212, 191, 0.6);
+  letter-spacing: 2px;
+  font-weight: 600;
+}
+
+/* Avatar - Big Game Card Style */
+.profile-avatar {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin: 0 auto 24px;
+  border: 3px solid rgba(45, 212, 191, 0.4);
+  border-radius: 20px;
+  box-shadow: 
+    0 0 24px rgba(45, 212, 191, 0.3),
+    inset 0 0 20px rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(10, 15, 26, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+  overflow: hidden;
+}
+
+.profile-avatar-silhouette {
+  font-size: 80px;
+  color: rgba(45, 212, 191, 0.9);
+  text-shadow: 0 0 20px rgba(45, 212, 191, 0.6);
+  z-index: 1;
+  filter: drop-shadow(0 0 12px rgba(45, 212, 191, 0.5));
+}
+
+.profile-avatar-static {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(45, 212, 191, 0.03) 0px,
+    transparent 2px
+  );
+  pointer-events: none;
+  animation: static-scroll 0.1s infinite linear;
+}
+
+@keyframes static-scroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(2px); }
+}
+
+/* User Info - Game Card Style */
+.profile-info {
+  text-align: center;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  border: 1px solid rgba(45, 212, 191, 0.2);
+}
+
+.profile-username {
+  font-size: 24px;
+  font-weight: bold;
+  color: rgba(45, 212, 191, 1);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 0 0 12px rgba(45, 212, 191, 0.5);
+  margin-bottom: 8px;
+  font-family: 'Courier New', monospace;
+}
+
+.profile-rank {
+  font-size: 13px;
+  color: rgba(45, 212, 191, 0.7);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+/* XP Progress - Game-style Progress Bar */
+.profile-xp {
+  margin-bottom: 24px;
+}
+
+.profile-xp-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: rgba(45, 212, 191, 0.7);
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.profile-xp-bar {
+  width: 100%;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(45, 212, 191, 0.3);
+  border-radius: 12px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.profile-xp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, rgba(45, 212, 191, 1) 0%, rgba(94, 234, 212, 0.9) 100%);
+  box-shadow: 
+    0 0 16px rgba(45, 212, 191, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: width 0.5s ease;
+  position: relative;
+  border-radius: 10px;
+}
+
+.profile-xp-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    rgba(255, 255, 255, 0.1) 1px,
+    transparent 2px,
+    transparent 8px
+  );
+}
+
+/* Stats - Game Card Grid */
+.profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.profile-stat {
+  text-align: center;
+  padding: 16px 12px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 2px solid rgba(45, 212, 191, 0.2);
+  border-radius: 12px;
+  box-shadow: 
+    inset 0 2px 0 rgba(45, 212, 191, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+}
+
+.profile-stat:hover {
+  border-color: rgba(45, 212, 191, 0.4);
+  box-shadow: 
+    inset 0 2px 0 rgba(45, 212, 191, 0.15),
+    0 0 16px rgba(45, 212, 191, 0.2);
+  transform: translateY(-2px);
+}
+
+.profile-stat-label {
+  font-size: 10px;
+  color: rgba(45, 212, 191, 0.6);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.profile-stat-value {
+  font-size: 24px;
+  font-weight: bold;
+  color: rgba(45, 212, 191, 1);
+  text-shadow: 0 0 12px rgba(45, 212, 191, 0.5);
+  font-family: 'Courier New', monospace;
+}
+
+/* Corner Brackets - Removed for cleaner look */
+.profile-bracket {
+  display: none;
+}
+
+/* Remove official seal */
+.profile-badge::after {
+  display: none;
+}

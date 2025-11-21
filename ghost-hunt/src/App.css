@@ -85,18 +85,82 @@ button:active {
 }
 
 
-/* Player marker glow effect */
+/* Player marker glow effect - Game-like */
 .player-marker {
   filter: drop-shadow(0 0 12px rgba(45, 212, 191, 0.8));
   animation: playerGlow 2s ease-in-out infinite;
+  z-index: 1000 !important;
+}
+
+.player-marker-ring {
+  animation: playerRingPulse 2s ease-in-out infinite;
+}
+
+.player-marker-core {
+  filter: drop-shadow(0 0 8px rgba(94, 234, 212, 1));
+  animation: playerCorePulse 1.5s ease-in-out infinite;
+  z-index: 1001 !important;
 }
 
 @keyframes playerGlow {
   0%, 100% {
     filter: drop-shadow(0 0 12px rgba(45, 212, 191, 0.8));
+    transform: scale(1);
   }
   50% {
     filter: drop-shadow(0 0 20px rgba(45, 212, 191, 1));
+    transform: scale(1.05);
+  }
+}
+
+@keyframes playerRingPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes playerCorePulse {
+  0%, 100% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(94, 234, 212, 1));
+  }
+  50% {
+    opacity: 0.8;
+    filter: drop-shadow(0 0 12px rgba(94, 234, 212, 1.2));
+  }
+}
+
+/* Collection radius animations */
+.collection-radius-main {
+  animation: collectionRadiusPulse 3s ease-in-out infinite;
+}
+
+.collection-radius-glow {
+  animation: collectionGlowPulse 3s ease-in-out infinite;
+}
+
+@keyframes collectionRadiusPulse {
+  0%, 100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 0.9;
+  }
+}
+
+@keyframes collectionGlowPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.02);
   }
 }
 
