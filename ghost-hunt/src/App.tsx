@@ -6,11 +6,14 @@ import { MapRootScreen } from './screens/MapRootScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { CodexScreen } from './screens/CodexScreen';
 import { ProfilePanel } from './screens/ProfilePanel';
+import { ProfilePanelHorror } from './screens/ProfilePanelHorror';
 import { InvestigationScreen } from './screens/InvestigationScreen';
 import { ProfileButton } from './components/HUD/ProfileButton';
 import { BackpackMenu } from './components/HUD/BackpackMenu';
 import { ClippyAssistant } from './components/HUD/ClippyAssistant';
 import { HUDContainer } from './components/HUD/HUDContainer';
+import { PlaygroundRouter } from './ui-playground/PlaygroundRouter';
+import { AnalogHorrorPlayground } from './ui-playground/AnalogHorrorPlayground';
 import './App.css';
 
 function MapLayout() {
@@ -87,7 +90,13 @@ function App() {
                     </ScreenLayout>
                   }
                 />
+                <Route
+                  path="/profile-horror"
+                  element={<ProfilePanelHorror />}
+                />
                 <Route path="/investigate/:hotspotId" element={<InvestigationScreen />} />
+                <Route path="/playground" element={<PlaygroundRouter />} />
+                <Route path="/analog-horror" element={<AnalogHorrorPlayground />} />
               </Routes>
             </div>
           </MapDataProvider>

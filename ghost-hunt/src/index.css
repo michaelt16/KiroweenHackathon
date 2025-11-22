@@ -1,6 +1,9 @@
 /* Import Monochrome Green Color Palette */
 @import './styles/monochrome-green.css';
 
+/* Import Google Fonts for Horror Aesthetic */
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&family=Permanent+Marker&display=swap');
+
 :root {
   font-family: 'Courier New', 'Courier', monospace;
   line-height: 1.5;
