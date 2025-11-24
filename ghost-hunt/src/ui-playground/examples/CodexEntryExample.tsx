@@ -1,10 +1,8 @@
-import React from 'react';
 
 // Texture imports
 import burnhole from '../../assets/texture/burnhole.png';
 import coffeestain from '../../assets/texture/coffeestain.png';
 import dust from '../../assets/texture/dust.png';
-import rippedpaper from '../../assets/texture/rippedpaper.png';
 import tape from '../../assets/texture/tape.png';
 import wrinkledpaper from '../../assets/texture/wrinkledpaper.png';
 import ghost1 from '../../assets/images/ghost1.png';

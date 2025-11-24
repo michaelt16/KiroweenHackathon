@@ -1,4 +1,3 @@
-import React from 'react';
 
 // Texture imports
 import coffeestain from '../assets/texture/coffeestain.png';

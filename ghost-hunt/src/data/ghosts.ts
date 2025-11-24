@@ -63,6 +63,20 @@ export const GHOST_DEFINITIONS: Record<GhostType, GhostDefinition> = {
       movement: 'present',      // Erratic movement (N/A for 005)
     },
   },
+  Peccy: {
+    id: 'Peccy',
+    name: 'PECCY',
+    description: '??????? ???????? ??????? EXTREMELY DANGEROUS. Origin unknown. Behavior unpredictable. DO NOT APPROACH. ??????? ???????? ???????',
+    keyTraits: {
+      emf: 'present',           // All evidence present - impossible to identify
+      whispers: 'present',      // Everything triggers
+      cold: 'present',          // Maximum chaos
+      static: 'present',        // Complete distortion
+      photos: 'present',        // But shows only ????
+      sanityBehavior: 'present', // Instant drain
+      movement: 'present',      // Unpredictable
+    },
+  },
 };
 
 // Helper to get trait label

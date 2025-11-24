@@ -39,6 +39,9 @@ export function TypewrittenText({
       lineHeight: '1.6',
       letterSpacing: '0.5px',
       marginBottom: '15px',
+      wordWrap: 'break-word',
+      overflowWrap: 'break-word',
+      hyphens: 'auto',
       ...variantStyles[variant],
     }}>
       {children}

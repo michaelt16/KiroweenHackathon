@@ -1,10 +1,8 @@
-import React from 'react';
 
 // Texture imports
 import coffeestain from '../assets/texture/coffeestain.png';
 import corkboardtexture from '../assets/texture/corkboardtexture.png';
 import dust from '../assets/texture/dust.png';
-import tape from '../assets/texture/tape.png';
 import wrinkledpaper from '../assets/texture/wrinkledpaper.png';
 import ghost1 from '../assets/images/ghost1.png';
 import ghost2 from '../assets/images/ghost2.png';

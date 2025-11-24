@@ -1,5 +1,5 @@
 // PolaroidPhoto - Photo frame with tape and shadows
-import { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import tape from '../../assets/texture/tape.png';
 import dust from '../../assets/texture/dust.png';
 

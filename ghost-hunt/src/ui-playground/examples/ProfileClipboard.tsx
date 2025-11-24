@@ -1,4 +1,3 @@
-import React from 'react';
 import { Clipboard } from '../../components/analog/templates/Clipboard';
 import { IDCard } from '../../components/analog/elements/IDCard';
 import { HandwrittenText } from '../../components/analog/elements/HandwrittenText';

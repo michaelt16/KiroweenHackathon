@@ -19,7 +19,7 @@ export function PhotosTab() {
         </div>
       ) : (
         <div className="film-strip">
-          {sortedPhotos.map((photo, index) => (
+          {sortedPhotos.map((photo) => (
             <div
               key={photo.id}
               className={`film-photo ${photo.status === 'developing' ? 'developing' : ''} ${photo.quality}`}

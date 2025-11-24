@@ -11,10 +11,151 @@ interface SupplyMarkerProps {
   onCollect: (id: string) => void;
 }
 
+// CSS Art Film Roll Icon
+const FilmRollIcon = ({ size = 36 }: { size?: number }) => {
+  const scale = size / 36;
+  return `
+    <div style="
+      width: ${size}px;
+      height: ${size}px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    ">
+      <!-- Main spool circle -->
+      <div style="
+        width: ${28 * scale}px;
+        height: ${28 * scale}px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+        border: ${2 * scale}px solid #0a0a0a;
+        box-shadow: 
+          inset 0 ${2 * scale}px ${4 * scale}px rgba(0, 0, 0, 0.8),
+          inset 0 -${2 * scale}px ${4 * scale}px rgba(255, 255, 255, 0.1),
+          0 0 ${8 * scale}px rgba(0, 0, 0, 0.6);
+        position: relative;
+      ">
+        <!-- Center hole -->
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: ${10 * scale}px;
+          height: ${10 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+          box-shadow: inset 0 0 ${4 * scale}px rgba(0, 0, 0, 1);
+        "></div>
+        
+        <!-- Side holes (spool holes) -->
+        <div style="
+          position: absolute;
+          top: 50%;
+          left: ${4 * scale}px;
+          transform: translateY(-50%);
+          width: ${3 * scale}px;
+          height: ${3 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+          box-shadow: inset 0 0 ${2 * scale}px rgba(0, 0, 0, 1);
+        "></div>
+        <div style="
+          position: absolute;
+          top: 50%;
+          right: ${4 * scale}px;
+          transform: translateY(-50%);
+          width: ${3 * scale}px;
+          height: ${3 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+          box-shadow: inset 0 0 ${2 * scale}px rgba(0, 0, 0, 1);
+        "></div>
+        <div style="
+          position: absolute;
+          top: ${4 * scale}px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: ${3 * scale}px;
+          height: ${3 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+          box-shadow: inset 0 0 ${2 * scale}px rgba(0, 0, 0, 1);
+        "></div>
+        <div style="
+          position: absolute;
+          bottom: ${4 * scale}px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: ${3 * scale}px;
+          height: ${3 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+          box-shadow: inset 0 0 ${2 * scale}px rgba(0, 0, 0, 1);
+        "></div>
+      </div>
+      
+      <!-- Film strip hanging down -->
+      <div style="
+        position: absolute;
+        top: ${26 * scale}px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: ${20 * scale}px;
+        height: ${8 * scale}px;
+        background: linear-gradient(to bottom, #1a1a1a 0%, #0f0f0f 100%);
+        border: ${1 * scale}px solid #0a0a0a;
+        border-top: none;
+        border-radius: 0 0 ${2 * scale}px ${2 * scale}px;
+        box-shadow: 0 ${2 * scale}px ${4 * scale}px rgba(0, 0, 0, 0.8);
+      ">
+        <!-- Film perforations -->
+        <div style="
+          position: absolute;
+          top: ${2 * scale}px;
+          left: ${3 * scale}px;
+          width: ${2 * scale}px;
+          height: ${2 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+        "></div>
+        <div style="
+          position: absolute;
+          top: ${2 * scale}px;
+          right: ${3 * scale}px;
+          width: ${2 * scale}px;
+          height: ${2 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+        "></div>
+        <div style="
+          position: absolute;
+          top: ${5 * scale}px;
+          left: ${3 * scale}px;
+          width: ${2 * scale}px;
+          height: ${2 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+        "></div>
+        <div style="
+          position: absolute;
+          top: ${5 * scale}px;
+          right: ${3 * scale}px;
+          width: ${2 * scale}px;
+          height: ${2 * scale}px;
+          border-radius: 50%;
+          background: #0a0a0a;
+        "></div>
+      </div>
+    </div>
+  `;
+};
+
 // Supply icons and colors
 const SUPPLY_CONFIG = {
   film: {
-    icon: '🎞️',
+    icon: null, // Using CSS art instead
     name: 'Film Roll',
     color: '#3b82f6', // blue
     glowSize: '20px',
@@ -36,16 +177,27 @@ const SUPPLY_CONFIG = {
 // Create custom icon for supply nodes
 const getSupplyIcon = (type: 'film' | 'boost' | 'charm', inRange: boolean) => {
   const config = SUPPLY_CONFIG[type];
-  const opacity = inRange ? 1 : 0.6;
-  const glowStyle = inRange
-    ? `filter: drop-shadow(0 0 ${config.glowSize} ${config.color}); animation: supplyPulse 2s ease-in-out infinite;`
-    : '';
+  const opacity = inRange ? 1 : 0.95; // Increased from 0.6 to 0.95 for better visibility
+  const glowSize = inRange ? parseInt(config.glowSize) * 1.5 : 8; // Increase glow size when in range
+  // When in range, counteract parent filter and add strong boost for pop
+  // Parent filter: saturate(0.6) brightness(0.92)
+  // To get back to normal with strong boost: saturate(3.2) brightness(1.4)
+  const iconSize = inRange ? 56 : 44; // Larger when in range
+  const filmSize = inRange ? 48 : 36; // Larger when in range
+  const brightnessFilter = inRange 
+    ? `filter: brightness(1.4) saturate(3.2) contrast(1.25) drop-shadow(0 0 ${glowSize}px ${config.color}) drop-shadow(0 0 ${glowSize * 0.6}px ${config.color}) drop-shadow(0 0 ${glowSize * 0.3}px ${config.color}) !important; animation: supplyPulse 2s ease-in-out infinite;`
+    : `filter: brightness(1) saturate(1) drop-shadow(0 0 8px ${config.color}80);`; // Subtle glow even when out of range
+
+  // Use CSS art for film roll, emoji for others
+  const iconHtml = config.icon 
+    ? `<div class="supply-icon-${inRange ? 'in-range' : 'out-range'}" style="font-size: ${filmSize}px; text-align: center; opacity: ${opacity}; ${brightnessFilter}">${config.icon}</div>`
+    : `<div class="supply-icon-${inRange ? 'in-range' : 'out-range'}" style="opacity: ${opacity}; ${brightnessFilter}">${FilmRollIcon({ size: filmSize })}</div>`;
 
   return divIcon({
-    html: `<div style="font-size: 32px; text-align: center; opacity: ${opacity}; ${glowStyle}">${config.icon}</div>`,
+    html: iconHtml,
     className: 'supply-marker',
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [iconSize, iconSize],
+    iconAnchor: [iconSize / 2, iconSize / 2],
   });
 };
 
@@ -79,10 +231,20 @@ export function SupplyMarker({ supply, onCollect }: SupplyMarkerProps) {
   };
 
   return (
-    <Marker position={[supply.lat, supply.lng]} icon={getSupplyIcon(supply.type, inRange)}>
+    <Marker 
+      position={[supply.lat, supply.lng]} 
+      icon={getSupplyIcon(supply.type, inRange)}
+      zIndexOffset={2000}
+    >
       <Popup>
         <div style={{ textAlign: 'center', minWidth: '180px', padding: '8px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '8px' }}>{config.icon}</div>
+          <div style={{ marginBottom: '8px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            {config.icon ? (
+              <div style={{ fontSize: '48px' }}>{config.icon}</div>
+            ) : (
+              <div dangerouslySetInnerHTML={{ __html: FilmRollIcon({ size: 48 }) }} />
+            )}
+          </div>
           <h3 style={{ margin: '0 0 4px 0', color: config.color }}>{config.name}</h3>
           <p style={{ margin: '4px 0', fontSize: '14px', color: '#888' }}>
             {supply.rarity}

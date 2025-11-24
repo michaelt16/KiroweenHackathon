@@ -10,6 +10,8 @@ export { StickyNote } from './elements/StickyNote';
 export { HandwrittenText } from './elements/HandwrittenText';
 export { TypewrittenText } from './elements/TypewrittenText';
 export { OfficialStamp } from './elements/OfficialStamp';
+export { IDCard } from './elements/IDCard';
+export { HorizontalIDCard } from './elements/HorizontalIDCard';
 
 // Template Components (Organisms)
 export { CodexPage } from './templates/CodexPage';

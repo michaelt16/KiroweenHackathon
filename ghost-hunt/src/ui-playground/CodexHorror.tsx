@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Horror Codex - Ghost encyclopedia with journal entries
 export function CodexHorror() {

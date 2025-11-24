@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Texture imports
 import coffeestain from '../assets/texture/coffeestain.png';
@@ -6,7 +6,6 @@ import dust from '../assets/texture/dust.png';
 import wrinkledpaper from '../assets/texture/wrinkledpaper.png';
 import tape from '../assets/texture/tape.png';
 import ghost1 from '../assets/images/ghost1.png';
-import bookFrame from '../assets/frame/book.png';
 
 // Codex Journal - Personal Field Guide (Mobile)
 // Well-used but cared for - not destroyed

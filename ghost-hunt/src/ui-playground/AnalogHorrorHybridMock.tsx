@@ -556,7 +556,6 @@ function HybridMap() {
               color: '#2a1f1a',
               whiteSpace: 'nowrap',
               boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
-              position: 'relative',
             }}>
               {/* Tape */}
               <div style={{

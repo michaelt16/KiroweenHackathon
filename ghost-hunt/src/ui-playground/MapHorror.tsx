@@ -1,4 +1,3 @@
-import React from 'react';
 
 // Horror Map - Cork board with pinned locations and case files
 export function MapHorror() {

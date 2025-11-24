@@ -13,6 +13,10 @@ interface GameStateContextType extends GameState {
   setPlayerPosition: (position: Position) => void;
   setDevModeEnabled: (enabled: boolean) => void;
   addToInventory: (toolType: ToolType) => void;
+  isPlayerMoving: boolean;
+  setIsPlayerMoving: (moving: boolean) => void;
+  movementDirection: 'north' | 'south' | 'east' | 'west' | 'other' | null;
+  setMovementDirection: (direction: 'north' | 'south' | 'east' | 'west' | 'other' | null) => void;
 }
 
 const GameStateContext = createContext<GameStateContextType | undefined>(undefined);
@@ -21,6 +25,8 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [playerPosition, setPlayerPosition] = useState<Position>(DEFAULT_POSITION);
   const [devModeEnabled, setDevModeEnabled] = useState<boolean>(true); // Default to true for demo
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [isPlayerMoving, setIsPlayerMoving] = useState<boolean>(false);
+  const [movementDirection, setMovementDirection] = useState<'north' | 'other' | null>(null);
 
   const handleSetPlayerPosition = (position: Position) => {
     console.log('📍 Player position updated:', position);
@@ -54,6 +60,10 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
         setPlayerPosition: handleSetPlayerPosition,
         setDevModeEnabled: handleSetDevModeEnabled,
         addToInventory,
+        isPlayerMoving,
+        setIsPlayerMoving,
+        movementDirection,
+        setMovementDirection,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-/* Top Status Bar - Game-like Mobile UI */
+/* Top Status Bar - Analog Horror UI */
 
 .top-status-bar {
   position: fixed;
@@ -9,18 +9,44 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(
-    180deg,
-    rgba(10, 15, 26, 0.98) 0%,
-    rgba(10, 15, 26, 0.95) 50%,
-    rgba(10, 15, 26, 0.85) 100%
-  );
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(45, 212, 191, 0.2);
+  padding: 10px 16px;
+  background: #c4b49a; /* Darkest aged paper */
+  border-bottom: 2px solid #1a0f0a;
   box-shadow: 
-    0 2px 8px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(45, 212, 191, 0.1);
+    0 4px 12px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(0, 0, 0, 0.1);
+  pointer-events: none;
+  touch-action: none;
+  position: relative;
+}
+
+/* Aged paper texture overlay */
+.top-status-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../../assets/texture/wrinkledpaper.png');
+  background-size: cover;
+  mix-blend-mode: multiply;
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+/* Dust overlay */
+.top-status-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url('../../assets/texture/dust.png');
+  background-size: cover;
+  mix-blend-mode: overlay;
+  opacity: 0.2;
   pointer-events: none;
 }
 
@@ -36,12 +62,15 @@
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(45, 212, 191, 0.15);
-  border-radius: 8px;
+  background: rgba(244, 240, 230, 0.7); /* Light aged paper */
+  border: 1px solid #1a0f0a;
+  border-radius: 4px;
   box-shadow: 
-    inset 0 1px 0 rgba(45, 212, 191, 0.05),
-    0 1px 2px rgba(0, 0, 0, 0.3);
+    inset 0 1px 0 rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+  transform: rotate(-0.3deg);
+  position: relative;
+  z-index: 1;
 }
 
 .status-icon {
@@ -57,28 +86,32 @@
 
 .status-label {
   font-size: 9px;
-  color: rgba(45, 212, 191, 0.6);
+  color: #1a0f0a;
   text-transform: uppercase;
   letter-spacing: 1px;
   font-family: 'Courier New', monospace;
   font-weight: 600;
+  opacity: 0.8;
 }
 
 .status-value {
   font-size: 12px;
-  color: rgba(45, 212, 191, 0.9);
+  color: #1a0f0a;
   font-family: 'Courier New', monospace;
   font-weight: 700;
-  text-shadow: 0 0 6px rgba(45, 212, 191, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Supplies Section */
 .status-supplies {
   gap: 6px;
   padding: 4px 8px;
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(45, 212, 191, 0.15);
-  border-radius: 8px;
+  background: rgba(244, 240, 230, 0.7); /* Light aged paper */
+  border: 1px solid #1a0f0a;
+  border-radius: 4px;
+  transform: rotate(0.2deg);
+  position: relative;
+  z-index: 1;
 }
 
 .supply-item {
@@ -86,24 +119,25 @@
   align-items: center;
   gap: 4px;
   padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 6px;
-  border: 1px solid rgba(45, 212, 191, 0.1);
+  background: rgba(216, 212, 200, 0.8); /* Medium aged paper */
+  border-radius: 3px;
+  border: 1px solid #2a2520;
+  transform: rotate(-0.2deg);
 }
 
 .supply-icon {
   font-size: 16px;
-  filter: drop-shadow(0 0 3px rgba(45, 212, 191, 0.3));
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
 }
 
 .supply-count {
   font-size: 14px;
   font-weight: 700;
-  color: rgba(45, 212, 191, 0.9);
+  color: #1a0f0a;
   font-family: 'Courier New', monospace;
   min-width: 20px;
   text-align: center;
-  text-shadow: 0 0 4px rgba(45, 212, 191, 0.3);
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 /* Signal Indicator */
@@ -118,13 +152,15 @@
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: rgba(45, 212, 191, 0.3);
+  background: #1a0f0a;
+  opacity: 0.4;
   transition: all 0.3s ease;
 }
 
 .signal-dot.signal-active {
-  background: rgba(45, 212, 191, 0.8);
-  box-shadow: 0 0 4px rgba(45, 212, 191, 0.6);
+  background: #1a0f0a;
+  opacity: 1;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
   animation: signalPulse 2s ease-in-out infinite;
 }
 

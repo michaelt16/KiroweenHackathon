@@ -1,5 +1,5 @@
 // HandwrittenText - Text with jitter and ink bleed
-import { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 interface HandwrittenTextProps {
   children: ReactNode;

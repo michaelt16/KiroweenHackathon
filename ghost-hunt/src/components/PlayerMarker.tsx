@@ -1,9 +1,255 @@
-// Custom player marker - Game-like with pulsing rings
-import { CircleMarker, Popup, Circle } from 'react-leaflet';
+// Custom player marker - Detective character video with silhouette
+import { Marker, Popup, Circle, useMap, useMapEvents } from 'react-leaflet';
 import { useGameState } from '../context/GameStateContext';
+import { useMapData } from '../context/MapDataContext';
+import { isInRange } from '../utils/distance';
+import { divIcon } from 'leaflet';
+import { useEffect, useState, useMemo } from 'react';
+import detectiveIdleVideo from '../assets/videos/dectective/dectective_idle.mp4';
+import detectiveIdle2Video from '../assets/videos/dectective/dectective_idle2.mp4';
+import detectiveIdle3Video from '../assets/videos/dectective/dectective_idle3.mp4';
+import detectiveWalkVideo from '../assets/videos/dectective/dectective_walk.mp4';
+import detectiveWalk2Video from '../assets/videos/dectective/dectective_walk2.mp4';
+import detectiveWalk3Video from '../assets/videos/dectective/dectective_walk3.mp4';
+import detectiveWalk4Video from '../assets/videos/dectective/dectective_walk4.mp4';
+import detectiveMagnifyingVideo from '../assets/videos/dectective/dectective_magnifying.mp4';
 
-export function PlayerMarker() {
-  const { playerPosition } = useGameState();
+// Inner component that has access to map zoom
+function ZoomAwarePlayerMarker() {
+  const { playerPosition, isPlayerMoving, movementDirection } = useGameState();
+  const { hotspots } = useMapData();
+  const map = useMap();
+  const [zoom, setZoom] = useState(map.getZoom());
+  const [hasPlayedMagnifying, setHasPlayedMagnifying] = useState(false);
+  const [wasInInvestigationRadius, setWasInInvestigationRadius] = useState(false);
+  const [wasMoving, setWasMoving] = useState(false);
+  const [currentIdleIndex, setCurrentIdleIndex] = useState(0);
+  
+  // Array of idle animations
+  const idleVideos = [detectiveIdleVideo, detectiveIdle2Video, detectiveIdle3Video];
+  
+  // Check if player is in range of any hotspot (investigation radius)
+  const isInInvestigationRadius = hotspots.some(hotspot => 
+    isInRange(playerPosition, { lat: hotspot.lat, lng: hotspot.lng })
+  );
+
+  // Track when player enters/exits investigation radius
+  useEffect(() => {
+    if (isInInvestigationRadius && !wasInInvestigationRadius) {
+      // Just entered investigation radius - reset flag to play animation
+      setHasPlayedMagnifying(false);
+    } else if (!isInInvestigationRadius && wasInInvestigationRadius) {
+      // Just left investigation radius - reset flag
+      setHasPlayedMagnifying(false);
+    }
+    setWasInInvestigationRadius(isInInvestigationRadius);
+  }, [isInInvestigationRadius, wasInInvestigationRadius]);
+
+  // Track when movement stops in investigation radius to trigger magnifying animation
+  useEffect(() => {
+    if (isInInvestigationRadius) {
+      if (wasMoving && !isPlayerMoving) {
+        // Just stopped moving in investigation radius - reset flag to play magnifying animation
+        setHasPlayedMagnifying(false);
+      } else if (!wasMoving && isPlayerMoving) {
+        // Just started moving - reset flag so magnifying will play again when movement stops
+        setHasPlayedMagnifying(false);
+      }
+    }
+    setWasMoving(isPlayerMoving);
+  }, [isPlayerMoving, isInInvestigationRadius, wasMoving]);
+
+  // Listen to zoom changes
+  useMapEvents({
+    zoomend: () => {
+      setZoom(map.getZoom());
+    },
+    zoom: () => {
+      setZoom(map.getZoom());
+    },
+  });
+
+  // Calculate size based on zoom level
+  // Min zoom (10) = small size (50x75px)
+  // Max zoom (20) = large size (120x180px)
+  // Base zoom is 16
+  const minZoom = 10;
+  const maxZoom = 20;
+  const minWidth = 50;
+  const minHeight = 75;
+  const maxWidth = 120;
+  const maxHeight = 180;
+  
+  // Linear interpolation between min and max based on zoom
+  const zoomRange = maxZoom - minZoom;
+  const currentZoomRange = Math.max(minZoom, Math.min(maxZoom, zoom)) - minZoom;
+  const zoomProgress = currentZoomRange / zoomRange; // 0 to 1
+  
+  const width = minWidth + (maxWidth - minWidth) * zoomProgress;
+  const height = minHeight + (maxHeight - minHeight) * zoomProgress;
+  
+  // Calculate mask size proportionally
+  const maskWidth = (65 / 120) * width;
+  const maskHeight = (120 / 180) * height;
+
+  // Select video based on movement state, direction, and investigation radius
+  // In investigation radius: walk when moving, magnifying when idle (after walk finishes)
+  // Outside investigation radius: walk when moving, random idle when not
+  const currentVideo = isInInvestigationRadius
+    ? (isPlayerMoving 
+      ? (movementDirection === 'north' ? detectiveWalk2Video 
+        : movementDirection === 'west' ? detectiveWalk3Video 
+        : movementDirection === 'east' ? detectiveWalk4Video 
+        : detectiveWalkVideo) // Walk animations when moving in investigation zone
+      : detectiveMagnifyingVideo) // Magnifying animation when idle in investigation zone
+    : (isPlayerMoving 
+      ? (movementDirection === 'north' ? detectiveWalk2Video 
+        : movementDirection === 'west' ? detectiveWalk3Video 
+        : movementDirection === 'east' ? detectiveWalk4Video 
+        : detectiveWalkVideo) // Default/south uses walk
+      : idleVideos[currentIdleIndex]); // Random idle when not in investigation radius
+
+  // Preload all videos to prevent loading delays
+  useEffect(() => {
+    const videos = [detectiveIdleVideo, detectiveIdle2Video, detectiveIdle3Video, detectiveWalkVideo, detectiveWalk2Video, detectiveWalk3Video, detectiveWalk4Video, detectiveMagnifyingVideo];
+    videos.forEach((videoSrc) => {
+      const video = document.createElement('video');
+      video.src = videoSrc;
+      video.preload = 'auto';
+      video.muted = true;
+    });
+  }, []);
+  
+  // Cycle through idle animations when idle (not in investigation radius and not moving)
+  useEffect(() => {
+    if (!isInInvestigationRadius && !isPlayerMoving) {
+      // When idle, cycle through idle animations
+      const idleInterval = setInterval(() => {
+        setCurrentIdleIndex((prevIndex) => {
+          // Randomly select a different idle animation (not the same one twice in a row)
+          const availableIndices = idleVideos.map((_, index) => index).filter(index => index !== prevIndex);
+          const randomIndex = availableIndices[Math.floor(Math.random() * availableIndices.length)];
+          return randomIndex;
+        });
+      }, 4000 + Math.random() * 3000); // 4-7 seconds between idle animation changes
+      
+      return () => clearInterval(idleInterval);
+    }
+  }, [isInInvestigationRadius, isPlayerMoving]);
+
+  // Ensure video autoplays and handles transitions smoothly
+  useEffect(() => {
+    const videoElements = document.querySelectorAll('.detective-character-video');
+    videoElements.forEach((video) => {
+      if (video instanceof HTMLVideoElement) {
+        // Get the full URL for comparison
+        const currentVideoUrl = new URL(currentVideo, window.location.href).href;
+        const videoUrl = video.src || video.currentSrc;
+        
+        // If video source changed, update it smoothly
+        if (videoUrl !== currentVideoUrl && !videoUrl.includes(currentVideo)) {
+          const wasPlaying = !video.paused;
+          
+          // Don't change src if video is already loading the same file
+          // Just update the src property directly - browser will use cached version if available
+          video.src = currentVideo;
+          
+          // Set loop property
+          if (isInInvestigationRadius && currentVideo === detectiveMagnifyingVideo && !isPlayerMoving) {
+            video.loop = false;
+          } else {
+            video.loop = true;
+          }
+          
+          // Try to play immediately if video is already cached
+          const tryPlay = () => {
+            if (wasPlaying) {
+              video.play().catch(() => {});
+            }
+          };
+          
+          // If video is already ready (cached), play immediately
+          if (video.readyState >= 3) {
+            tryPlay();
+          } else {
+            // Wait for video to be ready, but don't call load() - let browser handle it
+            const handleCanPlay = () => {
+              video.removeEventListener('canplay', handleCanPlay);
+              tryPlay();
+            };
+            video.addEventListener('canplay', handleCanPlay, { once: true });
+          }
+        } else {
+          // Same video source, just ensure it's set up correctly
+          if (isInInvestigationRadius && currentVideo === detectiveMagnifyingVideo && !isPlayerMoving) {
+            video.loop = false;
+            if (!hasPlayedMagnifying && video.paused) {
+              const handleEnded = () => {
+                video.pause();
+                if (video.duration && !isNaN(video.duration)) {
+                  video.currentTime = Math.max(0, video.duration - 0.1);
+                }
+                setHasPlayedMagnifying(true);
+              };
+              video.addEventListener('ended', handleEnded, { once: true });
+              video.play().catch(() => {});
+            }
+          } else {
+            video.loop = true;
+            if (video.paused) {
+              video.play().catch(() => {});
+            }
+          }
+        }
+      }
+    });
+  }, [currentVideo, isInInvestigationRadius, hasPlayedMagnifying, isPlayerMoving]);
+
+  const icon = useMemo(() => {
+    return divIcon({
+      className: 'detective-video-marker',
+      html: `
+        <div style="
+          width: ${width}px;
+          height: ${height}px;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          pointer-events: none;
+          overflow: hidden;
+        ">
+          <video
+            class="detective-character-video"
+            src="${currentVideo}"
+            autoplay
+            loop
+            muted
+            playsinline
+            preload="auto"
+            style="
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+              object-position: center bottom;
+              filter: saturate(0.7) brightness(0.9) contrast(1.05) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+              -webkit-mask-image: 
+                linear-gradient(to bottom, black 0%, black 70%, rgba(0, 0, 0, 0.98) 85%, rgba(0, 0, 0, 0.85) 92%, rgba(0, 0, 0, 0.6) 96%, rgba(0, 0, 0, 0.3) 98%, transparent 100%),
+                radial-gradient(ellipse ${maskWidth}px ${maskHeight}px at 50% 70%, black 55%, rgba(0, 0, 0, 0.95) 65%, rgba(0, 0, 0, 0.8) 75%, rgba(0, 0, 0, 0.5) 85%, transparent 98%);
+              -webkit-mask-composite: intersect;
+              mask-image: 
+                linear-gradient(to bottom, black 0%, black 70%, rgba(0, 0, 0, 0.98) 85%, rgba(0, 0, 0, 0.85) 92%, rgba(0, 0, 0, 0.6) 96%, rgba(0, 0, 0, 0.3) 98%, transparent 100%),
+                radial-gradient(ellipse ${maskWidth}px ${maskHeight}px at 50% 70%, black 55%, rgba(0, 0, 0, 0.95) 65%, rgba(0, 0, 0, 0.8) 75%, rgba(0, 0, 0, 0.5) 85%, transparent 98%);
+              mask-composite: intersect;
+            "
+          />
+        </div>
+      `,
+      iconSize: [width, height],
+      iconAnchor: [width / 2, height - 10], // Anchor at bottom center (feet position)
+      popupAnchor: [0, -height + 10],
+    });
+  }, [width, height, maskWidth, maskHeight]); // Removed currentVideo to prevent marker recreation
 
   return (
     <>
@@ -21,34 +267,17 @@ export function PlayerMarker() {
         className="player-marker-ring"
       />
       
-      {/* Main player marker */}
-      <CircleMarker
-        center={[playerPosition.lat, playerPosition.lng]}
-        radius={10}
-        pathOptions={{
-          fillColor: '#2dd4bf',
-          fillOpacity: 0.9,
-          color: '#2dd4bf',
-          weight: 3,
-          opacity: 1,
-        }}
-        className="player-marker"
-      >
-        <Popup>You are here</Popup>
-      </CircleMarker>
-      
-      {/* Inner glow dot */}
-      <CircleMarker
-        center={[playerPosition.lat, playerPosition.lng]}
-        radius={4}
-        pathOptions={{
-          fillColor: '#5eead4',
-          fillOpacity: 1,
-          color: 'transparent',
-          weight: 0,
-        }}
-        className="player-marker-core"
+      {/* Detective character video marker */}
+      <Marker 
+        position={[playerPosition.lat, playerPosition.lng]} 
+        icon={icon} 
+        key={`${zoom}-${width}-${height}`}
+        zIndexOffset={1000}
       />
     </>
   );
+}
+
+export function PlayerMarker() {
+  return <ZoomAwarePlayerMarker />;
 }

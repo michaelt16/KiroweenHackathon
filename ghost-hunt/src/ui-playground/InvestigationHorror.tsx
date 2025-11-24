@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 // Horror Investigation - Active ghost hunt with field kit
 export function InvestigationHorror() {
   const [activeTool, setActiveTool] = useState<string>('radar');
-  const [sanity, setSanity] = useState(72);
+  const [sanity] = useState(72);
 
   const tools = [
     { id: 'radar', name: 'Radar', icon: '📡', active: true },

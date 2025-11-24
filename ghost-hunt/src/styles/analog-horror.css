@@ -1,0 +1,191 @@
+/* Analog Horror Global Styles - Spec 008 */
+
+/* Color Variables */
+:root {
+  /* Paper Colors (NEVER pure white) */
+  --paper-darkest: #c4b49a;
+  --paper-medium: #d8d4c8;
+  --paper-light: #e8e4dc;
+  --paper-lightest: #f4f0e6;
+
+  /* Ink Colors */
+  --ink-dark: #1a0f0a;
+  --ink-red-dark: #4a0000;
+  --ink-red-blood: #8b0000;
+  --ink-red-bright: #cc0000;
+
+  /* Corkboard Colors */
+  --cork-light: #8B6F47;
+  --cork-medium: #6B5230;
+  --cork-dark: #5A4228;
+
+  /* Damage Colors */
+  --damage-coffee: rgba(139, 69, 19, 0.3);
+  --damage-water: rgba(0, 0, 0, 0.4);
+  --damage-blood: rgba(139, 0, 0, 0.2);
+  --damage-burn: rgba(40, 20, 0, 0.6);
+}
+
+/* Typography Classes */
+
+/* Handwritten Typography (Caveat) */
+.analog-handwritten {
+  font-family: 'Caveat', cursive;
+  color: var(--ink-dark);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  line-height: 1.8;
+}
+
+.analog-handwritten-title {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.analog-handwritten-note {
+  font-size: 18px;
+  font-weight: 400;
+  margin-bottom: 15px;
+}
+
+.analog-handwritten-urgent {
+  color: var(--ink-red-dark);
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(139, 0, 0, 0.5);
+}
+
+/* Typewriter Typography (Courier New) */
+.analog-typewriter {
+  font-family: 'Courier New', monospace;
+  color: var(--ink-dark);
+  letter-spacing: 0.5px;
+  line-height: 1.6;
+}
+
+.analog-typewriter-data {
+  font-size: 14px;
+  font-weight: normal;
+  text-transform: uppercase;
+}
+
+.analog-typewriter-label {
+  font-size: 11px;
+  font-weight: normal;
+  color: var(--ink-dark);
+  opacity: 0.8;
+  text-transform: uppercase;
+}
+
+.analog-typewriter-urgent {
+  color: var(--ink-red-dark);
+  font-weight: bold;
+}
+
+/* Utility Classes */
+
+/* Paper Background */
+.analog-paper-bg {
+  background-color: var(--paper-medium);
+  position: relative;
+}
+
+.analog-paper-bg-light {
+  background-color: var(--paper-light);
+}
+
+.analog-paper-bg-dark {
+  background-color: var(--paper-darkest);
+}
+
+/* Organic Rotation */
+.analog-rotate-slight {
+  transform: rotate(0.5deg);
+}
+
+.analog-rotate-medium {
+  transform: rotate(1deg);
+}
+
+.analog-rotate-strong {
+  transform: rotate(1.5deg);
+}
+
+/* Damage Elements */
+.analog-damage-coffee {
+  background: radial-gradient(circle, var(--damage-coffee) 0%, transparent 70%);
+  mix-blend-mode: multiply;
+}
+
+.analog-damage-water {
+  background: radial-gradient(ellipse, var(--damage-water) 0%, transparent 70%);
+  mix-blend-mode: multiply;
+}
+
+/* Text Shadows for Ink Bleed */
+.analog-ink-bleed {
+  text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.2);
+}
+
+.analog-ink-bleed-strong {
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* Transitions */
+.analog-transition-static {
+  animation: static-burst 0.3s ease-out;
+}
+
+.analog-transition-glitch {
+  animation: glitch 0.4s ease-out;
+}
+
+@keyframes static-burst {
+  0% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  50% {
+    opacity: 0.7;
+    filter: brightness(1.5) contrast(1.2);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+@keyframes glitch {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-2px);
+  }
+  40% {
+    transform: translateX(2px);
+  }
+  60% {
+    transform: translateX(-1px);
+  }
+  80% {
+    transform: translateX(1px);
+  }
+}
+
+/* Screen Shake */
+.analog-shake {
+  animation: shake 0.3s ease-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+

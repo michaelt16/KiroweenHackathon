@@ -1,4 +1,3 @@
-import React from 'react';
 
 // Texture imports
 import burnhole from '../assets/texture/burnhole.png';

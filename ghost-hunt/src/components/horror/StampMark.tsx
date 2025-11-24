@@ -1,5 +1,5 @@
 // StampMark - Urgent/classified stamps
-import { CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 
 interface StampMarkProps {
   text: string;

@@ -1,4 +1,3 @@
-import React from 'react';
 
 // Texture imports
 import dust from '../assets/texture/dust.png';

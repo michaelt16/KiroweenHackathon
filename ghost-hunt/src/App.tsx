@@ -2,15 +2,17 @@ import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
 import { GameStateProvider } from './context/GameStateContext';
 import { MapDataProvider } from './context/MapDataContext';
 import { SuppliesProvider } from './context/SuppliesContext';
+import { FieldJournalsProvider } from './context/FieldJournalsContext';
 import { MapRootScreen } from './screens/MapRootScreen';
 import { InventoryScreen } from './screens/InventoryScreen';
 import { CodexScreen } from './screens/CodexScreen';
 import { ProfilePanel } from './screens/ProfilePanel';
+import { FieldJournalsScreen } from './screens/FieldJournalsScreen';
 import { ProfilePanelHorror } from './screens/ProfilePanelHorror';
 import { InvestigationScreen } from './screens/InvestigationScreen';
 import { ProfileButton } from './components/HUD/ProfileButton';
 import { BackpackMenu } from './components/HUD/BackpackMenu';
-import { ClippyAssistant } from './components/HUD/ClippyAssistant';
+import { FloatingClippy } from './components/HUD/FloatingClippy';
 import { HUDContainer } from './components/HUD/HUDContainer';
 import { PlaygroundRouter } from './ui-playground/PlaygroundRouter';
 import { AnalogHorrorPlayground } from './ui-playground/AnalogHorrorPlayground';
@@ -28,42 +30,32 @@ function MapLayout() {
           <BackpackMenu
             onOpenInventory={() => navigate('/inventory')}
             onOpenCodex={() => navigate('/codex')}
+            onOpenFieldJournals={() => navigate('/field-journals')}
           />
         </div>
-        <ClippyAssistant />
+        {/* Placeholder to maintain three-column layout alignment */}
+        <div style={{ width: '80px', pointerEvents: 'none' }} />
       </HUDContainer>
     </>
   );
 }
 
 function ScreenLayout({ children }: { children: React.ReactNode }) {
-  const navigate = useNavigate();
-
-  return (
-    <>
-      {children}
-      <button
-        onClick={() => navigate('/')}
-        style={{
-          position: 'fixed',
-          top: '10px',
-          left: '10px',
-          zIndex: 1000,
-        }}
-      >
-        ← Back to Map
-      </button>
-    </>
-  );
+  // ScreenLayout now just wraps children - back button is handled per screen
+  return <>{children}</>;
 }
 
 function App() {
   return (
     <BrowserRouter>
+      <FieldJournalsProvider>
       <SuppliesProvider>
         <GameStateProvider>
           <MapDataProvider>
             <div className="app">
+              {/* Floating Clippy - Appears on all pages */}
+              <FloatingClippy />
+              
               <Routes>
                 <Route path="/" element={<MapLayout />} />
                 <Route
@@ -91,6 +83,14 @@ function App() {
                   }
                 />
                 <Route
+                  path="/field-journals"
+                  element={
+                    <ScreenLayout>
+                      <FieldJournalsScreen />
+                    </ScreenLayout>
+                  }
+                />
+                <Route
                   path="/profile-horror"
                   element={<ProfilePanelHorror />}
                 />
@@ -102,6 +102,7 @@ function App() {
           </MapDataProvider>
         </GameStateProvider>
       </SuppliesProvider>
+      </FieldJournalsProvider>
     </BrowserRouter>
   );
 }

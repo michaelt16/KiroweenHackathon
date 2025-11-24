@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { BookPage } from '../../components/analog/templates/BookPage';
 import { HandwrittenText } from '../../components/analog/elements/HandwrittenText';
 import { TypewrittenText } from '../../components/analog/elements/TypewrittenText';

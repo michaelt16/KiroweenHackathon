@@ -1,10 +1,8 @@
-import React from 'react';
 import { CorkBoard } from '../../components/analog/templates/CorkBoard';
 import { IDCard } from '../../components/analog/elements/IDCard';
 import { PushPin } from '../../components/analog/base/PushPin';
 import { StickyNote } from '../../components/analog/elements/StickyNote';
 import { PolaroidPhoto } from '../../components/analog/elements/PolaroidPhoto';
-import { HandwrittenText } from '../../components/analog/elements/HandwrittenText';
 import pfp from '../../assets/images/agent/pfp.png';
 import ghost1 from '../../assets/images/ghost1.png';
 import ghost2 from '../../assets/images/ghost2.png';

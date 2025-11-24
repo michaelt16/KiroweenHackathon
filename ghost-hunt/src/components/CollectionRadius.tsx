@@ -8,45 +8,68 @@ export function CollectionRadius() {
 
   return (
     <>
-      {/* Outer glow ring */}
+      {/* Glow effect - outer glow circle */}
       <Circle
         center={[playerPosition.lat, playerPosition.lng]}
         radius={COLLECTION_RADIUS + 5}
         pathOptions={{
-          color: 'rgba(45, 212, 191, 0.2)',
+          color: 'transparent',
+          fillColor: '#00d9ff',
+          fillOpacity: 0.2,
+          weight: 0,
+        }}
+      />
+      {/* Glow effect - inner glow circle */}
+      <Circle
+        center={[playerPosition.lat, playerPosition.lng]}
+        radius={COLLECTION_RADIUS + 2}
+        pathOptions={{
+          color: 'transparent',
+          fillColor: '#00d9ff',
+          fillOpacity: 0.15,
+          weight: 0,
+        }}
+      />
+      {/* Outer circle - dotted style matching investigation areas */}
+      <Circle
+        center={[playerPosition.lat, playerPosition.lng]}
+        radius={COLLECTION_RADIUS + 3}
+        pathOptions={{
+          color: '#33e5ff',
           fillColor: 'transparent',
           fillOpacity: 0,
-          weight: 1,
-          opacity: 0.4,
+          weight: 3,
+          opacity: 1,
+          dashArray: '6 3',
         }}
-        className="collection-radius-glow"
       />
       
-      {/* Main collection radius */}
+      {/* Main collection radius - bold dotted style */}
       <Circle
         center={[playerPosition.lat, playerPosition.lng]}
         radius={COLLECTION_RADIUS}
         pathOptions={{
-          color: 'rgba(45, 212, 191, 0.6)',
-          fillColor: 'rgba(45, 212, 191, 0.08)',
-          fillOpacity: 0.08,
-          weight: 2,
-          opacity: 0.7,
-          dashArray: '8, 4',
+          color: '#00d9ff',
+          fillColor: 'transparent',
+          fillOpacity: 0,
+          weight: 6,
+          opacity: 1,
+          dashArray: '8 4',
         }}
         className="collection-radius-main"
       />
       
-      {/* Inner border */}
+      {/* Inner circle - dotted style */}
       <Circle
         center={[playerPosition.lat, playerPosition.lng]}
         radius={COLLECTION_RADIUS - 2}
         pathOptions={{
-          color: 'rgba(45, 212, 191, 0.3)',
+          color: '#33e5ff',
           fillColor: 'transparent',
           fillOpacity: 0,
-          weight: 1,
-          opacity: 0.5,
+          weight: 2,
+          opacity: 1,
+          dashArray: '6 3',
         }}
       />
     </>

@@ -42,6 +42,14 @@ const TOOLS: { id: ToolId; icon: string; name: string; description: string }[] =
 
 export function ToolsTab({ onSelectTool }: ToolsTabProps) {
   const { activeTool, setActiveTool } = useInvestigation();
+  
+  // Add pulse animation for active indicator
+  const pulseAnimation = `
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+  `;
 
   const handleSelectTool = (toolId: ToolId) => {
     console.log('🔧 Tool selected:', toolId);
@@ -50,13 +58,15 @@ export function ToolsTab({ onSelectTool }: ToolsTabProps) {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-      }}
-    >
+    <>
+      <style>{pulseAnimation}</style>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '12px',
+        }}
+      >
       <h3
         style={{
           margin: '0 0 8px 0',
@@ -86,9 +96,26 @@ export function ToolsTab({ onSelectTool }: ToolsTabProps) {
               gap: '16px',
               transition: 'all 0.2s',
               textAlign: 'left',
+              boxShadow: isActive 
+                ? '0 0 16px rgba(45, 212, 191, 0.3), inset 0 1px 0 rgba(45, 212, 191, 0.2)'
+                : '0 2px 8px rgba(0, 0, 0, 0.3)',
+            }}
+            onMouseEnter={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.backgroundColor = 'rgba(45, 212, 191, 0.08)';
+                e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.4)';
+                e.currentTarget.style.boxShadow = '0 0 12px rgba(45, 212, 191, 0.2)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isActive) {
+                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
+              }
             }}
           >
-            {/* Icon */}
+            {/* Icon with 007-style treatment */}
             <div
               style={{
                 fontSize: '32px',
@@ -99,6 +126,11 @@ export function ToolsTab({ onSelectTool }: ToolsTabProps) {
                 justifyContent: 'center',
                 backgroundColor: isActive ? 'rgba(45, 212, 191, 0.2)' : 'rgba(255, 255, 255, 0.05)',
                 borderRadius: '8px',
+                border: isActive ? '1px solid rgba(45, 212, 191, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
+                boxShadow: isActive 
+                  ? 'inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 12px rgba(45, 212, 191, 0.4)'
+                  : 'inset 0 2px 4px rgba(0, 0, 0, 0.3)',
+                filter: isActive ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.6))' : 'none',
               }}
             >
               {tool.icon}
@@ -112,6 +144,10 @@ export function ToolsTab({ onSelectTool }: ToolsTabProps) {
                   fontWeight: 'bold',
                   color: isActive ? '#2dd4bf' : 'white',
                   marginBottom: '4px',
+                  fontFamily: '"Courier New", monospace',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.5px',
+                  textShadow: isActive ? '0 0 8px rgba(45, 212, 191, 0.5)' : 'none',
                 }}
               >
                 {tool.name}
@@ -120,18 +156,21 @@ export function ToolsTab({ onSelectTool }: ToolsTabProps) {
                 style={{
                   fontSize: '13px',
                   color: '#9ca3af',
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
                 }}
               >
                 {tool.description}
               </div>
             </div>
 
-            {/* Active Indicator */}
+            {/* Active Indicator with glow */}
             {isActive && (
               <div
                 style={{
                   fontSize: '20px',
                   color: '#2dd4bf',
+                  filter: 'drop-shadow(0 0 6px rgba(45, 212, 191, 0.8))',
+                  animation: 'pulse 2s ease-in-out infinite',
                 }}
               >
                 ✓
@@ -140,6 +179,7 @@ export function ToolsTab({ onSelectTool }: ToolsTabProps) {
           </button>
         );
       })}
-    </div>
+      </div>
+    </>
   );
 }

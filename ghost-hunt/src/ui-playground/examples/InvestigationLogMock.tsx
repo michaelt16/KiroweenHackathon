@@ -1,4 +1,3 @@
-import React from 'react';
 import { EvidencePage } from '../../components/analog/templates/EvidencePage';
 import { PolaroidPhoto } from '../../components/analog/elements/PolaroidPhoto';
 import { HandwrittenText } from '../../components/analog/elements/HandwrittenText';

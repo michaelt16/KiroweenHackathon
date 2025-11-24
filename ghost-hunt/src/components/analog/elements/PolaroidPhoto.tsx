@@ -1,4 +1,3 @@
-import React from 'react';
 import tape from '../../../assets/texture/tape.png';
 import dust from '../../../assets/texture/dust.png';
 import { getDamageVariant } from '../utils/randomization';
@@ -24,7 +23,8 @@ export function PolaroidPhoto({
   const finalRotation = rotation ?? rotations[getDamageVariant(seed, rotations.length)];
   
   const tapeRotations = [-12, -8, -5, 5, 8, 12];
-  const tapeRotation = tapeRotations[getDamageVariant(seed + 1, tapeRotations.length)];
+  const seedNum = typeof seed === 'number' ? seed : Date.now();
+  const tapeRotation = tapeRotations[getDamageVariant(seedNum + 1, tapeRotations.length)];
 
   const staticOpacity = {
     light: 0.5,

@@ -42,3 +42,24 @@ export type InventoryItem = {
   type: ToolType | SupplyType;
   quantity: number;
 };
+
+// Field Journal types
+export type FieldJournalNode = {
+  id: string;
+  lat: number;
+  lng: number;
+  journalId: string; // References the journal entry ID
+};
+
+export interface JournalEntry {
+  id: string;
+  date: string;
+  location: string;
+  agentName: string;
+  agentStatus: 'MISSING' | 'DECEASED' | 'RETIRED' | 'ACTIVE';
+  threatLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME';
+  notes: string[];
+  evidence: string[];
+  photos?: string[];
+  finalEntry?: string; // Last entry before agent went missing/died
+}

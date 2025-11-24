@@ -1,9 +1,12 @@
-// Field Kit Drawer - Tablet-style UI with tabs
+// Field Kit Drawer - Analog Horror Aesthetic
 import { useState } from 'react';
 import { ToolsTab } from './FieldKit/ToolsTab';
 import { PhotosTab } from './FieldKit/PhotosTab';
 import { EvidenceTab } from './FieldKit/EvidenceTab';
 import { CodexTab } from './FieldKit/CodexTab';
+import wrinkledPaper from '../../assets/texture/wrinkledpaper.png';
+import dust from '../../assets/texture/dust.png';
+import tape from '../../assets/texture/tape.png';
 
 type TabType = 'tools' | 'photos' | 'evidence' | 'codex';
 

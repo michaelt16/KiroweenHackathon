@@ -1,4 +1,3 @@
-import React from 'react';
 import { CodexPage } from '../../components/analog/templates/CodexPage';
 import { EvidencePage } from '../../components/analog/templates/EvidencePage';
 import { FieldReport } from '../../components/analog/templates/FieldReport';

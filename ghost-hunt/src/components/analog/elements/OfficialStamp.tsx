@@ -1,4 +1,3 @@
-import React from 'react';
 import { getDamageVariant } from '../utils/randomization';
 
 interface OfficialStampProps {

@@ -1,5 +1,5 @@
 // PaperCard - Reusable aged paper container with damage
-import { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 import wrinkledpaper from '../../assets/texture/wrinkledpaper.png';
 import dust from '../../assets/texture/dust.png';
 import coffeestain from '../../assets/texture/coffeestain.png';

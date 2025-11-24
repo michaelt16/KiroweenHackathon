@@ -25,25 +25,60 @@ import { MediaMock_1 } from './MediaMock_1';
 import { MediaMock_2 } from './MediaMock_2';
 import { MediaMock_3 } from './MediaMock_3';
 import { MediaMock_4 } from './MediaMock_4';
+import { RadarToolMock } from './tools/RadarToolMock';
+import { EMFMeterMock } from './tools/EMFMeterMock';
+import { ThermalScannerMock } from './tools/ThermalScannerMock';
+import { SpiritBoxMock } from './tools/SpiritBoxMock';
+import { CameraViewfinderMock } from './tools/CameraViewfinderMock';
+import { RadarToolTest } from './tools/RadarToolTest';
+import { IconVariationsMock } from './IconVariationsMock';
+import { MapVariationsMock } from './MapVariationsMock';
+import { CorkboardMapView } from './CorkboardMapView';
 
-type Screen = 'profile' | 'codex' | 'investigation' | 'map' | 'horror-ghost' | 'horror-notes' | 'horror-evidence' | 'horror-id' | 'horror-id-texture' | 'horror-map' | 'horror-codex' | 'horror-investigation' | 'example-codex' | 'example-report' | 'example-case' | 'codex-journal' | 'component-system' | 'investigation-log' | 'ghost-codex-book' | 'profile-cork' | 'profile-clipboard' | 'media-1' | 'media-2' | 'media-3' | 'media-4';
+type Screen = 'profile' | 'codex' | 'investigation' | 'map' | 'horror-ghost' | 'horror-notes' | 'horror-evidence' | 'horror-id' | 'horror-id-texture' | 'horror-map' | 'horror-codex' | 'horror-investigation' | 'example-codex' | 'example-report' | 'example-case' | 'codex-journal' | 'component-system' | 'investigation-log' | 'ghost-codex-book' | 'profile-cork' | 'profile-clipboard' | 'media-1' | 'media-2' | 'media-3' | 'media-4' | 'tool-radar' | 'tool-radar-test' | 'tool-emf' | 'tool-thermal' | 'tool-spirit' | 'tool-camera' | 'icon-variations' | 'map-variations' | 'corkboard-map';
 type Style = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
 
 export function PlaygroundRouter() {
   const [activeScreen, setActiveScreen] = useState<Screen>('profile');
   const [activeStyle, setActiveStyle] = useState<Style>('A');
+  const [navbarExpanded, setNavbarExpanded] = useState(true);
 
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      {/* Toggle Button - Always visible */}
+      <button
+        onClick={() => setNavbarExpanded(!navbarExpanded)}
+        style={{
+          position: 'fixed',
+          top: '8px',
+          left: '8px',
+          zIndex: 1001,
+          padding: '8px 12px',
+          background: '#1a1a1a',
+          color: '#fff',
+          border: '2px solid #333',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.5)',
+        }}
+        title={navbarExpanded ? 'Collapse navbar' : 'Expand navbar'}
+      >
+        {navbarExpanded ? '▼' : '▲'}
+      </button>
+
       {/* Control Panel */}
-      <div style={{ 
-        background: '#1a1a1a', 
-        padding: '16px', 
-        borderBottom: '2px solid #333',
-        display: 'flex',
-        gap: '20px',
-        alignItems: 'center'
-      }}>
+      {navbarExpanded && (
+        <div style={{ 
+          background: '#1a1a1a', 
+          padding: '16px', 
+          borderBottom: '2px solid #333',
+          display: 'flex',
+          gap: '20px',
+          alignItems: 'center',
+          position: 'relative',
+          zIndex: 1000,
+        }}>
         <div style={{ color: '#fff', fontWeight: 'bold', marginRight: '20px' }}>
           🎨 UI PLAYGROUND
         </div>
@@ -405,6 +440,142 @@ export function PlaygroundRouter() {
               📸 Media 4
             </button>
           </div>
+
+          {/* Investigation Tools Section */}
+          <div style={{ 
+            borderLeft: '2px solid #f59e0b', 
+            marginLeft: '8px', 
+            paddingLeft: '12px',
+            display: 'flex',
+            gap: '8px',
+          }}>
+            <button
+              onClick={() => setActiveScreen('tool-radar')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'tool-radar' ? '#f59e0b' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              📡 Radar
+            </button>
+            <button
+              onClick={() => setActiveScreen('tool-radar-test')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'tool-radar-test' ? '#22c55e' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              📡 Radar (NEW)
+            </button>
+            <button
+              onClick={() => setActiveScreen('tool-emf')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'tool-emf' ? '#f59e0b' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              ⚡ EMF Meter
+            </button>
+            <button
+              onClick={() => setActiveScreen('tool-thermal')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'tool-thermal' ? '#f59e0b' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              🌡️ Thermal
+            </button>
+            <button
+              onClick={() => setActiveScreen('tool-spirit')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'tool-spirit' ? '#f59e0b' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              📻 Spirit Box
+            </button>
+            <button
+              onClick={() => setActiveScreen('tool-camera')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'tool-camera' ? '#f59e0b' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              📷 Camera
+            </button>
+          </div>
+        </div>
+
+        {/* UI Rework Section */}
+        <div style={{ marginTop: '16px', paddingTop: '16px', borderTop: '1px solid #333' }}>
+          <div style={{ color: '#999', fontSize: '11px', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+            UI Rework
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => setActiveScreen('icon-variations')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'icon-variations' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              🎨 Icon Variations
+            </button>
+            <button
+              onClick={() => setActiveScreen('map-variations')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'map-variations' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              🗺️ Map Variations
+            </button>
+            <button
+              onClick={() => setActiveScreen('corkboard-map')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'corkboard-map' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              📌 Corkboard Map
+            </button>
+          </div>
         </div>
 
         {/* Style Selector */}
@@ -434,9 +605,10 @@ export function PlaygroundRouter() {
             >
               {style.id} - {style.label}
             </button>
-          ))}
+            ))}
         </div>
       </div>
+      )}
 
       {/* Mock Display */}
       <div style={{ flex: 1, overflow: 'auto', background: '#0a0a0a' }}>
@@ -465,6 +637,15 @@ export function PlaygroundRouter() {
         {activeScreen === 'media-2' && <MediaMock_2 />}
         {activeScreen === 'media-3' && <MediaMock_3 />}
         {activeScreen === 'media-4' && <MediaMock_4 />}
+        {activeScreen === 'tool-radar' && <RadarToolMock />}
+        {activeScreen === 'tool-radar-test' && <RadarToolTest />}
+        {activeScreen === 'tool-emf' && <EMFMeterMock />}
+        {activeScreen === 'tool-thermal' && <ThermalScannerMock />}
+        {activeScreen === 'tool-spirit' && <SpiritBoxMock />}
+        {activeScreen === 'tool-camera' && <CameraViewfinderMock />}
+        {activeScreen === 'icon-variations' && <IconVariationsMock />}
+        {activeScreen === 'map-variations' && <MapVariationsMock />}
+        {activeScreen === 'corkboard-map' && <CorkboardMapView />}
       </div>
     </div>
   );

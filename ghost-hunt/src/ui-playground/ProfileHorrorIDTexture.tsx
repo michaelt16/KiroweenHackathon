@@ -1,4 +1,3 @@
-import React from 'react';
 import idTexture from '../assets/texture/ID.png';
 import corkTexture from '../assets/texture/corkboardtexture.png';
 import tapeTexture from '../assets/texture/tape.png';
@@ -78,13 +77,12 @@ export function ProfileHorrorIDTexture() {
               position: 'absolute',
               top: '-8px',
               left: '50%',
-              transform: 'translateX(-50%)',
+              transform: 'translateX(-50%) rotate(45deg)',
               width: '12px',
               height: '12px',
               backgroundColor: '#dc2626',
               borderRadius: '50% 50% 50% 0',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-              transform: 'translateX(-50%) rotate(45deg)'
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
             }}
           />
           ACTIVE CASE
@@ -433,13 +431,12 @@ export function ProfileHorrorIDTexture() {
               position: 'absolute',
               top: '-8px',
               left: '50%',
-              transform: 'translateX(-50%)',
+              transform: 'translateX(-50%) rotate(45deg)',
               width: '12px',
               height: '12px',
               backgroundColor: '#dc2626',
               borderRadius: '50% 50% 50% 0',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
-              transform: 'translateX(-50%) rotate(45deg)'
+              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)'
             }}
           />
           ⚠️ REMINDER ⚠️

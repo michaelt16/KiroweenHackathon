@@ -1,4 +1,3 @@
-import React from 'react';
 import tape from '../../../assets/texture/tape.png';
 import { getDamageVariant } from '../utils/randomization';
 

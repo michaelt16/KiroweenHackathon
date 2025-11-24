@@ -1,35 +1,22 @@
-// Codex screen - Game-like Mobile UI (Pokemon Go inspired)
+// Codex screen - Analog Horror UI (Physical journal/case file)
 import { GhostCodex } from '../components/Codex/GhostCodex';
-import { CRTOverlay } from '../components/Effects/CRTOverlay';
-import { TopStatusBar } from '../components/HUD/TopStatusBar';
+import { BackToMapButton } from '../components/analog/elements/BackToMapButton';
 
 export function CodexScreen() {
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#0a0f14',
-        color: '#cbd5e1',
-        position: 'relative',
-        overflow: 'hidden',
-      }}
-    >
-      {/* Subtle CRT Overlay */}
-      <CRTOverlay intensity={0.2} scanlineSpacing={4} staticOpacity={0.02} flickerEnabled={false} />
-      
-      {/* Top Status Bar */}
-      <TopStatusBar />
-      
-      <div style={{ 
-        position: 'relative', 
-        zIndex: 1, 
-        height: '100vh', 
-        display: 'flex', 
-        flexDirection: 'column',
-        paddingTop: '80px',
+    <div style={{ position: 'relative', width: '100%', minHeight: '100vh' }}>
+      {/* Back to Map Button - Floating on top */}
+      <div style={{
+        position: 'fixed',
+        top: '20px',
+        left: '20px',
+        zIndex: 1000,
       }}>
-        <GhostCodex />
+        <BackToMapButton />
       </div>
+      
+      {/* Full screen GhostCodex */}
+      <GhostCodex />
     </div>
   );
 }

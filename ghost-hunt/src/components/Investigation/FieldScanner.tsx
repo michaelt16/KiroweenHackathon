@@ -1,29 +1,10 @@
 // Field Scanner - Main radar view component
-import { useState, useEffect } from 'react';
+// Renders the active investigation tool in full-screen mode
 import { useInvestigation } from '../../context/InvestigationContext';
-import { RadarCanvas } from '../Radar/RadarCanvas';
-import { GhostBlip } from '../Radar/GhostBlip';
-import { NoiseOverlay } from '../Radar/NoiseOverlay';
-import { EMFMeter } from '../Tools/EMFMeter';
-import { ThermalScanner } from '../Tools/ThermalScanner';
-import { AudioReceiver } from '../Tools/AudioReceiver';
-import { Camera } from '../Tools/Camera';
+import { RadarTool, EMFMeterTool, ThermalScannerTool, AudioReceiverTool, CameraTool } from '../Tools';
 
 export function FieldScanner() {
-  const {
-    activeTool,
-    playerHeading,
-    ghostBearing,
-    compassAccuracy,
-  } = useInvestigation();
-  const [radarSize, setRadarSize] = useState(0);
-  const [sweepAngle, setSweepAngle] = useState(0);
-
-  useEffect(() => {
-    // Calculate radar size
-    const size = Math.min(window.innerWidth, window.innerHeight);
-    setRadarSize(size);
-  }, []);
+  const { activeTool } = useInvestigation();
 
   return (
     <div
@@ -36,34 +17,15 @@ export function FieldScanner() {
         zIndex: 1,
       }}
     >
-      {/* Radar Canvas - Always visible for 'radar' tool */}
-      {activeTool === 'radar' && (
-        <RadarCanvas
-          onSweepAngleChange={setSweepAngle}
-          playerHeading={playerHeading}
-          ghostBearing={ghostBearing}
-          compassAccuracy={compassAccuracy}
-        />
-      )}
-
-      {/* Ghost Blip - Only show on radar tool */}
-      {activeTool === 'radar' && radarSize > 0 && (
-        <GhostBlip
-          radarSize={radarSize}
-          sweepAngle={sweepAngle}
-          playerHeading={playerHeading}
-          ghostBearing={ghostBearing}
-        />
-      )}
-
-      {/* Noise Overlay - Always present */}
-      <NoiseOverlay />
-
-      {/* Tool-specific displays */}
-      {activeTool === 'emf' && <EMFMeter />}
-      {activeTool === 'thermal' && <ThermalScanner />}
-      {activeTool === 'audio' && <AudioReceiver />}
-      {activeTool === 'camera' && <Camera />}
+      {/* Tool components - Full-screen investigation tools */}
+      {activeTool === 'radar' && <RadarTool mode="investigation" />}
+      {activeTool === 'emf' && <EMFMeterTool mode="investigation" />}
+      {activeTool === 'thermal' && <ThermalScannerTool mode="investigation" />}
+      {activeTool === 'audio' && <AudioReceiverTool mode="investigation" />}
+      {activeTool === 'camera' && <CameraTool mode="investigation" />}
+      
+      {/* Default to radar if no tool is active */}
+      {!activeTool && <RadarTool mode="investigation" />}
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import coffeestain from '../../../assets/texture/coffeestain.png';
 import burnhole from '../../../assets/texture/burnhole.png';
 import { getDamageVariant } from '../utils/randomization';
@@ -29,36 +28,38 @@ export function DamageOverlay({ type, opacity = 0.4, seed = Date.now() }: Damage
   const variant = getVariant();
 
   if (type === 'coffee') {
+    const coffeeVariant = variant as typeof coffeeVariants[0];
     return (
       <div style={{
         position: 'absolute',
-        top: variant.top,
-        right: variant.right,
-        left: variant.left,
-        bottom: variant.bottom,
-        width: variant.size,
-        height: variant.size,
+        top: coffeeVariant.top,
+        right: coffeeVariant.right,
+        left: coffeeVariant.left,
+        bottom: coffeeVariant.bottom,
+        width: coffeeVariant.size,
+        height: coffeeVariant.size,
         backgroundImage: `url(${coffeestain})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'no-repeat',
         mixBlendMode: 'multiply',
         opacity,
-        transform: `rotate(${variant.rotation}deg)`,
+        transform: `rotate(${coffeeVariant.rotation}deg)`,
         pointerEvents: 'none',
       }} />
     );
   }
 
   if (type === 'burn') {
+    const burnVariant = variant as typeof burnVariants[0];
     return (
       <div style={{
         position: 'absolute',
-        bottom: variant.bottom,
-        left: variant.left,
-        right: variant.right,
-        top: variant.top,
-        width: variant.size,
-        height: variant.size,
+        bottom: burnVariant.bottom,
+        left: burnVariant.left,
+        right: burnVariant.right,
+        top: burnVariant.top,
+        width: burnVariant.size,
+        height: burnVariant.size,
         backgroundImage: `url(${burnhole})`,
         backgroundSize: 'contain',
         backgroundRepeat: 'no-repeat',
@@ -102,17 +103,18 @@ export function DamageOverlay({ type, opacity = 0.4, seed = Date.now() }: Damage
   }
 
   if (type === 'fingerprint') {
+    const fingerprintVariant = variant as typeof fingerprintVariants[0];
     return (
       <div style={{
         position: 'absolute',
-        top: variant.top,
-        right: variant.right,
-        left: variant.left,
-        bottom: variant.bottom,
-        width: variant.width,
-        height: variant.height,
+        top: fingerprintVariant.top,
+        right: fingerprintVariant.right,
+        left: fingerprintVariant.left,
+        bottom: fingerprintVariant.bottom,
+        width: fingerprintVariant.width,
+        height: fingerprintVariant.height,
         background: 'radial-gradient(ellipse, rgba(0,0,0,0.12) 0%, transparent 70%)',
-        transform: `rotate(${variant.rotation}deg)`,
+        transform: `rotate(${fingerprintVariant.rotation}deg)`,
         opacity,
         pointerEvents: 'none',
       }} />
@@ -120,18 +122,19 @@ export function DamageOverlay({ type, opacity = 0.4, seed = Date.now() }: Damage
   }
 
   if (type === 'ink') {
+    const inkVariant = variant as typeof inkVariants[0];
     return (
       <div style={{
         position: 'absolute',
-        bottom: variant.bottom,
-        left: variant.left,
-        right: variant.right,
-        top: variant.top,
-        width: variant.size,
-        height: variant.size,
+        bottom: inkVariant.bottom,
+        left: inkVariant.left,
+        right: inkVariant.right,
+        top: inkVariant.top,
+        width: inkVariant.size,
+        height: inkVariant.size,
         background: 'radial-gradient(circle, rgba(0,0,0,0.3) 0%, transparent 70%)',
         borderRadius: '50%',
-        transform: `rotate(${variant.rotation}deg)`,
+        transform: `rotate(${inkVariant.rotation}deg)`,
         opacity,
         pointerEvents: 'none',
       }} />

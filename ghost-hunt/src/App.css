@@ -14,8 +14,10 @@ body {
 
 .app {
   width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+  min-height: 100vh;
+  height: auto;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 button {
@@ -45,6 +47,39 @@ button:active {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.8) rotate(-0.8deg);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) rotate(-0.8deg);
+  }
+}
+
+@keyframes clippyBubbleAppear {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    transform: rotate(45deg) translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    transform: rotate(45deg) translateX(100%);
+    opacity: 0.3;
   }
 }
 
@@ -164,6 +199,22 @@ button:active {
   }
 }
 
+/* When icons are in range, counteract parent filter and add strong boost for pop */
+.supply-icon-in-range,
+.hotspot-in-range,
+.hotspot-in-range span {
+  filter: brightness(1.4) saturate(3.2) contrast(1.25) !important;
+}
+
+
+/* Counter-filter for Leaflet popups to override parent map filter */
+.leaflet-popup-content-wrapper {
+  filter: saturate(1.67) contrast(0.91) brightness(1.09) !important;
+}
+
+.leaflet-popup-content {
+  filter: saturate(1.67) contrast(0.91) brightness(1.09) !important;
+}
 
 /* Tool marker pulse animation */
 @keyframes toolPulse {
@@ -239,9 +290,11 @@ button:active {
 /* Supply marker pulse animation */
 @keyframes supplyPulse {
   0%, 100% {
-    filter: drop-shadow(0 0 20px currentColor);
+    filter: drop-shadow(0 0 25px currentColor) drop-shadow(0 0 15px currentColor);
+    transform: scale(1);
   }
   50% {
-    filter: drop-shadow(0 0 30px currentColor);
+    filter: drop-shadow(0 0 40px currentColor) drop-shadow(0 0 25px currentColor);
+    transform: scale(1.05);
   }
 }
