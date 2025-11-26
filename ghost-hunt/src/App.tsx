@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { GameStateProvider } from './context/GameStateContext';
 import { MapDataProvider } from './context/MapDataContext';
 import { SuppliesProvider } from './context/SuppliesContext';
@@ -45,18 +45,18 @@ function ScreenLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function App() {
+function AppContent() {
+  const location = useLocation();
+  
+  // Hide Clippy in investigation mode
+  const isInvestigationMode = location.pathname.startsWith('/investigate/');
+  
   return (
-    <BrowserRouter>
-      <FieldJournalsProvider>
-      <SuppliesProvider>
-        <GameStateProvider>
-          <MapDataProvider>
-            <div className="app">
-              {/* Floating Clippy - Appears on all pages */}
-              <FloatingClippy />
-              
-              <Routes>
+    <div className="app">
+      {/* Floating Clippy - Appears on all pages except investigation mode */}
+      {!isInvestigationMode && <FloatingClippy />}
+      
+      <Routes>
                 <Route path="/" element={<MapLayout />} />
                 <Route
                   path="/inventory"
@@ -99,9 +99,20 @@ function App() {
                 <Route path="/analog-horror" element={<AnalogHorrorPlayground />} />
               </Routes>
             </div>
-          </MapDataProvider>
-        </GameStateProvider>
-      </SuppliesProvider>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <FieldJournalsProvider>
+        <SuppliesProvider>
+          <GameStateProvider>
+            <MapDataProvider>
+              <AppContent />
+            </MapDataProvider>
+          </GameStateProvider>
+        </SuppliesProvider>
       </FieldJournalsProvider>
     </BrowserRouter>
   );

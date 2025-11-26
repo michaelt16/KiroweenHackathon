@@ -1,6 +1,8 @@
-// Evidence Tab - Manual evidence logging
+// Evidence Tab - Field Notepad/Clipboard (Production)
+import React from 'react';
 import { useInvestigation } from '../../../context/InvestigationContext';
-import { TRAIT_LABELS, type EvidenceTrait, type TraitState } from '../../../data/ghosts';
+import { HandwrittenText } from '../../analog/elements/HandwrittenText';
+import { TRAIT_LABELS, type EvidenceTrait } from '../../../data/ghosts';
 
 const TRAIT_ORDER: EvidenceTrait[] = [
   'emf',
@@ -9,168 +11,136 @@ const TRAIT_ORDER: EvidenceTrait[] = [
   'static',
   'photos',
   'sanityBehavior',
-  'movement',
 ];
 
-const STATE_COLORS: Record<TraitState, string> = {
-  unknown: '#6b7280',
-  present: '#10b981',
-  ruled_out: '#ef4444',
-};
-
-const STATE_LABELS: Record<TraitState, string> = {
-  unknown: '?',
-  present: '✓',
-  ruled_out: '✗',
-};
-
 export function EvidenceTab() {
-  const { evidence, setEvidenceTrait } = useInvestigation();
+  const { evidence } = useInvestigation();
 
-  const cycleTraitState = (trait: EvidenceTrait) => {
-    const currentState = evidence[trait];
-    let nextState: TraitState;
+  // Count collected evidence
+  const collectedCount = TRAIT_ORDER.filter(trait => evidence[trait] === 'present').length;
 
-    switch (currentState) {
-      case 'unknown':
-        nextState = 'present';
-        break;
-      case 'present':
-        nextState = 'ruled_out';
-        break;
-      case 'ruled_out':
-        nextState = 'unknown';
-        break;
-    }
-
-    setEvidenceTrait(trait, nextState);
-  };
+  // Mock suspects for MVP (TODO: Connect to actual ghost deduction logic)
+  const mockSuspects = [
+    { name: 'WRAITH', confidence: 'High' as const },
+    { name: 'BANSHEE', confidence: 'Medium' as const },
+    { name: 'DEMON', confidence: 'Low' as const },
+  ];
 
   return (
-    <div
-      style={{
-        padding: '16px',
-        height: '100%',
-        overflowY: 'auto',
-      }}
-    >
-      <h3
-        style={{
-          margin: '0 0 16px 0',
-          color: '#00ffff',
-          fontFamily: 'monospace',
-          fontSize: '16px',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-        }}
-      >
-        📋 Evidence Log
-      </h3>
+    <div style={{
+      width: '100%',
+      height: '100%',
+      background: '#1a1612',
+      padding: '20px',
+      overflow: 'auto',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+    }}>
+      {/* Clipboard/Notepad */}
+      <div style={{
+        maxWidth: '500px',
+        width: '100%',
+        background: '#f4f0e6',
+        padding: '30px 25px',
+        boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+        transform: 'rotate(-0.5deg)',
+        position: 'relative',
+        borderRadius: '4px',
+      }}>
+        {/* Clipboard clip at top */}
+        <div style={{
+          position: 'absolute',
+          top: '-15px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '80px',
+          height: '30px',
+          background: 'linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%)',
+          borderRadius: '8px 8px 0 0',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.5)',
+          border: '2px solid #1a1a1a',
+        }} />
 
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-        }}
-      >
-        {TRAIT_ORDER.map((trait) => {
-          const state = evidence[trait];
-          const isMovement = trait === 'movement';
+        {/* Title - Handwritten */}
+        <div style={{ marginBottom: '24px', textAlign: 'center' }}>
+          <HandwrittenText urgency="urgent" fontSize="24px" color="#1a0f0a">
+            Evidence Checklist
+          </HandwrittenText>
+        </div>
 
-          return (
-            <div
-              key={trait}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '12px',
-                backgroundColor: 'rgba(0, 0, 0, 0.4)',
-                border: `1px solid ${isMovement ? 'rgba(100, 100, 100, 0.3)' : 'rgba(45, 212, 191, 0.3)'}`,
-                borderRadius: '8px',
-                opacity: isMovement ? 0.5 : 1,
+        {/* Evidence Collected - Handwritten checklist */}
+        <div style={{ marginBottom: '32px' }}>
+          <HandwrittenText urgency="calm" fontSize="16px" color="#1a0f0a" style={{ marginBottom: '16px', textDecoration: 'underline' }}>
+            Evidence Found:
+          </HandwrittenText>
+          {TRAIT_ORDER.map((trait) => {
+            const isFound = evidence[trait] === 'present';
+            return (
+              <HandwrittenText
+                key={trait}
+                urgency="calm"
+                fontSize="18px"
+                color={isFound ? '#1a0f0a' : '#999'}
+                style={{ 
+                  marginBottom: '10px', 
+                  paddingLeft: '10px',
+                }}
+              >
+                {isFound ? '✓' : '○'} {TRAIT_LABELS[trait]}
+              </HandwrittenText>
+            );
+          })}
+        </div>
+
+        {/* Possible Ghosts - Circled with red marker */}
+        <div style={{
+          background: 'rgba(255, 255, 0, 0.15)',
+          padding: '20px',
+          border: '3px solid rgba(255, 200, 0, 0.6)',
+          marginBottom: '24px',
+          transform: 'rotate(1deg)',
+          position: 'relative',
+        }}>
+          <HandwrittenText urgency="urgent" fontSize="18px" color="#8b0000" style={{ marginBottom: '16px', textDecoration: 'underline' }}>
+            Suspects:
+          </HandwrittenText>
+          {mockSuspects.map((ghost, i) => (
+            <HandwrittenText
+              key={i}
+              urgency="urgent"
+              fontSize="20px"
+              color={i === 0 ? '#cc0000' : '#8b0000'}
+              style={{ 
+                marginBottom: '10px', 
+                paddingLeft: '10px',
+                fontWeight: i === 0 ? 'bold' : 'normal',
               }}
             >
-              {/* Trait label */}
-              <div
-                style={{
-                  flex: 1,
-                  fontFamily: 'monospace',
-                  fontSize: '13px',
-                  color: isMovement ? '#888888' : 'white',
-                }}
-              >
-                {TRAIT_LABELS[trait]}
-                {isMovement && (
-                  <div
-                    style={{
-                      fontSize: '10px',
-                      color: '#666666',
-                      marginTop: '2px',
-                    }}
-                  >
-                    (N/A - Ghost is static)
-                  </div>
-                )}
-              </div>
+              {i === 0 ? '⭕' : '○'} {ghost.name} - {ghost.confidence}
+            </HandwrittenText>
+          ))}
+        </div>
 
-              {/* State button */}
-              <button
-                onClick={() => !isMovement && cycleTraitState(trait)}
-                disabled={isMovement}
-                style={{
-                  width: '80px',
-                  padding: '8px 12px',
-                  backgroundColor: STATE_COLORS[state],
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  cursor: isMovement ? 'not-allowed' : 'pointer',
-                  fontFamily: 'monospace',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '4px',
-                }}
-                onMouseDown={(e) => {
-                  if (!isMovement) {
-                    e.currentTarget.style.transform = 'scale(0.95)';
-                  }
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
-              >
-                <span style={{ fontSize: '14px' }}>{STATE_LABELS[state]}</span>
-                <span style={{ fontSize: '10px', textTransform: 'uppercase' }}>
-                  {state === 'unknown' ? 'Unknown' : state === 'present' ? 'Present' : 'Ruled Out'}
-                </span>
-              </button>
-            </div>
-          );
-        })}
-      </div>
-
-      <div
-        style={{
-          marginTop: '16px',
-          padding: '12px',
-          backgroundColor: 'rgba(0, 100, 100, 0.1)',
-          border: '1px solid rgba(0, 255, 255, 0.2)',
-          borderRadius: '8px',
-          fontSize: '11px',
-          color: 'rgba(255, 255, 255, 0.7)',
-          fontFamily: 'monospace',
-        }}
-      >
-        💡 Tip: Tap each trait to cycle between Unknown → Present → Ruled Out
+        {/* Identify Button - Handwritten style */}
+        <button style={{
+          width: '100%',
+          padding: '16px',
+          background: '#8b0000',
+          border: '3px solid #4a0000',
+          borderRadius: '6px',
+          fontFamily: '"Caveat", cursive',
+          fontSize: '22px',
+          fontWeight: 'bold',
+          color: '#fff',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          cursor: 'pointer',
+          boxShadow: '0 4px 12px rgba(139,0,0,0.6)',
+          transform: 'rotate(-0.5deg)',
+        }}>
+          Make Identification
+        </button>
       </div>
     </div>
   );

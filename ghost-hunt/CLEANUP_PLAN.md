@@ -1,310 +1,200 @@
-# Investigation Mode Cleanup Plan
+# Codebase Cleanup Plan
 
-## Current Situation Analysis
-
-### 🔴 The Problem: Component Duplication & Confusion
-
-We have **THREE different radar implementations**:
-
-1. **Old Radar** (`src/components/Radar/`)
-   - `RadarCanvas.tsx` - Original radar view
-   - `GhostBlip.tsx` - Ghost blip component
-   - `NoiseOverlay.tsx` - Noise effects
-   - Status: ❓ Still used as fallback in FieldScanner
-
-2. **Tool Wrappers** (`src/components/Tools/`)
-   - `RadarTool.tsx` - Wrapper that imports RadarToolMock
-   - `EMFMeterTool.tsx` - Wrapper
-   - `ThermalScannerTool.tsx` - Wrapper
-   - `AudioReceiverTool.tsx` - Wrapper
-   - `CameraTool.tsx` - Wrapper
-   - Status: ⚠️ Currently just render mocks, no real functionality
-
-3. **New Production Components** (`src/components/Investigation/Tools/`)
-   - `RadarTool.tsx` - NEW production component (task 3.1-3.3 complete)
-   - Status: ✅ Has animations, but not integrated
-
-4. **UI Playground Mocks** (`src/ui-playground/tools/`)
-   - `RadarToolMock.tsx` - Visual reference
-   - `EMFMeterMock.tsx` - Visual reference
-   - `ThermalScannerMock.tsx` - Visual reference
-   - `CameraViewfinderMock.tsx` - Visual reference
-   - `SpiritBoxMock.tsx` - Visual reference
-   - Status: ✅ Keep as visual reference only
-
-### 🍝 The Spaghetti
-
-```
-InvestigationScreen
-  └─ FieldScanner
-      ├─ activeTool === 'radar' → RadarTool (wrapper)
-      │   └─ imports RadarToolMock (playground)
-      │
-      ├─ !activeTool (fallback) → RadarCanvas (old)
-      │   ├─ GhostBlip
-      │   └─ NoiseOverlay
-      │
-      └─ NEW: RadarTool (production) exists but not used!
-```
-
-**Result**: Confusion, duplication, unclear which component to use.
+## Summary
+The codebase has accumulated duplicate files, old versions, and unused components. This cleanup will remove ~30-40 files and improve maintainability.
 
 ---
 
-## 🎯 Cleanup Strategy
+## 🗑️ Files to Delete
 
-### Option A: Clean Up First (RECOMMENDED)
+### 1. Old Tool Components (components/Tools/)
+**Reason**: Replaced by `components/Investigation/Tools/`
 
-**Pros:**
-- Clear foundation before continuing
-- No confusion about which components to use
-- Easier to implement remaining tasks
-- Better code quality
+Delete entire directory:
+- `src/components/Tools/` (entire folder)
+  - AudioReceiver.tsx
+  - AudioReceiverTool.tsx
+  - Camera.tsx / Camera.css
+  - CameraTool.tsx
+  - EMFMeter.tsx
+  - EMFMeterTool.tsx
+  - RadarTool.tsx
+  - ThermalScanner.tsx
+  - ThermalScannerTool.tsx
+  - ToolBar.tsx / ToolBar.css
+  - index.ts
+  - shared/ (if exists)
 
-**Cons:**
-- Takes time upfront
-- Delays completing spec 009
-
-**Steps:**
-1. Delete old Radar components
-2. Update tool wrappers to use production components
-3. Remove mock imports from wrappers
-4. Continue with spec 009 tasks
-
-### Option B: Finish 009 First, Then Clean Up
-
-**Pros:**
-- Complete the spec faster
-- See full picture before cleaning
-
-**Cons:**
-- More confusion during implementation
-- Risk of building on wrong foundation
-- Harder to clean up later
+**Action**: Delete `src/components/Tools/` entirely
 
 ---
 
-## 📋 Recommended Cleanup Plan
+### 2. Old Horror Components (components/horror/)
+**Reason**: Replaced by `components/analog/`
 
-### Phase 1: Audit & Document (30 min)
+Delete entire directory:
+- `src/components/horror/` (entire folder)
+  - HandwrittenText.tsx
+  - PaperCard.tsx
+  - PolaroidPhoto.tsx
+  - StampMark.tsx
+  - index.ts
 
-**Goal**: Understand what's actually being used
-
-1. ✅ List all radar-related components
-2. ✅ Check what FieldScanner imports
-3. ✅ Check what InvestigationScreen uses
-4. ✅ Identify dead code
-
-### Phase 2: Delete Old Radar (15 min)
-
-**Goal**: Remove the old radar implementation
-
-**Delete:**
-- ❌ `src/components/Radar/RadarCanvas.tsx`
-- ❌ `src/components/Radar/RadarCanvas.css`
-- ❌ `src/components/Radar/GhostBlip.tsx`
-- ❌ `src/components/Radar/NoiseOverlay.tsx`
-- ❌ `src/components/Radar/NoiseOverlay.css`
-- ❌ `src/components/Radar/` (entire folder if empty)
-
-**Why**: These are replaced by the new production components.
-
-### Phase 3: Update Tool Wrappers (30 min)
-
-**Goal**: Make wrappers use production components
-
-**For each tool wrapper in `src/components/Tools/`:**
-
-```typescript
-// BEFORE (RadarTool.tsx wrapper)
-import RadarToolMock from '../../ui-playground/tools/RadarToolMock';
-
-export function RadarTool({ mode }: RadarToolProps) {
-  return <RadarToolMock />;
-}
-
-// AFTER
-import { RadarTool as RadarToolProduction } from '../Investigation/Tools/RadarTool';
-import { useInvestigation } from '../../context/InvestigationContext';
-
-export function RadarTool({ mode }: RadarToolProps) {
-  const investigation = mode === 'investigation' ? useInvestigation() : null;
-  
-  return (
-    <RadarToolProduction
-      mode={mode}
-      ghostBearing={investigation?.ghostBearing ?? 45}
-      playerHeading={investigation?.playerHeading ?? 0}
-      isGhostInCone={investigation?.isGhostInCone ?? false}
-      isGhostMoving={investigation?.isGhostMoving ?? false}
-    />
-  );
-}
-```
-
-**Update:**
-- ✅ `RadarTool.tsx` wrapper
-- ⏳ `EMFMeterTool.tsx` wrapper (when EMF production component is ready)
-- ⏳ `ThermalScannerTool.tsx` wrapper (when Thermal production component is ready)
-- ⏳ `AudioReceiverTool.tsx` wrapper (when Audio production component is ready)
-- ⏳ `CameraTool.tsx` wrapper (when Camera production component is ready)
-
-### Phase 4: Update FieldScanner (15 min)
-
-**Goal**: Remove fallback to old radar
-
-```typescript
-// BEFORE
-{activeTool === 'radar' && <RadarTool mode="investigation" />}
-{!activeTool && (
-  <>
-    <RadarCanvas ... />  // OLD - DELETE THIS
-    <GhostBlip ... />
-    <NoiseOverlay ... />
-  </>
-)}
-
-// AFTER
-{activeTool === 'radar' && <RadarTool mode="investigation" />}
-{activeTool === 'emf' && <EMFMeterTool mode="investigation" />}
-{activeTool === 'thermal' && <ThermalScannerTool mode="investigation" />}
-{activeTool === 'audio' && <AudioReceiverTool mode="investigation" />}
-{activeTool === 'camera' && <CameraTool mode="investigation" />}
-{/* No fallback needed - always have an active tool */}
-```
-
-### Phase 5: Keep Playground Mocks (0 min)
-
-**Goal**: Preserve visual references
-
-**Keep as-is:**
-- ✅ `src/ui-playground/tools/RadarToolMock.tsx`
-- ✅ `src/ui-playground/tools/EMFMeterMock.tsx`
-- ✅ `src/ui-playground/tools/ThermalScannerMock.tsx`
-- ✅ `src/ui-playground/tools/CameraViewfinderMock.tsx`
-- ✅ `src/ui-playground/tools/SpiritBoxMock.tsx`
-
-**Why**: These are visual references for design, not production code.
+**Action**: Delete `src/components/horror/` entirely
 
 ---
 
-## 📁 Final Clean Structure
+### 3. Backup Files
+**Reason**: No longer needed
 
-```
-src/components/
-├── Investigation/
-│   ├── Tools/                    ← PRODUCTION COMPONENTS
-│   │   ├── RadarTool.tsx        ← Real implementation
-│   │   ├── EMFTool.tsx          ← Real implementation (future)
-│   │   ├── ThermalTool.tsx      ← Real implementation (future)
-│   │   ├── CameraTool.tsx       ← Real implementation (future)
-│   │   ├── SpiritBoxTool.tsx    ← Real implementation (future)
-│   │   └── shared/              ← Shared components
-│   │       ├── ToolCasing.tsx
-│   │       ├── TextureLayer.tsx
-│   │       └── DamageLayer.tsx
-│   │
-│   ├── FieldScanner.tsx         ← Uses tool wrappers
-│   └── FieldKitDrawer.tsx       ← Tool switcher
-│
-├── Tools/                        ← THIN WRAPPERS
-│   ├── RadarTool.tsx            ← Wrapper: passes props to production
-│   ├── EMFMeterTool.tsx         ← Wrapper: passes props to production
-│   ├── ThermalScannerTool.tsx   ← Wrapper: passes props to production
-│   ├── AudioReceiverTool.tsx    ← Wrapper: passes props to production
-│   ├── CameraTool.tsx           ← Wrapper: passes props to production
-│   └── index.ts                 ← Exports all wrappers
-│
-└── Radar/                        ← DELETE THIS FOLDER
-    ❌ RadarCanvas.tsx
-    ❌ GhostBlip.tsx
-    ❌ NoiseOverlay.tsx
+- `src/components/Codex/GhostCodex.backup.tsx`
 
-src/ui-playground/tools/          ← VISUAL REFERENCE (KEEP)
-├── RadarToolMock.tsx            ← Design reference only
-├── EMFMeterMock.tsx             ← Design reference only
-├── ThermalScannerMock.tsx       ← Design reference only
-├── CameraViewfinderMock.tsx     ← Design reference only
-└── SpiritBoxMock.tsx            ← Design reference only
-```
+**Action**: Delete backup file
 
 ---
 
-## 🎯 Decision Time
+### 4. ~~Old FieldKit System~~ ❌ KEEP - STILL IN USE
+**Status**: Currently used in InvestigationScreen
 
-### Recommendation: **Clean Up First**
+Keep (actively used):
+- ✅ `src/components/Investigation/FieldKitDrawer.tsx` - Used in investigation mode
+- ✅ `src/components/Investigation/FieldKit/` - Tabs used by drawer
+  - CodexTab.tsx
+  - EvidenceTab.tsx
+  - PhotosTab.tsx / PhotosTab.css
+  - ToolsTab.tsx
 
-**Why:**
-1. **Clarity**: Know exactly which components to use
-2. **Foundation**: Build on solid ground
-3. **Speed**: Faster to implement remaining tasks
-4. **Quality**: Better code, less confusion
-
-**Time Investment:**
-- Cleanup: ~1.5 hours
-- Benefit: Saves 3+ hours of confusion later
-
-### If You Choose to Clean Up First:
-
-**Next Steps:**
-1. ✅ Delete `src/components/Radar/` folder
-2. ✅ Update `RadarTool.tsx` wrapper to use production component
-3. ✅ Update `FieldScanner.tsx` to remove fallback
-4. ✅ Test that investigation mode still works
-5. ✅ Continue with spec 009 tasks (3.4, 3.5, etc.)
-
-### If You Choose to Finish 009 First:
-
-**Next Steps:**
-1. ⚠️ Continue building production components
-2. ⚠️ Risk of confusion about which to use
-3. ⚠️ Clean up after all tools are done
-4. ⚠️ Might need to refactor later
+**Note**: The unified backpack (Spec 010) is for overworld mode. Investigation mode still uses the FieldKit drawer.
 
 ---
 
-## 🚨 Critical Question
+### 5. Empty Directories
+**Reason**: Unused
 
-**Do you want to:**
+- `src/components/Radar/` (empty)
 
-**A) Clean up now** (1.5 hours, then smooth sailing)
-- Delete old Radar components
-- Update wrappers
-- Clear foundation
-- Continue spec 009
-
-**B) Finish 009 first** (faster short-term, messier long-term)
-- Keep building on current structure
-- Clean up after all tools done
-- Risk of more confusion
-
-**C) Hybrid approach** (clean as you go)
-- Clean up Radar now (since it's done)
-- Clean up other tools as you build them
-- Gradual cleanup
+**Action**: Delete empty directory
 
 ---
 
-## 💡 My Recommendation
+### 6. Old Mock Files (ui-playground/)
+**Reason**: Superseded by newer versions or no longer needed
 
-**Choose Option A: Clean Up Now**
+Keep these (still useful as reference):
+- ✅ `tools/` folder (EMFMeterMock, RadarToolMock, etc.) - KEEP for Spec 013
+- ✅ `JournalHorrorEnhanced.tsx` - Current reference
+- ✅ `AnalogHorrorPlayground.tsx` - Testing ground
+- ✅ `PlaygroundRouter.tsx` - Router
+- ✅ `UnifiedBackpackDemo.tsx` - Demo
 
-**Reasoning:**
-- You already have a working RadarTool production component
-- The old Radar components are dead code
-- Cleaning now prevents building on wrong foundation
-- Spec 009 will be easier to complete with clean structure
-- Better code quality = less technical debt
+Delete these (old/duplicate):
+- ❌ `CodexHorror.tsx` (old version)
+- ❌ `CodexMock.tsx` (old version)
+- ❌ `CodexJournalMobile.tsx` (old version)
+- ❌ `InvestigationHorror.tsx` (old version)
+- ❌ `InvestigationMock.tsx` (old version)
+- ❌ `JournalHorrorMock.tsx` (superseded by JournalHorrorEnhanced)
+- ❌ `MapHorror.tsx` (old version)
+- ❌ `MapMock.tsx` (old version)
+- ❌ `MapVariationsMock.tsx` (old experiments)
+- ❌ `ProfileMock.tsx` (old version)
+- ❌ `ProfileHorrorID.tsx` (old version)
+- ❌ `ProfileHorrorIDTexture.tsx` (old version)
+- ❌ `CorkboardMapView.tsx` (old version)
+- ❌ `EvidenceBoardMock.tsx` (old version)
+- ❌ `CorruptedDatabaseMock.tsx` (old experiment)
+- ❌ `IconVariationsMock.tsx` (old experiment)
+- ❌ `MediaMock_1.tsx` (old experiment)
+- ❌ `MediaMock_2.tsx` (old experiment)
+- ❌ `MediaMock_3.tsx` (old experiment)
+- ❌ `MediaMock_4.tsx` (old experiment)
+- ❌ `AnalogHorrorHybridMock.tsx` (old experiment)
 
-**Time Breakdown:**
-- Delete old Radar: 5 min
-- Update RadarTool wrapper: 15 min
-- Update FieldScanner: 10 min
-- Test: 10 min
-- **Total: 40 minutes**
-
-Then you can continue spec 009 with confidence!
+**Action**: Delete 19 old mock files
 
 ---
 
-**What do you want to do?**
+### 7. Old Demo Files (ui-playground/)
+**Reason**: Demos for components that are now integrated
+
+- ❌ `AnalogCharmsIndicatorDemo.tsx` (component is integrated)
+- ❌ `LEDBoostGaugeDemo.tsx` (component is integrated)
+- ❌ `MechanicalFilmCounterDemo.tsx` (component is integrated)
+- ❌ `PhysicalToolDeviceTest.tsx` (old test)
+- ❌ `InvestigationDrawerMock.tsx` (integrated)
+
+**Action**: Delete 5 demo files
+
+---
+
+### 8. Old Example Files (ui-playground/examples/)
+Let me check what's in there:
+
+---
+
+## 📁 Files to Keep
+
+### Production Components
+- ✅ `src/components/analog/` - Current analog horror system
+- ✅ `src/components/Backpack/` - Current backpack system
+- ✅ `src/components/Investigation/` - Current investigation system
+- ✅ `src/components/HUD/` - Current HUD components
+- ✅ `src/components/Equipment/` - Current equipment components
+- ✅ `src/components/Effects/` - VHS/CRT effects
+- ✅ All marker components (PlayerMarker, SupplyMarker, etc.)
+
+### UI Playground (Reference)
+- ✅ `ui-playground/tools/` - Tool mocks (needed for Spec 013)
+- ✅ `JournalHorrorEnhanced.tsx` - Current reference
+- ✅ `AnalogHorrorPlayground.tsx` - Testing ground
+- ✅ `PlaygroundRouter.tsx` - Router
+- ✅ `UnifiedBackpackDemo.tsx` - Demo
+
+---
+
+## 🔍 Files to Review
+
+Let me check these directories:
+- `ui-playground/examples/`
+- `ui-playground/sketchbook/`
+
+---
+
+## ⚠️ Before Deleting
+
+1. **Backup**: Create a git branch or commit current state
+2. **Search**: Search codebase for imports of files to be deleted
+3. **Test**: Run the app to ensure nothing breaks
+4. **Commit**: Commit cleanup in separate commit
+
+---
+
+## 📊 Cleanup Impact
+
+**Files to delete**: ~35-40 files
+**Directories to delete**: 3 directories
+**Estimated space saved**: Significant (2000+ lines per old tool file)
+**Risk**: Low (all are duplicates or old versions)
+
+---
+
+## 🎯 Recommendation
+
+**Clean NOW** before Spec 013 refactoring because:
+1. Clearer workspace for refactoring
+2. Won't accidentally reference old files
+3. Easier to navigate codebase
+4. Faster builds
+5. Less confusion
+
+**Order**:
+1. Delete old `components/Tools/` directory
+2. Delete old `components/horror/` directory
+3. Delete backup files
+4. Delete old mock files
+5. Delete old demo files
+6. Delete empty directories
+7. Test app still works
+8. Commit cleanup
+9. Start Spec 013 refactoring
+

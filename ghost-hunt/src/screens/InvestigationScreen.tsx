@@ -13,7 +13,7 @@ import { ManualRotationControls } from '../components/Investigation/ManualRotati
 import { DevModeControls } from '../components/Investigation/DevModeControls';
 import { DebugOverlay } from '../components/Investigation/DebugOverlay';
 import { LoadingOverlay } from '../components/Investigation/LoadingOverlay';
-import { UnifiedBackpack } from '../components/Backpack';
+import { FieldKitDrawer } from '../components/Investigation/FieldKitDrawer';
 import { ToolTransition } from '../components/Investigation/ToolTransition';
 import { PerformanceMonitor } from '../components/Investigation/PerformanceMonitor';
 import { useGhostBehavior } from '../hooks/useGhostBehavior';
@@ -25,7 +25,7 @@ import { preloadAllTextures } from '../utils/texturePreloader';
 
 // Import new investigation tools
 import { RadarTool } from '../components/Investigation/Tools/RadarTool';
-import { EMFTool } from '../components/Investigation/Tools/EMFTool';
+import { EMFTool } from '../components/Investigation/Tools/EMFTool/index';
 import { ThermalTool } from '../components/Investigation/Tools/ThermalTool';
 import { CameraTool } from '../components/Investigation/Tools/CameraTool';
 import { SpiritBoxTool } from '../components/Investigation/Tools/SpiritBoxTool';
@@ -76,6 +76,9 @@ function InvestigationContent() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState('Initializing...');
   const [loadingProgress, setLoadingProgress] = useState(0);
+  
+  // Field Kit Drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
   // Initialize ghost behavior engine
   useGhostBehavior();
@@ -466,13 +469,17 @@ function InvestigationContent() {
       {/* Performance Monitor (toggle with P key) */}
       <PerformanceMonitor enabled={showPerformanceMonitor} position="top-left" />
 
-      {/* Unified Backpack - Investigation Mode */}
-      <UnifiedBackpack
-        mode="investigation"
-        onToolSelect={(toolId) => {
-          console.log('🔧 Tool selected from backpack:', toolId);
-          // Tool selection is handled by the investigation context
-        }}
+      {/* Field Kit Drawer - Investigation Mode */}
+      <FieldKitDrawer
+        isOpen={isDrawerOpen}
+        onClose={() => setIsDrawerOpen(!isDrawerOpen)}
+        activeToolIcon={
+          activeTool === 'radar' ? '📡' :
+          activeTool === 'emf' ? '📊' :
+          activeTool === 'thermal' ? '🌡️' :
+          activeTool === 'audio' ? '📻' :
+          activeTool === 'camera' ? '📷' : '📡'
+        }
       />
 
       {/* Exit Button - Repositioned to top-right without top bar */}

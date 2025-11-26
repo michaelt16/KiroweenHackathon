@@ -305,21 +305,28 @@ const CodexTab: React.FC<CodexTabProps> = ({
                 </div>
               </div>
 
-              {/* Tape decoration */}
-              {ghost.discovered && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '-4px',
-                    right: '20%',
-                    width: '40px',
-                    height: '12px',
-                    background: 'rgba(255, 255, 255, 0.7)',
-                    transform: 'rotate(3deg)',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
-                  }}
-                />
-              )}
+              {/* Tape decoration - stable position based on ghost ID */}
+              {ghost.discovered && (() => {
+                // Generate stable rotation based on ghost ID
+                const rotations = [-15, -12, -8, -5, 5, 8, 12, 15];
+                const hashCode = ghost.id.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+                const rotation = rotations[hashCode % rotations.length];
+                
+                return (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '-4px',
+                      right: '20%',
+                      width: '40px',
+                      height: '12px',
+                      background: 'rgba(255, 255, 255, 0.7)',
+                      transform: `rotate(${rotation}deg)`,
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.2)',
+                    }}
+                  />
+                );
+              })()}
             </div>
           ))}
         </div>

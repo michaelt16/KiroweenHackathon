@@ -1,185 +1,233 @@
-// Tools Tab - Device selection
+// Tools Tab - Equipment Case Interior (Production)
 import { useInvestigation } from '../../../context/InvestigationContext';
+import { PhysicalToolDevice } from '../../Equipment/PhysicalToolDevice';
+import { MechanicalFilmCounter } from '../../Equipment/MechanicalFilmCounter';
+import { LEDBoostGauge } from '../../Equipment/LEDBoostGauge';
+import { AnalogCharmsIndicator } from '../../Equipment/AnalogCharmsIndicator';
+import foamTexture from '../../../assets/texture/foam.png';
 
 interface ToolsTabProps {
-  onSelectTool: () => void; // Callback to close drawer
+  onSelectTool: () => void;
 }
 
-type ToolId = 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
+type ToolType = 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
 
-const TOOLS: { id: ToolId; icon: string; name: string; description: string }[] = [
-  {
-    id: 'radar',
-    icon: '📡',
-    name: 'Radar Device',
-    description: 'Shows direction to ghost',
-  },
-  {
-    id: 'emf',
-    icon: '📊',
-    name: 'EMF Meter',
-    description: 'Shows proximity (hot/cold)',
-  },
-  {
-    id: 'thermal',
-    icon: '🌡️',
-    name: 'Thermal Scanner',
-    description: 'Detects cold spots',
-  },
-  {
-    id: 'audio',
-    icon: '📻',
-    name: 'Audio/EVP Device',
-    description: 'Captures whispers',
-  },
-  {
-    id: 'camera',
-    icon: '📷',
-    name: 'Camera',
-    description: 'Captures manifestations',
-  },
+// Static tool list - defined outside component to prevent re-creation
+const TOOLS = [
+  { toolType: 'radar' as const, name: 'Radar' },
+  { toolType: 'emf' as const, name: 'EMF Meter' },
+  { toolType: 'thermal' as const, name: 'Thermal' },
+  { toolType: 'audio' as const, name: 'Audio' },
+  { toolType: 'camera' as const, name: 'Camera' },
 ];
 
 export function ToolsTab({ onSelectTool }: ToolsTabProps) {
-  const { activeTool, setActiveTool } = useInvestigation();
-  
-  // Add pulse animation for active indicator
-  const pulseAnimation = `
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
-  `;
+  const { activeTool, setActiveTool, suppliesForRun } = useInvestigation();
 
-  const handleSelectTool = (toolId: ToolId) => {
+  const handleSelectTool = (toolId: ToolType) => {
     console.log('🔧 Tool selected:', toolId);
     setActiveTool(toolId);
-    onSelectTool(); // Close drawer
+    onSelectTool();
   };
 
   return (
-    <>
-      <style>{pulseAnimation}</style>
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '12px',
-        }}
-      >
-      <h3
-        style={{
-          margin: '0 0 8px 0',
-          fontSize: '18px',
-          color: '#2dd4bf',
-          fontWeight: 'bold',
-        }}
-      >
-        Select Device
-      </h3>
+    <div style={{
+      maxWidth: '900px',
+      margin: '0 auto',
+    }}>
+      {/* Equipment case interior - foam cutouts */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 50%, #0a0a0a 100%)',
+        padding: '24px',
+        borderRadius: '8px',
+        border: '3px solid #000',
+        boxShadow: 'inset 0 12px 24px rgba(0,0,0,0.95), inset 0 -6px 12px rgba(0,0,0,0.8)',
+        position: 'relative',
+      }}>
+        {/* Foam texture */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.2' numOctaves='4' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E")`,
+          mixBlendMode: 'overlay',
+          opacity: 0.5,
+          pointerEvents: 'none',
+          borderRadius: '8px',
+        }} />
 
-      {TOOLS.map((tool) => {
-        const isActive = activeTool === tool.id;
-        
-        return (
-          <button
-            key={tool.id}
-            onClick={() => handleSelectTool(tool.id)}
-            style={{
-              padding: '16px',
-              backgroundColor: isActive ? 'rgba(45, 212, 191, 0.15)' : 'rgba(255, 255, 255, 0.05)',
-              border: isActive ? '2px solid #2dd4bf' : '2px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              cursor: 'pointer',
+        {/* Tools section */}
+        <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
+          <div style={{
+            fontFamily: '"Courier New", monospace',
+            fontSize: '12px',
+            color: 'rgba(200,200,200,0.4)',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            marginBottom: '16px',
+            textShadow: '0 -1px 1px rgba(255,255,255,0.15), 0 1px 2px rgba(0,0,0,0.9)',
+          }}>
+            INVESTIGATION TOOLS
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '16px',
+          }}>
+            {TOOLS.map((item) => (
+              <div 
+                key={item.toolType} 
+                onClick={() => handleSelectTool(item.toolType)}
+                style={{
+                  background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  border: '2px solid #1a1a1a',
+                  boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.95), inset 0 -3px 8px rgba(0,0,0,0.9)',
+                  position: 'relative',
+                  minHeight: '140px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                {/* Foam texture */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundImage: `url(${foamTexture})`,
+                  backgroundSize: 'cover',
+                  mixBlendMode: 'soft-light',
+                  opacity: 0.9,
+                  pointerEvents: 'none',
+                  borderRadius: '8px',
+                }} />
+                <PhysicalToolDevice 
+                  toolType={item.toolType} 
+                  size={90}
+                  onClick={() => {}}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Supplies section */}
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{
+            fontFamily: '"Courier New", monospace',
+            fontSize: '12px',
+            color: 'rgba(200,200,200,0.4)',
+            textTransform: 'uppercase',
+            letterSpacing: '2px',
+            marginBottom: '16px',
+            textShadow: '0 -1px 1px rgba(255,255,255,0.15), 0 1px 2px rgba(0,0,0,0.9)',
+          }}>
+            SUPPLIES
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+            gap: '20px',
+            justifyItems: 'center',
+          }}>
+            {/* Film Counter */}
+            <div style={{ 
+              background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+              padding: '10px',
+              borderRadius: '8px',
+              border: '2px solid #1a1a1a',
+              boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.95), inset 0 -3px 8px rgba(0,0,0,0.9)',
+              position: 'relative',
               display: 'flex',
               alignItems: 'center',
-              gap: '16px',
-              transition: 'all 0.2s',
-              textAlign: 'left',
-              boxShadow: isActive 
-                ? '0 0 16px rgba(45, 212, 191, 0.3), inset 0 1px 0 rgba(45, 212, 191, 0.2)'
-                : '0 2px 8px rgba(0, 0, 0, 0.3)',
-            }}
-            onMouseEnter={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.backgroundColor = 'rgba(45, 212, 191, 0.08)';
-                e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.4)';
-                e.currentTarget.style.boxShadow = '0 0 12px rgba(45, 212, 191, 0.2)';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (!isActive) {
-                e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.05)';
-                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0, 0, 0, 0.3)';
-              }
-            }}
-          >
-            {/* Icon with 007-style treatment */}
-            <div
-              style={{
-                fontSize: '32px',
-                width: '48px',
-                height: '48px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: isActive ? 'rgba(45, 212, 191, 0.2)' : 'rgba(255, 255, 255, 0.05)',
+              justifyContent: 'center',
+              minHeight: '110px',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `url(${foamTexture})`,
+                backgroundSize: 'cover',
+                mixBlendMode: 'soft-light',
+                opacity: 0.9,
+                pointerEvents: 'none',
                 borderRadius: '8px',
-                border: isActive ? '1px solid rgba(45, 212, 191, 0.4)' : '1px solid rgba(255, 255, 255, 0.1)',
-                boxShadow: isActive 
-                  ? 'inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 12px rgba(45, 212, 191, 0.4)'
-                  : 'inset 0 2px 4px rgba(0, 0, 0, 0.3)',
-                filter: isActive ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.6))' : 'none',
-              }}
-            >
-              {tool.icon}
+              }} />
+              <MechanicalFilmCounter count={suppliesForRun.film} />
             </div>
 
-            {/* Info */}
-            <div style={{ flex: 1 }}>
-              <div
-                style={{
-                  fontSize: '16px',
-                  fontWeight: 'bold',
-                  color: isActive ? '#2dd4bf' : 'white',
-                  marginBottom: '4px',
-                  fontFamily: '"Courier New", monospace',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                  textShadow: isActive ? '0 0 8px rgba(45, 212, 191, 0.5)' : 'none',
-                }}
-              >
-                {tool.name}
-              </div>
-              <div
-                style={{
-                  fontSize: '13px',
-                  color: '#9ca3af',
-                  fontFamily: 'system-ui, -apple-system, sans-serif',
-                }}
-              >
-                {tool.description}
-              </div>
+            {/* Boosts Gauge */}
+            <div style={{ 
+              background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+              padding: '10px',
+              borderRadius: '8px',
+              border: '2px solid #1a1a1a',
+              boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.95), inset 0 -3px 8px rgba(0,0,0,0.9)',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '110px',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `url(${foamTexture})`,
+                backgroundSize: 'cover',
+                mixBlendMode: 'soft-light',
+                opacity: 0.9,
+                pointerEvents: 'none',
+                borderRadius: '8px',
+              }} />
+              <LEDBoostGauge count={suppliesForRun.boosts} max={99} />
             </div>
 
-            {/* Active Indicator with glow */}
-            {isActive && (
-              <div
-                style={{
-                  fontSize: '20px',
-                  color: '#2dd4bf',
-                  filter: 'drop-shadow(0 0 6px rgba(45, 212, 191, 0.8))',
-                  animation: 'pulse 2s ease-in-out infinite',
-                }}
-              >
-                ✓
-              </div>
-            )}
-          </button>
-        );
-      })}
+            {/* Charms Indicator */}
+            <div style={{ 
+              background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+              padding: '10px',
+              borderRadius: '8px',
+              border: '2px solid #1a1a1a',
+              boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.95), inset 0 -3px 8px rgba(0,0,0,0.9)',
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              minHeight: '110px',
+            }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundImage: `url(${foamTexture})`,
+                backgroundSize: 'cover',
+                mixBlendMode: 'soft-light',
+                opacity: 0.9,
+                pointerEvents: 'none',
+                borderRadius: '8px',
+              }} />
+              <AnalogCharmsIndicator count={suppliesForRun.charms} />
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }

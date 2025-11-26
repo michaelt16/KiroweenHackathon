@@ -23,8 +23,8 @@ export function PolaroidPhoto({
   const finalRotation = rotation ?? rotations[getDamageVariant(seed, rotations.length)];
   
   const tapeRotations = [-12, -8, -5, 5, 8, 12];
-  const seedNum = typeof seed === 'number' ? seed : Date.now();
-  const tapeRotation = tapeRotations[getDamageVariant(seedNum + 1, tapeRotations.length)];
+  // Use seed directly for tape rotation (getDamageVariant handles both string and number)
+  const tapeRotation = tapeRotations[getDamageVariant(seed, tapeRotations.length)];
 
   const staticOpacity = {
     light: 0.5,

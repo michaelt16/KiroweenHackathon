@@ -20,6 +20,7 @@ export function FieldJournalsScreen() {
     collectedJournals.length > 0 ? collectedJournals[0] : null
   );
   const [currentPage, setCurrentPage] = useState(0);
+  const [isJournalListExpanded, setIsJournalListExpanded] = useState(false);
   
   // Update selected entry when journals change
   useEffect(() => {
@@ -147,51 +148,99 @@ export function FieldJournalsScreen() {
           </TypewrittenText>
         </div>
 
-        {/* Journal Entry List */}
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '16px',
-          marginBottom: '32px',
-        }}>
-          {collectedJournals.map((entry) => (
-            <button
-              key={entry.id}
-              onClick={() => setSelectedEntry(entry)}
-              style={{
-                background: selectedEntry.id === entry.id ? '#d8d4c8' : '#c4b49a',
-                border: selectedEntry.id === entry.id ? '2px solid #8b0000' : '1px solid #1a0f0a',
-                padding: '12px 16px',
-                fontFamily: '"Courier New", monospace',
-                fontSize: '12px',
-                color: '#1a0f0a',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transform: 'rotate(0.3deg)',
-                boxShadow: selectedEntry.id === entry.id
-                  ? '0 4px 12px rgba(0,0,0,0.4)'
-                  : '0 2px 6px rgba(0,0,0,0.3)',
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                <div>
-                  <div>{entry.date} - {entry.location}</div>
-                  <div style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>
-                    {entry.agentName} - {entry.agentStatus}
-                  </div>
-                </div>
-                <span style={{
-                  fontSize: '10px',
-                  color: entry.threatLevel === 'EXTREME' ? '#cc0000' : entry.threatLevel === 'HIGH' ? '#8b0000' : '#1a0f0a',
-                  fontWeight: 'bold',
-                }}>
-                  {entry.threatLevel}
-                </span>
+        {/* Journal Entry Selector - Collapsible */}
+        <div style={{ marginBottom: '32px' }}>
+          {/* Collapsed View - Shows current selection */}
+          <button
+            onClick={() => setIsJournalListExpanded(!isJournalListExpanded)}
+            style={{
+              width: '100%',
+              background: '#d8d4c8',
+              border: '2px solid #8b0000',
+              padding: '16px',
+              fontFamily: '"Courier New", monospace',
+              fontSize: '13px',
+              color: '#1a0f0a',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              cursor: 'pointer',
+              textAlign: 'left',
+              transform: 'rotate(0.2deg)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                {selectedEntry.date} - {selectedEntry.location}
               </div>
-            </button>
-          ))}
+              <div style={{ fontSize: '11px', color: '#666' }}>
+                {selectedEntry.agentName} - {selectedEntry.agentStatus} - {selectedEntry.threatLevel}
+              </div>
+            </div>
+            <div style={{ fontSize: '18px', fontWeight: 'bold' }}>
+              {isJournalListExpanded ? '▲' : '▼'}
+            </div>
+          </button>
+
+          {/* Expanded View - Shows all journals */}
+          {isJournalListExpanded && (
+            <div style={{
+              marginTop: '12px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              maxHeight: '400px',
+              overflowY: 'auto',
+              padding: '8px',
+              background: 'rgba(0,0,0,0.2)',
+              borderRadius: '4px',
+            }}>
+              {collectedJournals.map((entry) => (
+                <button
+                  key={entry.id}
+                  onClick={() => {
+                    setSelectedEntry(entry);
+                    setIsJournalListExpanded(false);
+                  }}
+                  style={{
+                    background: selectedEntry.id === entry.id ? '#d8d4c8' : '#c4b49a',
+                    border: selectedEntry.id === entry.id ? '2px solid #8b0000' : '1px solid #1a0f0a',
+                    padding: '12px 16px',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: '12px',
+                    color: '#1a0f0a',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    transform: 'rotate(0.3deg)',
+                    boxShadow: selectedEntry.id === entry.id
+                      ? '0 4px 12px rgba(0,0,0,0.4)'
+                      : '0 2px 6px rgba(0,0,0,0.3)',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <div>
+                      <div>{entry.date} - {entry.location}</div>
+                      <div style={{ fontSize: '10px', color: '#666', fontStyle: 'italic' }}>
+                        {entry.agentName} - {entry.agentStatus}
+                      </div>
+                    </div>
+                    <span style={{
+                      fontSize: '10px',
+                      color: entry.threatLevel === 'EXTREME' ? '#cc0000' : entry.threatLevel === 'HIGH' ? '#8b0000' : '#1a0f0a',
+                      fontWeight: 'bold',
+                    }}>
+                      {entry.threatLevel}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Selected Journal Entry - EvidencePage with heavy damage (Paged) */}
@@ -210,7 +259,11 @@ export function FieldJournalsScreen() {
                 marginRight: 'auto',
               }}>
                 <button
-                  onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setCurrentPage(Math.max(0, currentPage - 1));
+                  }}
                   disabled={currentPage === 0}
                   style={{
                     padding: '10px 20px',
@@ -226,18 +279,7 @@ export function FieldJournalsScreen() {
                     textTransform: 'uppercase',
                     letterSpacing: '1px',
                     transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (currentPage !== 0) {
-                      e.currentTarget.style.backgroundColor = '#a0826d';
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (currentPage !== 0) {
-                      e.currentTarget.style.backgroundColor = '#8b6f47';
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }
+                    WebkitTapHighlightColor: 'transparent',
                   }}
                 >
                   ← Previous
@@ -292,10 +334,18 @@ export function FieldJournalsScreen() {
               </div>
             )}
             
-            <div style={{
-              maxWidth: window.innerWidth < 768 ? '100%' : '600px',
-              margin: '0 auto',
-            }}>
+            <div 
+              onClick={() => {
+                if (currentPage < pages.length - 1) {
+                  setCurrentPage(currentPage + 1);
+                }
+              }}
+              style={{
+                maxWidth: window.innerWidth < 768 ? '100%' : '600px',
+                margin: '0 auto',
+                cursor: currentPage < pages.length - 1 ? 'pointer' : 'default',
+              }}
+            >
               <EvidencePage investigationId={selectedEntry.id + '-page-' + currentPage}>
               {/* Additional heavy damage for horror aesthetic */}
               <DamageOverlay type="water" opacity={0.3} seed={selectedEntry.id + '-water-' + currentPage} />

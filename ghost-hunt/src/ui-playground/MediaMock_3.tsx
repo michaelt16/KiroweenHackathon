@@ -155,9 +155,11 @@ export function MediaMock_3() {
                         src={photo.image} 
                         alt={photo.title}
                         style={{
-                          width: '100%',
-                          height: '100%',
+                          width: '200%',
+                          height: '200%',
                           objectFit: 'cover',
+                          objectPosition: 'center center',
+                          transform: 'scale(1.5)',
                         }}
                       />
                       {/* Minimal static overlay */}

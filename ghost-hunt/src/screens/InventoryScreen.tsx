@@ -1,14 +1,28 @@
 // Equipment Suitcase - Looking into your field kit
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useSupplies } from '../context/SuppliesContext';
 import { BackToMapButton } from '../components/analog/elements/BackToMapButton';
-import { ToolIcon } from '../components/Equipment/ToolIcon';
-import { RadarTool, EMFMeterTool, ThermalScannerTool, AudioReceiverTool, CameraTool } from '../components/Tools';
+import { PhysicalToolDevice } from '../components/Equipment/PhysicalToolDevice';
+import { MechanicalFilmCounter } from '../components/Equipment/MechanicalFilmCounter';
+import { LEDBoostGauge } from '../components/Equipment/LEDBoostGauge';
+import { AnalogCharmsIndicator } from '../components/Equipment/AnalogCharmsIndicator';
+import { DamageElements } from '../components/Equipment/DamageElements';
+import { RadarTool, ThermalScannerTool, AudioReceiverTool, CameraTool } from '../components/Tools';
+import { EMFTool } from '../components/Investigation/Tools/EMFTool/index';
+import { generateCaseDamage } from '../utils/damageElements';
+import foamTexture from '../assets/texture/foam.png';
+import { FieldNoteCard } from '../components/Equipment/FieldNoteCard';
+import { DetailedNoteModal } from '../components/Equipment/DetailedNoteModal';
 
 export function InventoryScreen() {
   const { supplies } = useSupplies();
   const isMobile = window.innerWidth < 768;
   const [viewingTool, setViewingTool] = useState<'radar' | 'emf' | 'thermal' | 'audio' | 'camera' | null>(null);
+  const [viewingNote, setViewingNote] = useState<string | null>(null);
+  
+  // Generate damage elements once (exterior and interior)
+  const caseDamage = useMemo(() => generateCaseDamage(), []);
+  const interiorDamage = useMemo(() => generateCaseDamage(), []);
 
   // Equipment items - tools in suitcase
   const equipmentItems = [
@@ -18,6 +32,40 @@ export function InventoryScreen() {
     { id: 'audio', name: 'Audio', toolType: 'audio' as const },
     { id: 'camera', name: 'Camera', toolType: 'camera' as const },
   ];
+
+  // Field notes for each tool
+  const toolNotes: Record<string, { brief: string; detailed: string; position: 'left' | 'right'; title: string }> = {
+    radar: {
+      brief: 'SPIN TO\nSCAN',
+      title: 'RADAR UNIT',
+      detailed: 'Rotate your body 360° to scan for ghost direction.\n\nGreen blip = ghost detected in that direction.\n\nDoes NOT show distance - only direction.',
+      position: 'left',
+    },
+    emf: {
+      brief: 'WALK\nCLOSER',
+      title: 'EMF METER',
+      detailed: 'Walk toward the ghost location.\n\nBeeps get faster = getting closer\nBeeps get slower = moving away\n\nLevel 5 = very close!',
+      position: 'right',
+    },
+    thermal: {
+      brief: 'COLD =\nGHOST',
+      title: 'THERMAL SCANNER',
+      detailed: 'Look for blue/cold spots on screen.\n\nGhosts create freezing temperatures.\n\nScan slowly across the area.',
+      position: 'left',
+    },
+    audio: {
+      brief: 'LISTEN\nCLOSE',
+      title: 'AUDIO RECEIVER',
+      detailed: 'Listen for whispers and EVP.\n\nGhosts communicate through static.\n\nTurn up volume, stay quiet.',
+      position: 'right',
+    },
+    camera: {
+      brief: 'SNAP\nPHOTO',
+      title: 'CAMERA',
+      detailed: 'Take photos to capture ghost manifestations.\n\nUses film rolls (limited).\n\nWait 7 seconds between shots.',
+      position: 'left',
+    },
+  };
 
   // Supply items
   const supplyItems = [
@@ -107,7 +155,17 @@ export function InventoryScreen() {
             }}
           />
 
-          {/* Latches */}
+          {/* Damage Elements - Exterior */}
+          <DamageElements
+            lightScratches={caseDamage.lightScratches}
+            darkScratches={caseDamage.darkScratches}
+            rustSpots={caseDamage.rustSpots}
+            paintChips={caseDamage.paintChips}
+            fingerprints={caseDamage.fingerprints}
+            tapePatches={caseDamage.tapePatches}
+          />
+
+          {/* Upgraded Latches with realistic metal gradients */}
           {[0, 1].map((i) => (
             <div
               key={i}
@@ -117,30 +175,53 @@ export function InventoryScreen() {
                 [i === 0 ? 'left' : 'right']: '20px',
                 width: '40px',
                 height: '20px',
-                background: 'linear-gradient(135deg, #4a4a4a 0%, #2a2a2a 100%)',
-                border: '2px solid #1a1a1a',
+                background: 'linear-gradient(135deg, #5a5a5a 0%, #4a4a4a 20%, #3a3a3a 50%, #2a2a2a 80%, #1a1a1a 100%)',
+                border: '2px solid #0f0f0f',
+                borderTop: '1px solid rgba(255,255,255,0.15)',
                 borderRadius: '4px',
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.8)',
+                boxShadow: 
+                  'inset 0 3px 6px rgba(0,0,0,0.9), ' +
+                  'inset 0 -2px 4px rgba(255,255,255,0.08), ' +
+                  '0 4px 8px rgba(0,0,0,0.8)',
                 zIndex: 1,
               }}
             >
+              {/* Latch screw with enhanced 3D appearance */}
               <div
                 style={{
                   position: 'absolute',
                   top: '50%',
                   left: '50%',
                   transform: 'translate(-50%, -50%)',
-                  width: '8px',
-                  height: '8px',
+                  width: '10px',
+                  height: '10px',
                   borderRadius: '50%',
-                  background: 'radial-gradient(circle at 30% 30%, #6a6a6a, #2a2a2a)',
-                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.9)',
+                  background: 'radial-gradient(circle at 35% 35%, #7a7a7a 0%, #5a5a5a 30%, #3a3a3a 60%, #1a1a1a 100%)',
+                  boxShadow: 
+                    'inset 0 2px 3px rgba(255,255,255,0.3), ' +
+                    'inset 0 -2px 3px rgba(0,0,0,0.9), ' +
+                    '0 2px 4px rgba(0,0,0,0.8)',
+                  border: '1px solid rgba(0,0,0,0.7)',
                 }}
-              />
+              >
+                {/* Screw slot */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '7px',
+                    height: '1px',
+                    background: '#0a0a0a',
+                    boxShadow: '0 0 2px rgba(0,0,0,0.9)',
+                  }}
+                />
+              </div>
             </div>
           ))}
 
-          {/* Handle */}
+          {/* Enhanced Handle with proper beveling and depth shadows */}
           <div
             style={{
               position: 'absolute',
@@ -149,13 +230,35 @@ export function InventoryScreen() {
               transform: 'translateX(-50%)',
               width: '120px',
               height: '30px',
-              background: 'linear-gradient(135deg, #3a3a3a 0%, #2a2a2a 50%, #1a1a1a 100%)',
-              border: '3px solid #0f0f0f',
+              background: 'linear-gradient(135deg, #5a5a5a 0%, #4a4a4a 15%, #3a3a3a 35%, #2a2a2a 65%, #1a1a1a 85%, #0f0f0f 100%)',
+              border: '3px solid #0a0a0a',
+              borderTop: '2px solid rgba(255,255,255,0.12)',
               borderRadius: '15px',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.8), inset 0 2px 4px rgba(0,0,0,0.6)',
+              boxShadow: 
+                '0 6px 16px rgba(0,0,0,0.9), ' +
+                '0 3px 8px rgba(0,0,0,0.7), ' +
+                'inset 0 3px 6px rgba(0,0,0,0.8), ' +
+                'inset 0 -2px 4px rgba(255,255,255,0.1)',
               zIndex: 1,
             }}
-          />
+          >
+            {/* Handle grip texture lines */}
+            {[0, 1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: `${20 + i * 15}%`,
+                  transform: 'translateY(-50%)',
+                  width: '2px',
+                  height: '60%',
+                  background: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.8) 50%, rgba(0,0,0,0.6) 100%)',
+                  borderRadius: '1px',
+                }}
+              />
+            ))}
+          </div>
 
           {/* Label plate */}
           <div
@@ -227,7 +330,7 @@ export function InventoryScreen() {
               }}
             />
 
-            {/* Rivets on label */}
+            {/* Upgraded Rivets with 3D appearance */}
             {[0, 1, 2, 3].map((i) => (
               <div
                 key={i}
@@ -235,14 +338,33 @@ export function InventoryScreen() {
                   position: 'absolute',
                   [i < 2 ? 'top' : 'bottom']: '6px',
                   [i % 2 === 0 ? 'left' : 'right']: '10px',
-                  width: '6px',
-                  height: '6px',
+                  width: '8px',
+                  height: '8px',
                   borderRadius: '50%',
-                  background: 'radial-gradient(circle at 30% 30%, #5a5a5a, #2a2a2a)',
-                  boxShadow: 'inset 0 1px 2px rgba(0,0,0,0.9)',
+                  background: 'radial-gradient(circle at 35% 35%, #6a6a6a 0%, #5a5a5a 25%, #3a3a3a 60%, #1a1a1a 100%)',
+                  boxShadow: 
+                    'inset 0 2px 3px rgba(255,255,255,0.25), ' +
+                    'inset 0 -2px 3px rgba(0,0,0,0.95), ' +
+                    '0 2px 4px rgba(0,0,0,0.8)',
+                  border: '0.5px solid rgba(0,0,0,0.6)',
                   zIndex: 1,
                 }}
-              />
+              >
+                {/* Rivet center depression */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    width: '3px',
+                    height: '3px',
+                    borderRadius: '50%',
+                    background: 'radial-gradient(circle, #1a1a1a 0%, #0a0a0a 100%)',
+                    boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.9)',
+                  }}
+                />
+              </div>
             ))}
 
             <div
@@ -266,7 +388,7 @@ export function InventoryScreen() {
           <div
             style={{
               background: 'linear-gradient(135deg, #1a1a1a 0%, #0f0f0f 50%, #0a0a0a 100%)',
-              padding: isMobile ? '20px' : '28px',
+              padding: isMobile ? '24px' : '28px',
               borderRadius: '8px',
               border: '3px solid #000',
               boxShadow: 'inset 0 12px 24px rgba(0,0,0,0.95), inset 0 -6px 12px rgba(0,0,0,0.8)',
@@ -289,6 +411,142 @@ export function InventoryScreen() {
               }}
             />
 
+            {/* Damage Elements - Interior */}
+            <DamageElements
+              lightScratches={interiorDamage.lightScratches}
+              darkScratches={interiorDamage.darkScratches}
+              rustSpots={interiorDamage.rustSpots}
+              paintChips={interiorDamage.paintChips}
+              fingerprints={interiorDamage.fingerprints}
+              tapePatches={interiorDamage.tapePatches}
+            />
+
+            {/* Physical Details System */}
+            {/* Serial Number - Bottom right */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '8px',
+                right: '15px',
+                fontFamily: '"Courier New", monospace',
+                fontSize: '8px',
+                color: 'rgba(150,150,150,0.45)',
+                transform: 'rotate(0.4deg)',
+                textShadow: '0 -1px 1px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.9)',
+                pointerEvents: 'none',
+                zIndex: 21,
+              }}
+            >
+              SN: FK-1985-A7
+            </div>
+
+            {/* Calibration Note - Near tools section */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '15%',
+                right: '8%',
+                fontFamily: '"Caveat", cursive',
+                fontSize: '10px',
+                color: 'rgba(180,180,150,0.45)',
+                transform: 'rotate(-0.5deg)',
+                textShadow: '0 -1px 1px rgba(255,255,255,0.2), 0 1px 2px rgba(0,0,0,0.9)',
+                pointerEvents: 'none',
+                zIndex: 21,
+              }}
+            >
+              cal. 03/19
+            </div>
+
+            {/* Manufacturing Stamps */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '12px',
+                left: '15px',
+                fontFamily: '"Courier New", monospace',
+                fontSize: '8px',
+                fontWeight: 'bold',
+                color: 'rgba(139,0,0,0.4)',
+                transform: 'rotate(-8deg)',
+                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                pointerEvents: 'none',
+                zIndex: 21,
+                border: '1px solid rgba(139,0,0,0.3)',
+                padding: '2px 4px',
+              }}
+            >
+              INSPECTED
+            </div>
+
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '15%',
+                left: '10%',
+                fontFamily: '"Courier New", monospace',
+                fontSize: '8px',
+                fontWeight: 'bold',
+                color: 'rgba(0,0,0,0.4)',
+                transform: 'rotate(12deg)',
+                textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+                pointerEvents: 'none',
+                zIndex: 21,
+                border: '1px solid rgba(0,0,0,0.3)',
+                padding: '2px 4px',
+              }}
+            >
+              QC PASS
+            </div>
+
+            {/* Weld Lines/Seams (3-5 horizontal/vertical) */}
+            {/* Horizontal seams */}
+            {[
+              { top: '12%', left: '10%', right: '10%' },
+              { top: '25%', left: '8%', right: '8%' },
+              { bottom: '15%', left: '12%', right: '12%' },
+            ].map((weld, i) => (
+              <div
+                key={`h-weld-${i}`}
+                style={{
+                  position: 'absolute',
+                  top: weld.top,
+                  bottom: weld.bottom,
+                  left: weld.left,
+                  right: weld.right,
+                  height: '1px',
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.8) 80%, transparent 100%)',
+                  boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.9)',
+                  opacity: 0.4 + i * 0.05,
+                  pointerEvents: 'none',
+                  zIndex: 5,
+                }}
+              />
+            ))}
+
+            {/* Vertical seams */}
+            {[
+              { top: '10%', left: '6%', bottom: '25%' },
+              { top: '10%', right: '6%', bottom: '25%' },
+            ].map((weld, i) => (
+              <div
+                key={`v-weld-${i}`}
+                style={{
+                  position: 'absolute',
+                  top: weld.top,
+                  bottom: weld.bottom,
+                  left: weld.left,
+                  right: weld.right,
+                  width: '2px',
+                  background: 'linear-gradient(180deg, transparent 0%, rgba(0,0,0,0.9) 20%, rgba(0,0,0,0.95) 50%, rgba(0,0,0,0.9) 80%, transparent 100%)',
+                  boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.9)',
+                  opacity: 0.5,
+                  pointerEvents: 'none',
+                  zIndex: 5,
+                }}
+              />
+            ))}
+
             {/* Tools section */}
             <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
               <div
@@ -308,34 +566,36 @@ export function InventoryScreen() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(5, 1fr)',
-                  gap: isMobile ? '12px' : '16px',
+                  gridTemplateColumns: isMobile ? '1fr' : 'repeat(5, 1fr)',
+                  gap: isMobile ? '16px' : '16px',
                 }}
               >
                 {equipmentItems.map((item) => (
                   <div
                     key={item.id}
-                    onClick={() => setViewingTool(item.toolType)}
                     style={{
-                      background: 'linear-gradient(135deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%)',
-                      padding: isMobile ? '12px' : '16px',
+                      // Enhanced foam color gradient - charcoal gray EVA foam
+                      background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+                      // Even padding all around
+                      padding: '16px',
                       borderRadius: '8px',
-                      border: '2px solid #000',
-                      boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.98), inset 0 -3px 8px rgba(0,0,0,0.9)',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s ease',
+                      // Darker foam edges (2px border, #1a1a1a)
+                      border: '2px solid #1a1a1a',
+                      // Multi-layer deep inset shadows for realistic depth
+                      boxShadow: 
+                        'inset 0 6px 16px rgba(0,0,0,0.95), ' +
+                        'inset 0 -3px 8px rgba(0,0,0,0.9), ' +
+                        'inset 0 0 20px rgba(0,0,0,0.85)',
                       position: 'relative',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                      e.currentTarget.style.boxShadow = 'inset 0 6px 16px rgba(0,0,0,0.98), 0 0 12px rgba(0,255,85,0.3)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = 'inset 0 6px 16px rgba(0,0,0,0.98), inset 0 -3px 8px rgba(0,0,0,0.9)';
+                      minHeight: isMobile ? '130px' : '140px',
+                      // Flex layout: evenly spaced - edge, tool, middle, card, edge
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-evenly',
+                      gap: '0px',
                     }}
                   >
-                    {/* Foam cutout texture */}
+                    {/* Enhanced EVA foam texture with grain pattern */}
                     <div
                       style={{
                         position: 'absolute',
@@ -343,30 +603,45 @@ export function InventoryScreen() {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='foam'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23foam)' opacity='0.2'/%3E%3C/svg%3E")`,
-                        mixBlendMode: 'overlay',
-                        opacity: 0.7,
+                        backgroundImage: `url(${foamTexture})`,
+                        backgroundSize: 'cover',
+                        mixBlendMode: 'soft-light',
+                        opacity: 0.9,
                         pointerEvents: 'none',
                         borderRadius: '8px',
                       }}
                     />
 
-                    <div style={{ position: 'relative', zIndex: 1, textAlign: 'center' }}>
-                      <ToolIcon toolType={item.toolType} size={isMobile ? 50 : 60} />
-                      <div
-                        style={{
-                          fontFamily: '"Courier New", monospace',
-                          fontSize: isMobile ? '9px' : '10px',
-                          color: 'rgba(200,200,200,0.5)',
-                          marginTop: '8px',
-                          textTransform: 'uppercase',
-                          letterSpacing: '1px',
-                          textShadow: '0 -1px 1px rgba(255,255,255,0.15), 0 1px 2px rgba(0,0,0,0.9)',
+                    {/* Tool device (left side) - BIGGER to look like physical item */}
+                    <div style={{ position: 'relative', zIndex: 1, flexShrink: 0 }}>
+                      <PhysicalToolDevice 
+                        toolType={item.toolType} 
+                        size={isMobile ? 90 : 100}
+                        onClick={() => setViewingTool(item.toolType)}
+                      />
+                    </div>
+
+                    {/* Field note card (right side) - smaller, card-sized */}
+                    {toolNotes[item.id] && (
+                      <div 
+                        onClick={() => setViewingNote(item.id)}
+                        style={{ 
+                          position: 'relative', 
+                          zIndex: 1, 
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
-                        {item.name}
+                        <FieldNoteCard
+                          briefText={toolNotes[item.id].brief}
+                          detailedText={toolNotes[item.id].detailed}
+                          position="right"
+                          onClick={() => setViewingNote(item.id)}
+                        />
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -392,123 +667,136 @@ export function InventoryScreen() {
                 style={{
                   display: 'grid',
                   gridTemplateColumns: isMobile ? '1fr' : 'repeat(3, 1fr)',
-                  gap: isMobile ? '12px' : '16px',
+                  gap: isMobile ? '20px' : '20px',
+                  justifyItems: 'center',
                 }}
               >
-                {supplyItems.map((item) => {
-                  const isEmpty = item.count === 0;
+                {/* Film Counter */}
+                <div style={{ 
+                  // Enhanced foam color gradient - charcoal gray EVA foam
+                  background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+                  // Adjusted tool spacing to 10px padding
+                  padding: '10px',
+                  borderRadius: '8px',
+                  // Darker foam edges (2px border, #1a1a1a)
+                  border: '2px solid #1a1a1a',
+                  // Multi-layer deep inset shadows for realistic depth
+                  boxShadow: 
+                    'inset 0 6px 16px rgba(0,0,0,0.95), ' +
+                    'inset 0 -3px 8px rgba(0,0,0,0.9), ' +
+                    'inset 0 0 20px rgba(0,0,0,0.85)',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isMobile ? '100%' : 'auto',
+                  minHeight: isMobile ? '110px' : 'auto',
+                }}>
+                  {/* Enhanced EVA foam texture with grain pattern */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundImage: `url(${foamTexture})`,
+                      backgroundSize: 'cover',
+                      mixBlendMode: 'soft-light',
+                      opacity: 0.9,
+                      pointerEvents: 'none',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <MechanicalFilmCounter count={supplies.film} />
+                </div>
 
-                  return (
-                    <div
-                      key={item.label}
-                      style={{
-                        background: 'linear-gradient(135deg, #0f0f0f 0%, #0a0a0a 50%, #050505 100%)',
-                        padding: isMobile ? '14px' : '18px',
-                        borderRadius: '8px',
-                        border: '2px solid #000',
-                        boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.98), inset 0 -3px 8px rgba(0,0,0,0.9)',
-                        position: 'relative',
-                        opacity: isEmpty ? 0.4 : 1,
-                      }}
-                    >
-                      {/* Foam texture */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='foam'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.5' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23foam)' opacity='0.2'/%3E%3C/svg%3E")`,
-                          mixBlendMode: 'overlay',
-                          opacity: 0.7,
-                          pointerEvents: 'none',
-                          borderRadius: '8px',
-                        }}
-                      />
+                {/* Boosts Gauge */}
+                <div style={{ 
+                  // Enhanced foam color gradient - charcoal gray EVA foam
+                  background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+                  // Adjusted tool spacing to 10px padding
+                  padding: '10px',
+                  borderRadius: '8px',
+                  // Darker foam edges (2px border, #1a1a1a)
+                  border: '2px solid #1a1a1a',
+                  // Multi-layer deep inset shadows for realistic depth
+                  boxShadow: 
+                    'inset 0 6px 16px rgba(0,0,0,0.95), ' +
+                    'inset 0 -3px 8px rgba(0,0,0,0.9), ' +
+                    'inset 0 0 20px rgba(0,0,0,0.85)',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isMobile ? '100%' : 'auto',
+                  minHeight: isMobile ? '110px' : 'auto',
+                }}>
+                  {/* Enhanced EVA foam texture with grain pattern */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundImage: `url(${foamTexture})`,
+                      backgroundSize: 'cover',
+                      mixBlendMode: 'soft-light',
+                      opacity: 0.9,
+                      pointerEvents: 'none',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <LEDBoostGauge count={supplies.boosts} max={99} />
+                </div>
 
-                      <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        {/* Icon */}
-                        <div
-                          style={{
-                            fontSize: isMobile ? '32px' : '40px',
-                            flexShrink: 0,
-                          }}
-                        >
-                          {item.icon}
-                        </div>
-
-                        {/* Label */}
-                        <div style={{ flex: 1 }}>
-                          <div
-                            style={{
-                              fontFamily: '"Courier New", monospace',
-                              fontSize: isMobile ? '11px' : '12px',
-                              color: isEmpty ? 'rgba(150,150,150,0.3)' : 'rgba(200,200,200,0.5)',
-                              textTransform: 'uppercase',
-                              letterSpacing: '1px',
-                              marginBottom: '4px',
-                              textShadow: '0 -1px 1px rgba(255,255,255,0.15), 0 1px 2px rgba(0,0,0,0.9)',
-                            }}
-                          >
-                            {item.label}
-                          </div>
-                        </div>
-
-                        {/* Count - LED display */}
-                        <div
-                          style={{
-                            background: '#000',
-                            padding: '6px 14px',
-                            borderRadius: '4px',
-                            border: '2px solid #0a0a0a',
-                            boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.95)',
-                            minWidth: '60px',
-                            textAlign: 'center',
-                          }}
-                        >
-                          <div
-                            style={{
-                              fontFamily: '"Courier New", monospace',
-                              fontSize: isMobile ? '20px' : '24px',
-                              fontWeight: 'bold',
-                              color: isEmpty ? '#ff0000' : '#00ff55',
-                              textShadow: isEmpty
-                                ? '0 0 10px rgba(255,0,0,0.9), 0 0 20px rgba(255,0,0,0.5)'
-                                : '0 0 10px rgba(0,255,85,0.9), 0 0 20px rgba(0,255,85,0.5)',
-                              letterSpacing: '2px',
-                            }}
-                          >
-                            {item.count}
-                          </div>
-                        </div>
-
-                        {/* Status LED */}
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '10px',
-                            right: '10px',
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            background: isEmpty ? '#ff0000' : '#00ff55',
-                            boxShadow: isEmpty
-                              ? '0 0 10px rgba(255,0,0,0.9), 0 0 16px rgba(255,0,0,0.6)'
-                              : '0 0 10px rgba(0,255,85,0.9), 0 0 16px rgba(0,255,85,0.6)',
-                          }}
-                        />
-                      </div>
-                    </div>
-                  );
-                })}
+                {/* Charms Indicator */}
+                <div style={{ 
+                  // Enhanced foam color gradient - charcoal gray EVA foam
+                  background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+                  // Adjusted tool spacing to 10px padding
+                  padding: '10px',
+                  borderRadius: '8px',
+                  // Darker foam edges (2px border, #1a1a1a)
+                  border: '2px solid #1a1a1a',
+                  // Multi-layer deep inset shadows for realistic depth
+                  boxShadow: 
+                    'inset 0 6px 16px rgba(0,0,0,0.95), ' +
+                    'inset 0 -3px 8px rgba(0,0,0,0.9), ' +
+                    'inset 0 0 20px rgba(0,0,0,0.85)',
+                  position: 'relative',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isMobile ? '100%' : 'auto',
+                  minHeight: isMobile ? '110px' : 'auto',
+                }}>
+                  {/* Enhanced EVA foam texture with grain pattern */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundImage: `url(${foamTexture})`,
+                      backgroundSize: 'cover',
+                      mixBlendMode: 'soft-light',
+                      opacity: 0.9,
+                      pointerEvents: 'none',
+                      borderRadius: '8px',
+                    }}
+                  />
+                  <AnalogCharmsIndicator count={supplies.charms} />
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Tool Viewer Modal */}
+      {/* Enhanced Tool Viewer Modal - Analog Horror Styling */}
       {viewingTool && (
         <div
           style={{
@@ -519,9 +807,11 @@ export function InventoryScreen() {
             bottom: 0,
             zIndex: 10000,
             background: '#0a0a0a',
+            transition: 'opacity 0.3s ease-in-out',
+            opacity: 1,
           }}
         >
-          {/* Close Button */}
+          {/* Enhanced Close Button - Physical Aesthetic */}
           <button
             onClick={() => setViewingTool(null)}
             style={{
@@ -532,29 +822,73 @@ export function InventoryScreen() {
               width: '50px',
               height: '50px',
               padding: '0',
-              backgroundColor: 'rgba(239, 68, 68, 0.9)',
-              border: '1px solid rgba(220, 38, 38, 0.5)',
-              borderRadius: '10px',
+              // Heavy metal button with red warning color
+              background: 'linear-gradient(135deg, #8b0000 0%, #6b0000 50%, #4a0000 100%)',
+              border: '3px solid #2a0000',
+              borderTop: '2px solid rgba(255,100,100,0.3)',
+              borderRadius: '8px',
               cursor: 'pointer',
               fontSize: '24px',
+              fontWeight: 'bold',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
-              color: 'white',
+              // Physical depth shadows
+              boxShadow: 
+                '0 6px 16px rgba(0, 0, 0, 0.9), ' +
+                '0 3px 8px rgba(0, 0, 0, 0.7), ' +
+                'inset 0 2px 4px rgba(0,0,0,0.6), ' +
+                'inset 0 -1px 2px rgba(255,100,100,0.2)',
+              color: '#ffffff',
+              textShadow: '0 2px 4px rgba(0,0,0,0.8)',
+              transition: 'all 0.15s ease-out',
+              // Hover effect
+              ':hover': {
+                transform: 'scale(0.98)',
+              },
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.style.transform = 'scale(0.95)';
+              e.currentTarget.style.boxShadow = 
+                '0 3px 8px rgba(0, 0, 0, 0.9), ' +
+                'inset 0 3px 6px rgba(0,0,0,0.8)';
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.boxShadow = 
+                '0 6px 16px rgba(0, 0, 0, 0.9), ' +
+                '0 3px 8px rgba(0, 0, 0, 0.7), ' +
+                'inset 0 2px 4px rgba(0,0,0,0.6), ' +
+                'inset 0 -1px 2px rgba(255,100,100,0.2)';
             }}
             title="Close"
           >
             ✕
           </button>
 
-          {/* Tool Component */}
-          {viewingTool === 'radar' && <RadarTool mode="view" />}
-          {viewingTool === 'emf' && <EMFMeterTool mode="view" />}
-          {viewingTool === 'thermal' && <ThermalScannerTool mode="view" />}
-          {viewingTool === 'audio' && <AudioReceiverTool mode="view" />}
-          {viewingTool === 'camera' && <CameraTool mode="view" />}
+          {/* Tool Component with smooth transition */}
+          <div style={{ 
+            width: '100%', 
+            height: '100%',
+            transition: 'opacity 0.2s ease-in',
+            opacity: 1,
+          }}>
+            {viewingTool === 'radar' && <RadarTool mode="view" />}
+            {viewingTool === 'emf' && <EMFTool mode="view" />}
+            {viewingTool === 'thermal' && <ThermalScannerTool mode="view" />}
+            {viewingTool === 'audio' && <AudioReceiverTool mode="view" />}
+            {viewingTool === 'camera' && <CameraTool mode="view" />}
+          </div>
         </div>
+      )}
+
+      {/* Detailed Note Modal */}
+      {viewingNote && toolNotes[viewingNote] && (
+        <DetailedNoteModal
+          title={toolNotes[viewingNote].title}
+          detailedText={toolNotes[viewingNote].detailed}
+          onClose={() => setViewingNote(null)}
+        />
       )}
     </div>
   );

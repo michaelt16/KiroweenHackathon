@@ -66,15 +66,15 @@ export const GHOST_DEFINITIONS: Record<GhostType, GhostDefinition> = {
   Peccy: {
     id: 'Peccy',
     name: 'PECCY',
-    description: '??????? ???????? ??????? EXTREMELY DANGEROUS. Origin unknown. Behavior unpredictable. DO NOT APPROACH. ??????? ???????? ???????',
+    description: 'Non-ghost anomaly. Friendly, childlike entity found near Amazon fulfillment centers and warehouses. Appears curious and playful. Causes equipment spikes due to excitement, not hostility. No threat detected.',
     keyTraits: {
-      emf: 'present',           // All evidence present - impossible to identify
-      whispers: 'present',      // Everything triggers
-      cold: 'present',          // Maximum chaos
-      static: 'present',        // Complete distortion
-      photos: 'present',        // But shows only ????
-      sanityBehavior: 'present', // Instant drain
-      movement: 'present',      // Unpredictable
+      emf: 'present',           // High EMF from excitement
+      whispers: 'ruled_out',    // No verbal communication
+      cold: 'ruled_out',        // Warm readings (opposite of ghosts)
+      static: 'present',        // Equipment glitches from energy
+      photos: 'present',        // Appears in photos (orange glow)
+      sanityBehavior: 'ruled_out', // No sanity drain
+      movement: 'present',      // Playful, curious movement
     },
   },
 };

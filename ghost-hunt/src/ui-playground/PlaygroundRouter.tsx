@@ -34,8 +34,13 @@ import { RadarToolTest } from './tools/RadarToolTest';
 import { IconVariationsMock } from './IconVariationsMock';
 import { MapVariationsMock } from './MapVariationsMock';
 import { CorkboardMapView } from './CorkboardMapView';
+import { PhysicalToolDeviceTest } from './PhysicalToolDeviceTest';
+import { MechanicalFilmCounterDemo } from './MechanicalFilmCounterDemo';
+import { LEDBoostGaugeDemo } from './LEDBoostGaugeDemo';
+import { AnalogCharmsIndicatorDemo } from './AnalogCharmsIndicatorDemo';
+import { InvestigationDrawerMock } from './InvestigationDrawerMock';
 
-type Screen = 'profile' | 'codex' | 'investigation' | 'map' | 'horror-ghost' | 'horror-notes' | 'horror-evidence' | 'horror-id' | 'horror-id-texture' | 'horror-map' | 'horror-codex' | 'horror-investigation' | 'example-codex' | 'example-report' | 'example-case' | 'codex-journal' | 'component-system' | 'investigation-log' | 'ghost-codex-book' | 'profile-cork' | 'profile-clipboard' | 'media-1' | 'media-2' | 'media-3' | 'media-4' | 'tool-radar' | 'tool-radar-test' | 'tool-emf' | 'tool-thermal' | 'tool-spirit' | 'tool-camera' | 'icon-variations' | 'map-variations' | 'corkboard-map';
+type Screen = 'profile' | 'codex' | 'investigation' | 'map' | 'horror-ghost' | 'horror-notes' | 'horror-evidence' | 'horror-id' | 'horror-id-texture' | 'horror-map' | 'horror-codex' | 'horror-investigation' | 'example-codex' | 'example-report' | 'example-case' | 'codex-journal' | 'component-system' | 'investigation-log' | 'ghost-codex-book' | 'profile-cork' | 'profile-clipboard' | 'media-1' | 'media-2' | 'media-3' | 'media-4' | 'tool-radar' | 'tool-radar-test' | 'tool-emf' | 'tool-thermal' | 'tool-spirit' | 'tool-camera' | 'icon-variations' | 'map-variations' | 'corkboard-map' | 'physical-tool-device-test' | 'mechanical-film-counter' | 'led-boost-gauge' | 'analog-charms-indicator' | 'investigation-drawer';
 type Style = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
 
 export function PlaygroundRouter() {
@@ -537,6 +542,58 @@ export function PlaygroundRouter() {
           </div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
             <button
+              onClick={() => setActiveScreen('physical-tool-device-test')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'physical-tool-device-test' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              🔧 Physical Tool Device
+            </button>
+            <button
+              onClick={() => setActiveScreen('mechanical-film-counter')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'mechanical-film-counter' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              🎞️ Film Counter
+            </button>
+            <button
+              onClick={() => setActiveScreen('led-boost-gauge')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'led-boost-gauge' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              ⚡ LED Boost Gauge
+            </button>
+            <button
+              onClick={() => setActiveScreen('analog-charms-indicator')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'analog-charms-indicator' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              🔮 Charms Indicator
+            </button>
+            <button
               onClick={() => setActiveScreen('icon-variations')}
               style={{
                 padding: '8px 16px',
@@ -574,6 +631,19 @@ export function PlaygroundRouter() {
               }}
             >
               📌 Corkboard Map
+            </button>
+            <button
+              onClick={() => setActiveScreen('investigation-drawer')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'investigation-drawer' ? '#10b981' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              🎒 Investigation Drawer
             </button>
           </div>
         </div>
@@ -643,9 +713,14 @@ export function PlaygroundRouter() {
         {activeScreen === 'tool-thermal' && <ThermalScannerMock />}
         {activeScreen === 'tool-spirit' && <SpiritBoxMock />}
         {activeScreen === 'tool-camera' && <CameraViewfinderMock />}
+        {activeScreen === 'physical-tool-device-test' && <PhysicalToolDeviceTest />}
+        {activeScreen === 'mechanical-film-counter' && <MechanicalFilmCounterDemo />}
+        {activeScreen === 'led-boost-gauge' && <LEDBoostGaugeDemo />}
+        {activeScreen === 'analog-charms-indicator' && <AnalogCharmsIndicatorDemo />}
         {activeScreen === 'icon-variations' && <IconVariationsMock />}
         {activeScreen === 'map-variations' && <MapVariationsMock />}
         {activeScreen === 'corkboard-map' && <CorkboardMapView />}
+        {activeScreen === 'investigation-drawer' && <InvestigationDrawerMock />}
       </div>
     </div>
   );

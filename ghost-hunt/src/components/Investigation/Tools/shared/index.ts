@@ -1,20 +1,39 @@
-/**
- * Investigation Tools - Shared Components
- * 
- * This file exports all reusable visual components for investigation tools.
- * Based on Spec 009 - Investigation UI Transformation
- */
+// Casings
+export { MetalCasing, PlasticCasing } from './casings';
 
-export { ToolCasing } from './ToolCasing';
-export { ToolScrews } from './ToolScrews';
-export { TextureLayer } from './TextureLayer';
-export { DamageLayer } from './DamageLayer';
-export { HandwrittenLabel } from './HandwrittenLabel';
-export { SerialNumber } from './SerialNumber';
+// Damage
+export { 
+  Scratches, 
+  Gouges, 
+  RustSpots, 
+  EdgeChips, 
+  Fingerprints, 
+  RainStreaks 
+} from './damage';
 
-// Re-export types for convenience
-export type { ToolCasingProps } from '../types';
-export type { TextureLayerProps } from '../types';
-export type { DamageLayerProps } from '../types';
-export type { HandwrittenLabelProps } from './HandwrittenLabel';
-export type { SerialNumberProps } from './SerialNumber';
+// Hardware
+export { 
+  Screws, 
+  VentGrilles, 
+  WeldSeams, 
+  TapePatches 
+} from './hardware';
+
+// Labels
+export { 
+  EtchedLabel, 
+  SerialNumber, 
+  HandwrittenNote 
+} from './labels';
+
+// Textures
+export { 
+  TextureOverlays, 
+  BezelRing 
+} from './textures';
+
+// Effects
+export { 
+  FilmGrain, 
+  DirtyGlass 
+} from './effects';
