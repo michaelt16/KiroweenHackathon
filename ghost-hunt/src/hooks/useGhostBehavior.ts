@@ -48,6 +48,18 @@ const GHOST_PROFILES: Record<
     },
     sanityDrain: 0.35,
   },
+  Peccy: {
+    movementSpeed: 0.4,
+    anomalyWeights: {
+      emf: 0.4,
+      cold: 0.0,
+      whisper: 0.0,
+      motion: 0.2,
+      static: 0.3,
+      silhouette: 0.1,
+    },
+    sanityDrain: 0.0,
+  },
 };
 
 export function useGhostBehavior() {

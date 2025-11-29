@@ -19,7 +19,7 @@ export function AnalogCharmsIndicator({ count }: AnalogCharmsIndicatorProps) {
   
   // Generate tally mark SVG elements
   const renderTallyMarks = () => {
-    const marks: JSX.Element[] = [];
+    const marks: React.JSX.Element[] = [];
     let xOffset = 0;
     
     // Render groups of 5 (4 vertical lines + 1 diagonal)

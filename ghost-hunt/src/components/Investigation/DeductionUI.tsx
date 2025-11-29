@@ -25,6 +25,13 @@ const GHOST_INFO: Record<GhostType, { traits: string[] }> = {
       '📷 Camera distortion frequent',
     ],
   },
+  Peccy: {
+    traits: [
+      '🟠 Friendly orange glow',
+      '⚡ High EMF from excitement',
+      '📷 Appears in photos',
+    ],
+  },
 };
 
 export function DeductionUI() {
