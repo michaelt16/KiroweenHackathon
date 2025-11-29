@@ -6,6 +6,7 @@ interface TypewrittenTextProps {
   fontSize?: string;
   fontWeight?: 'normal' | 'bold';
   color?: string;
+  style?: React.CSSProperties;
 }
 
 export function TypewrittenText({ 
@@ -13,7 +14,8 @@ export function TypewrittenText({
   variant = 'standard',
   fontSize = '14px',
   fontWeight = 'normal',
-  color
+  color,
+  style
 }: TypewrittenTextProps) {
   const variantStyles = {
     standard: {
@@ -43,6 +45,7 @@ export function TypewrittenText({
       overflowWrap: 'break-word',
       hyphens: 'auto',
       ...variantStyles[variant],
+      ...style,
     }}>
       {children}
     </div>

@@ -188,7 +188,7 @@ function InvestigationRadiusCircle({ position, inRange }: { position: [number, n
 }
 
 // Hand-drawn red circle marker for main location
-function HandDrawnCircle({ position, label }: { position: [number, number]; label: string }) {
+function HandDrawnCircle({ position }: { position: [number, number]; label: string }) {
   return (
     <>
       {/* Outer circle - hand-drawn style */}
@@ -312,7 +312,7 @@ function RedPinMarker({ position }: { position: [number, number] }) {
 export function MapRootScreen() {
   const { playerPosition } = useGameState();
   const { supplyNodes, hotspots, fieldJournalNodes, removeSupplyNode, removeFieldJournalNode } = useMapData();
-  const { addJournal, hasJournal } = useFieldJournals();
+  const { addJournal } = useFieldJournals();
   const [selectedJournalForReading, setSelectedJournalForReading] = useState<string | null>(null);
   const [journalNodeToRemove, setJournalNodeToRemove] = useState<string | null>(null);
   const [showJournalNotification, setShowJournalNotification] = useState(false);

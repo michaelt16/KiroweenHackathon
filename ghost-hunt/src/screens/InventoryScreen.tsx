@@ -1,5 +1,5 @@
 // Equipment Suitcase - Looking into your field kit
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useSupplies } from '../context/SuppliesContext';
 import { BackToMapButton } from '../components/analog/elements/BackToMapButton';
 import { PhysicalToolDevice } from '../components/Equipment/PhysicalToolDevice';
@@ -846,10 +846,6 @@ export function InventoryScreen() {
               color: '#ffffff',
               textShadow: '0 2px 4px rgba(0,0,0,0.8)',
               transition: 'all 0.15s ease-out',
-              // Hover effect
-              ':hover': {
-                transform: 'scale(0.98)',
-              },
             }}
             onMouseDown={(e) => {
               e.currentTarget.style.transform = 'scale(0.95)';

@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { InvestigationProvider, useInvestigation } from '../context/InvestigationContext';
 import { useSupplies } from '../context/SuppliesContext';
-import { FieldScanner } from '../components/Investigation/FieldScanner';
-import { TopStatusBar } from '../components/HUD/TopStatusBar';
 
 import { InvestigationResultOverlay } from '../components/Investigation/InvestigationResultOverlay';
 import { ManualRotationControls } from '../components/Investigation/ManualRotationControls';
@@ -342,8 +340,7 @@ function InvestigationContent() {
             ghostDistance < 50 ? [{
               x: 50, // Center of screen (percentage)
               y: 50,
-              intensity: Math.max(0, 1 - (ghostDistance / 50)),
-              radius: 80
+              intensity: Math.max(0, 1 - (ghostDistance / 50))
             }] : []
           }
           temperature={

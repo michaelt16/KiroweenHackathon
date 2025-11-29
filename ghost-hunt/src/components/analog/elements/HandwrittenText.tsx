@@ -6,6 +6,7 @@ interface HandwrittenTextProps {
   color?: string;
   fontSize?: string;
   jitter?: boolean;
+  style?: React.CSSProperties;
 }
 
 export function HandwrittenText({ 
@@ -13,7 +14,8 @@ export function HandwrittenText({
   urgency = 'calm', 
   color,
   fontSize,
-  jitter = true 
+  jitter = true,
+  style
 }: HandwrittenTextProps) {
   const urgencyStyles = {
     calm: {
@@ -56,6 +58,7 @@ export function HandwrittenText({
     overflowWrap: 'break-word',
     hyphens: 'auto',
     ...urgencyStyles[urgency],
+    ...style,
   };
 
   // If children is a string, split into lines for jitter

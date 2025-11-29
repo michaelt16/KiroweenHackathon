@@ -1,5 +1,5 @@
 // Profile panel - Analog Horror UI (Clipboard with ID Card)
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { Clipboard } from '../components/analog/templates/Clipboard';
 import { IDCard } from '../components/analog/elements/IDCard';
 import { HandwrittenText } from '../components/analog/elements/HandwrittenText';
