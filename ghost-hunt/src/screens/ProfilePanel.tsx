@@ -13,8 +13,8 @@ export function ProfilePanel() {
   const level = 1;
   const currentXP = 30;
   const maxXP = 100;
-  const investigationsCompleted = 0;
-  const ghostsCaught = 0;
+  const investigationsCompleted: number = 0;
+  const ghostsCaught: number = 0;
   const successRate = 0;
   
   // Agent customization state

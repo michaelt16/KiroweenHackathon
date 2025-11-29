@@ -25,11 +25,23 @@ export function Camera() {
   // Get the most recent completed photo
   useEffect(() => {
     const completedPhoto = photos
-      .filter((p) => p.status === 'complete')
+      .filter((p) => p.status === 'ready')
       .sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0))[0];
     
-    if (completedPhoto?.imageUrl) {
-      setRecentPhoto(completedPhoto.imageUrl);
+    // Generate a data URL for the photo preview (since Photo doesn't have imageUrl)
+    if (completedPhoto) {
+      // Create a simple placeholder image data URL
+      const canvas = document.createElement('canvas');
+      canvas.width = 320;
+      canvas.height = 200;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#2d2d2d';
+        ctx.fillRect(10, 10, canvas.width - 20, canvas.height - 20);
+        setRecentPhoto(canvas.toDataURL());
+      }
     }
   }, [photos]);
 
@@ -667,7 +679,6 @@ export function Camera() {
                 position: 'absolute',
                 bottom: '10%',
                 left: '50%',
-                transform: 'translateX(-50%)',
                 width: '90px',
                 height: '90px',
                 borderRadius: '50%',

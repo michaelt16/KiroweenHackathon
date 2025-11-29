@@ -95,7 +95,6 @@ export function RadarToolTest() {
       <RadarTool
         mode={mode}
         ghostBearing={45}
-        ghostDistance={120}
         playerHeading={playerHeading}
         isGhostMoving={false}
         sweepSpeed={2}

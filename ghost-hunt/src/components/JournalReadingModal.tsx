@@ -200,7 +200,7 @@ export function JournalReadingModal({ journal, onClose, onAddToCollection }: Jou
                 {journal.photos && journal.photos.length > 0 && (
                   <div style={{ marginTop: '20px', display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                     {journal.photos.map((photo, idx) => (
-                      <PolaroidPhoto key={idx} image={photo} label="Evidence" seed={journal.id + '-photo-' + idx} />
+                      <PolaroidPhoto key={idx} src={photo} caption="Evidence" seed={journal.id + '-photo-' + idx} />
                     ))}
                   </div>
                 )}

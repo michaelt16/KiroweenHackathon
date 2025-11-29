@@ -123,12 +123,7 @@ const EMFToolComponent = ({
         <VentGrilles side="left" />
         <VentGrilles side="right" />
         <WeldSeams />
-        <TapePatches 
-          patches={[
-            { top: '5%', left: '-8px', width: '60px', height: '18px', rotation: -2.5, opacity: 0.7 },
-            { bottom: '15%', right: '-10px', width: '55px', height: '16px', rotation: 1.8, opacity: 0.65 },
-          ]}
-        />
+        <TapePatches count={2} seed="emf-tape" />
         
         {/* Labels (Etched Style) */}
         <EtchedLabel
@@ -140,7 +135,7 @@ const EMFToolComponent = ({
         />
         <EtchedLabel
           text="K-II METER"
-          position={{ top: '3%', left: '50%', transform: 'translateX(-50%)' }}
+          position={{ top: '3%', left: '50%' }}
           font="courier"
           fontSize="9px"
           rotation={0.4}

@@ -31,7 +31,8 @@ export function ProfileBadge({
   const seed = username;
 
   return (
-    <PaperBase variant="clean" seed={seed} style={{ position: 'relative' }}>
+    <div style={{ position: 'relative' }}>
+      <PaperBase variant="clean" seed={seed}>
       {/* Damage elements - ID badge wear */}
       <DamageOverlay type="fingerprint" opacity={0.2} seed={seed} />
       <DamageOverlay type="ink" opacity={0.15} seed={seed + '-ink'} />
@@ -175,6 +176,7 @@ export function ProfileBadge({
           <OfficialStamp text="ACTIVE" color="red" seed={seed + '-achievement'} />
         </div>
       )}
-    </PaperBase>
+      </PaperBase>
+    </div>
   );
 }

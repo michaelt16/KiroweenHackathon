@@ -26,7 +26,7 @@ export function GameStateProvider({ children }: { children: ReactNode }) {
   const [devModeEnabled, setDevModeEnabled] = useState<boolean>(true); // Default to true for demo
   const [inventory, setInventory] = useState<InventoryItem[]>([]);
   const [isPlayerMoving, setIsPlayerMoving] = useState<boolean>(false);
-  const [movementDirection, setMovementDirection] = useState<'north' | 'other' | null>(null);
+  const [movementDirection, setMovementDirection] = useState<'north' | 'south' | 'east' | 'west' | 'other' | null>(null);
 
   const handleSetPlayerPosition = (position: Position) => {
     console.log('📍 Player position updated:', position);

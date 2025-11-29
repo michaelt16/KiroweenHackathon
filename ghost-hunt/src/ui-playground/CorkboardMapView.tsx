@@ -503,7 +503,6 @@ export function CorkboardMapView() {
           position: 'absolute',
           bottom: '20px',
           left: '50%',
-          transform: 'translateX(-50%)',
           zIndex: 500,
           background: `
             url(${wrinkledPaper}),

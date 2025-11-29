@@ -26,3 +26,4 @@ export interface SpiritBoxCasingProps {
   // No props needed for casing - it's purely visual
 }
 
+

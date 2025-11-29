@@ -1,6 +1,7 @@
 // AnalogCharmsIndicator - Simple analog indicator on aged paper card
 // Displays charm count with hand-drawn tally marks
 
+import React from 'react';
 import wrinkledPaper from '../../assets/texture/wrinkledpaper.png';
 import tape from '../../assets/texture/tape.png';
 

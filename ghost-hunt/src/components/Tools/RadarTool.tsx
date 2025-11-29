@@ -23,7 +23,7 @@ export function RadarTool({ mode }: RadarToolProps) {
       ghostBearing={investigation?.ghostBearing ?? 45}
       playerHeading={investigation?.playerHeading ?? 0}
       isGhostInCone={isGhostInCone}
-      isGhostMoving={investigation?.isGhostMoving ?? false}
+      isGhostMoving={false}
       sweepSpeed={2}
     />
   );

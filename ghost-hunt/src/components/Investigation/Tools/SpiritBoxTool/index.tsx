@@ -183,13 +183,7 @@ const SpiritBoxToolComponent = ({
         <VentGrilles side="left" />
         <VentGrilles side="right" />
         <WeldSeams />
-        <TapePatches 
-          patches={[
-            { top: '5%', left: '-15px', width: '60px', height: '3px', rotation: -15, opacity: 0.8 },
-            { bottom: '12px', right: '10px', width: '85px', height: '32px', rotation: -14, opacity: 0.9 },
-            { top: '12px', right: '5px', width: '52px', height: '20px', rotation: 16, opacity: 0.8 },
-          ]}
-        />
+        <TapePatches count={3} seed="spiritbox-tape" />
         
         {/* Labels (Etched Style) */}
         <EtchedLabel
@@ -252,4 +246,5 @@ const SpiritBoxToolComponent = ({
 };
 
 export const SpiritBoxTool = memo(SpiritBoxToolComponent);
+
 

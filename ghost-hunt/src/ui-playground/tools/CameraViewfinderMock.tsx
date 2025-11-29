@@ -565,7 +565,6 @@ export function CameraViewfinderMock() {
                 position: 'absolute',
                 top: '16px',
                 left: '50%',
-                transform: 'translateX(-50%)',
                 fontFamily: '"Courier New", monospace',
                 fontSize: '9px',
                 color: 'rgba(200,200,200,0.4)',
