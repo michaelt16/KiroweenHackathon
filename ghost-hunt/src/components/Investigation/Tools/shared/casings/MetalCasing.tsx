@@ -53,7 +53,36 @@ export const MetalCasing: React.FC<MetalCasingProps> = ({ children, className = 
         ...style,
       }}
     >
-      {/* Metal Texture Overlay (PRIMARY - Always present) */}
+      {/* Directional brushed-metal texture (linear scratches) - z-index 2 - ENHANCED */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'repeating-linear-gradient(45deg, transparent 0px, rgba(255,255,255,0.05) 1px, transparent 2px, transparent 10px)',
+        backgroundSize: '20px 20px',
+        mixBlendMode: 'overlay',
+        opacity: 0.8,
+        pointerEvents: 'none',
+        zIndex: 2,
+      }} />
+      {/* Additional metallic highlight streaks for more visible glare */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'repeating-linear-gradient(135deg, transparent 0px, rgba(255,255,255,0.08) 0.5px, transparent 1px, transparent 15px)',
+        backgroundSize: '25px 25px',
+        mixBlendMode: 'screen',
+        opacity: 0.4,
+        pointerEvents: 'none',
+        zIndex: 2,
+      }} />
+      
+      {/* Metal Texture Overlay (PRIMARY - Always present) - z-index 2 */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -68,7 +97,41 @@ export const MetalCasing: React.FC<MetalCasingProps> = ({ children, className = 
         zIndex: 2,
       }} />
       
-      {/* Rust/Wear Overlay (SECONDARY - Heavy industrial wear) */}
+      {/* Uneven lighting - Hotspot top-left, falloff bottom-right - z-index 3 - ENHANCED GLARE */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(ellipse at 15% 15%, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.12) 15%, rgba(255,255,255,0.06) 30%, transparent 60%)',
+        pointerEvents: 'none',
+        zIndex: 3,
+      }} />
+      {/* Additional bright highlight for stronger glare */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(ellipse at 12% 12%, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 10%, transparent 40%)',
+        pointerEvents: 'none',
+        zIndex: 3,
+        mixBlendMode: 'screen',
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'radial-gradient(ellipse at 85% 85%, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 25%, rgba(0,0,0,0.15) 50%, transparent 70%)',
+        pointerEvents: 'none',
+        zIndex: 3,
+      }} />
+      
+      {/* Rust/Wear Overlay (SECONDARY - Heavy industrial wear) - z-index 3 */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -83,7 +146,7 @@ export const MetalCasing: React.FC<MetalCasingProps> = ({ children, className = 
         zIndex: 3,
       }} />
       
-      {/* Dust/Grime Layer (TERTIARY - Environmental buildup) */}
+      {/* Dust/Grime Layer (TERTIARY - Environmental buildup) - z-index 4 */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -98,7 +161,7 @@ export const MetalCasing: React.FC<MetalCasingProps> = ({ children, className = 
         zIndex: 4,
       }} />
       
-      {/* Additional Plastic/Dark Texture (For tools like EMF) */}
+      {/* Additional Plastic/Dark Texture (For tools like EMF) - z-index 5 */}
       <div style={{
         position: 'absolute',
         top: 0,
@@ -113,58 +176,110 @@ export const MetalCasing: React.FC<MetalCasingProps> = ({ children, className = 
         zIndex: 5,
       }} />
       
-      {/* Top bevel (8-12px deep for machined metal finish) */}
+      {/* Additional plastic dark texture layer (match mock) - z-index 6 */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundImage: `url(${plasticDark})`,
+        backgroundSize: 'cover',
+        mixBlendMode: 'multiply',
+        opacity: 0.3,
+        pointerEvents: 'none',
+        zIndex: 6,
+      }} />
+      
+      {/* Device Architecture: Top Section */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '10%',
+        background: 'linear-gradient(180deg, #3a3a3a 0%, #2d2d2d 100%)',
+        borderBottom: '2px solid rgba(0,0,0,0.8)',
+        boxShadow: 'inset 0 -2px 4px rgba(0,0,0,0.9)',
+        zIndex: 1,
+      }} />
+      
+      {/* Device Architecture: Middle Section (LED area) */}
+      <div style={{
+        position: 'absolute',
+        top: '10%',
+        left: 0,
+        right: 0,
+        bottom: '25%',
+        background: 'linear-gradient(180deg, #2d2d2d 0%, #252525 50%, #1f1f1f 100%)',
+        zIndex: 1,
+      }} />
+      
+      {/* Device Architecture: Bottom Section */}
+      <div style={{
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '25%',
+        background: 'linear-gradient(0deg, #1a1a1a 0%, #1f1f1f 100%)',
+        borderTop: '2px solid rgba(0,0,0,0.8)',
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.9)',
+        zIndex: 1,
+      }} />
+      
+      {/* Top bevel (8-12px deep for machined metal finish) - z-index 2 */}
       <div style={{
         position: 'absolute',
         top: 0,
         left: 0,
         right: 0,
         height: '12px',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.1) 0%, transparent 100%)',
+        background: 'linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 50%, transparent 100%)',
         pointerEvents: 'none',
-        zIndex: 6,
+        zIndex: 2,
       }} />
       
-      {/* Bottom bevel */}
+      {/* Bottom bevel - z-index 2 */}
       <div style={{
         position: 'absolute',
         bottom: 0,
         left: 0,
         right: 0,
         height: '12px',
-        background: 'linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%)',
+        background: 'linear-gradient(0deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 50%, transparent 100%)',
         pointerEvents: 'none',
-        zIndex: 6,
+        zIndex: 2,
       }} />
       
-      {/* Left bevel */}
+      {/* Left bevel - z-index 2 */}
       <div style={{
         position: 'absolute',
         top: 0,
         bottom: 0,
         left: 0,
         width: '12px',
-        background: 'linear-gradient(90deg, rgba(0,0,0,0.7) 0%, transparent 100%)',
+        background: 'linear-gradient(90deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 50%, transparent 100%)',
         pointerEvents: 'none',
-        zIndex: 6,
+        zIndex: 2,
       }} />
       
-      {/* Right bevel */}
+      {/* Right bevel - z-index 2 */}
       <div style={{
         position: 'absolute',
         top: 0,
         bottom: 0,
         right: 0,
         width: '12px',
-        background: 'linear-gradient(270deg, rgba(0,0,0,0.7) 0%, transparent 100%)',
+        background: 'linear-gradient(270deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.8) 50%, transparent 100%)',
         pointerEvents: 'none',
-        zIndex: 6,
+        zIndex: 2,
       }} />
       
       {/* Content */}
       <div style={{
         position: 'relative',
-        zIndex: 7,
+        zIndex: 10,
         width: '100%',
         height: '100%',
       }}>

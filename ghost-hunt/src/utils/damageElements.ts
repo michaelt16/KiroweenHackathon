@@ -19,9 +19,61 @@ export interface DamageElement {
   clipPath?: string; // For paint chips
 }
 
+// Raw data interfaces for internal use
+interface ScratchData {
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
+  width: string;
+  angle: number;
+  opacity: number;
+}
+
+interface RustSpotData {
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
+  size: string;
+  opacity: number;
+}
+
+interface ChipData {
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
+  width: string;
+  height: string;
+  clipPath: string;
+  opacity: number;
+}
+
+interface SmudgeData {
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
+  size: string;
+  opacity: number;
+}
+
+interface TapePatchData {
+  top?: string;
+  bottom?: string;
+  left?: string;
+  right?: string;
+  width: string;
+  height: string;
+  rotation: number;
+  opacity: number;
+  note: string;
+}
+
 // Generate light scratches (6-8 per device)
 export function generateLightScratches(count: number = 7): DamageElement[] {
-  const scratches: DamageElement[] = [
+  const scratches: ScratchData[] = [
     { top: '15%', left: '5%', width: '150px', angle: -25, opacity: 0.5 },
     { bottom: '20%', right: '8%', width: '130px', angle: 30, opacity: 0.55 },
     { top: '60%', left: '3%', width: '120px', angle: 45, opacity: 0.5 },
@@ -51,7 +103,7 @@ export function generateLightScratches(count: number = 7): DamageElement[] {
 
 // Generate dark scratches (3-5 per device)
 export function generateDarkScratches(count: number = 4): DamageElement[] {
-  const scratches: DamageElement[] = [
+  const scratches: ScratchData[] = [
     { top: '18px', right: '22px', width: '55px', angle: -32, opacity: 0.5 },
     { bottom: '32px', left: '32px', width: '40px', angle: 22, opacity: 0.4 },
     { top: '40%', right: '15%', width: '60px', angle: 28, opacity: 0.45 },
@@ -78,7 +130,7 @@ export function generateDarkScratches(count: number = 4): DamageElement[] {
 
 // Generate rust spots (5-7 scattered)
 export function generateRustSpots(count: number = 6): DamageElement[] {
-  const spots: DamageElement[] = [
+  const spots: RustSpotData[] = [
     { top: '18%', left: '15%', size: '14px', opacity: 0.55 },
     { top: '45%', right: '12%', size: '16px', opacity: 0.6 },
     { bottom: '22%', left: '18%', size: '12px', opacity: 0.5 },
@@ -106,7 +158,7 @@ export function generateRustSpots(count: number = 6): DamageElement[] {
 
 // Generate chipped paint areas (4-6 per device)
 export function generatePaintChips(count: number = 5): DamageElement[] {
-  const chips: DamageElement[] = [
+  const chips: ChipData[] = [
     { top: '0', left: '0', width: '35px', height: '35px', clipPath: 'polygon(0% 0%, 100% 0%, 0% 100%)', opacity: 0.8 },
     { top: '0', right: '0', width: '40px', height: '40px', clipPath: 'polygon(100% 0%, 100% 100%, 0% 0%)', opacity: 0.75 },
     { bottom: '0', left: '0', width: '32px', height: '32px', clipPath: 'polygon(0% 100%, 0% 0%, 100% 100%)', opacity: 0.78 },
@@ -134,7 +186,7 @@ export function generatePaintChips(count: number = 5): DamageElement[] {
 
 // Generate fingerprint smudges (3-5 per visible area)
 export function generateFingerprints(count: number = 4): DamageElement[] {
-  const smudges: DamageElement[] = [
+  const smudges: SmudgeData[] = [
     { top: '25%', left: '12%', size: '30px', opacity: 0.3 },
     { bottom: '28%', right: '10%', size: '25px', opacity: 0.25 },
     { top: '50%', right: '8%', size: '28px', opacity: 0.28 },
@@ -160,7 +212,7 @@ export function generateFingerprints(count: number = 4): DamageElement[] {
 
 // Generate tape patches (3-5 per device, crooked)
 export function generateTapePatches(count: number = 4): DamageElement[] {
-  const patches: DamageElement[] = [
+  const patches: TapePatchData[] = [
     { top: '5%', left: '-15px', width: '60px', height: '3px', rotation: -15, opacity: 0.8, note: '' },
     { top: '50%', right: '-20px', width: '50px', height: '4px', rotation: 20, opacity: 0.75, note: '' },
     { bottom: '8%', left: '-12px', width: '45px', height: '3px', rotation: 10, opacity: 0.7, note: '' },

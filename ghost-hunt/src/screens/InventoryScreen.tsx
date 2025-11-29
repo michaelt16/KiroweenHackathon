@@ -7,8 +7,12 @@ import { MechanicalFilmCounter } from '../components/Equipment/MechanicalFilmCou
 import { LEDBoostGauge } from '../components/Equipment/LEDBoostGauge';
 import { AnalogCharmsIndicator } from '../components/Equipment/AnalogCharmsIndicator';
 import { DamageElements } from '../components/Equipment/DamageElements';
-import { RadarTool, ThermalScannerTool, AudioReceiverTool, CameraTool } from '../components/Tools';
+// Import refactored investigation tools (same as InvestigationScreen)
+import { RadarTool } from '../components/Investigation/Tools/RadarTool';
 import { EMFTool } from '../components/Investigation/Tools/EMFTool/index';
+import { ThermalTool } from '../components/Investigation/Tools/ThermalTool';
+import { CameraTool } from '../components/Investigation/Tools/CameraTool';
+import { SpiritBoxTool } from '../components/Investigation/Tools/SpiritBoxTool/index';
 import { generateCaseDamage } from '../utils/damageElements';
 import foamTexture from '../assets/texture/foam.png';
 import { FieldNoteCard } from '../components/Equipment/FieldNoteCard';
@@ -875,8 +879,8 @@ export function InventoryScreen() {
           }}>
             {viewingTool === 'radar' && <RadarTool mode="view" />}
             {viewingTool === 'emf' && <EMFTool mode="view" />}
-            {viewingTool === 'thermal' && <ThermalScannerTool mode="view" />}
-            {viewingTool === 'audio' && <AudioReceiverTool mode="view" />}
+            {viewingTool === 'thermal' && <ThermalTool mode="view" />}
+            {viewingTool === 'audio' && <SpiritBoxTool mode="view" />}
             {viewingTool === 'camera' && <CameraTool mode="view" />}
           </div>
         </div>

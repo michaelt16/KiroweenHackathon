@@ -1,5 +1,5 @@
 // Thermal Scanner Tool Component - Reusable with mode prop
-import ThermalScannerMock from '../../ui-playground/tools/ThermalScannerMock';
+import { ThermalScannerMock } from '../../ui-playground/tools/ThermalScannerMock';
 import { useInvestigation } from '../../context/InvestigationContext';
 
 interface ThermalScannerToolProps {
@@ -13,4 +13,5 @@ export function ThermalScannerTool({ mode }: ThermalScannerToolProps) {
   // TODO: Pass investigation data to mock when in investigation mode
   return <ThermalScannerMock />;
 }
+
 

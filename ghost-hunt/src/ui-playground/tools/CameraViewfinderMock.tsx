@@ -580,13 +580,12 @@ export function CameraViewfinderMock() {
                 position: 'absolute',
                 top: '28px',
                 left: '50%',
-                transform: 'translateX(-50%)',
+                transform: 'translateX(-50%) rotate(0.2deg)',
                 fontFamily: '"Courier New", monospace',
                 fontSize: '8px',
                 color: 'rgba(200,200,200,0.35)',
                 textAlign: 'center',
                 letterSpacing: '0.5px',
-                transform: 'translateX(-50%) rotate(0.2deg)',
                 zIndex: 13,
               }}>
                 SHAKE AT OWN RISK

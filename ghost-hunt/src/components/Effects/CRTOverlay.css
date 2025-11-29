@@ -8,36 +8,17 @@
   height: 100%;
   pointer-events: none;
   z-index: 500;
-  mix-blend-mode: screen;
+  mix-blend-mode: normal;
 }
 
-/* Scanlines */
+/* Scanlines - Completely removed green grid effect */
 .crt-scanlines {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: repeating-linear-gradient(
-    0deg,
-    rgba(0, 0, 0, 0.15) 0px,
-    transparent 1px,
-    transparent 2px
-  );
-  pointer-events: none;
+  display: none;
 }
 
-/* Static Noise Texture */
+/* Static Noise Texture - Completely removed */
 .crt-static {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  pointer-events: none;
-  animation: static-shift 0.1s infinite steps(1);
+  display: none;
 }
 
 @keyframes static-shift {
@@ -55,7 +36,7 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 255, 0, 0.02);
+  background: rgba(255, 255, 255, 0.01);
   pointer-events: none;
   animation: flicker-crt 0.15s infinite;
 }

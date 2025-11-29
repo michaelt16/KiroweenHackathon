@@ -39,7 +39,7 @@ You’re juggling tools under:
 Time pressure (sanity ticking down + ghost maybe moving in harder mode).
 
 Limited resources (film, potions/charms).
-
+ me
 Between tool checks, you:
 
 Re-check Radar: did the ghost move direction?

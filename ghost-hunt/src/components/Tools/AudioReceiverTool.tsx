@@ -14,3 +14,4 @@ export function AudioReceiverTool({ mode }: AudioReceiverToolProps) {
   return <SpiritBoxMock />;
 }
 
+

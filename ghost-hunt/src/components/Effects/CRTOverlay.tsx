@@ -59,14 +59,16 @@ export function CRTOverlay({
         }}
       />
 
-      {/* Static Noise */}
-      <canvas
-        ref={canvasRef}
-        className="crt-static"
-        style={{
-          opacity: staticOpacity,
-        }}
-      />
+      {/* Static Noise - Removed */}
+      {false && (
+        <canvas
+          ref={canvasRef}
+          className="crt-static"
+          style={{
+            opacity: staticOpacity,
+          }}
+        />
+      )}
 
       {/* Flicker Effect */}
       {flickerEnabled && <div className="crt-flicker" />}

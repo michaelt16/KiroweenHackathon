@@ -1228,12 +1228,11 @@ export function MapRootScreen() {
             position: 'absolute',
             top: '-8px',
             left: '50%',
-            transform: 'translateX(-50%)',
+            transform: 'translateX(-50%) rotate(-45deg)',
             width: '12px',
             height: '12px',
             borderRadius: '50% 50% 50% 0',
             background: 'radial-gradient(circle at 30% 30%, #cc0000, #990000)',
-            transform: 'translateX(-50%) rotate(-45deg)',
             boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
             pointerEvents: 'none',
           }} />
@@ -1301,12 +1300,11 @@ export function MapRootScreen() {
             position: 'absolute',
             top: '-8px',
             left: '50%',
-            transform: 'translateX(-50%)',
+            transform: 'translateX(-50%) rotate(-45deg)',
             width: '12px',
             height: '12px',
             borderRadius: '50% 50% 50% 0',
             background: 'radial-gradient(circle at 30% 30%, #cc0000, #990000)',
-            transform: 'translateX(-50%) rotate(-45deg)',
             boxShadow: '0 2px 4px rgba(0,0,0,0.4)',
             pointerEvents: 'none',
           }} />
@@ -1552,7 +1550,6 @@ export function MapRootScreen() {
             animation: 'fadeInScale 0.3s ease-out',
             pointerEvents: 'none',
             maxWidth: '90%',
-            position: 'relative',
             overflow: 'hidden',
           }}
         >

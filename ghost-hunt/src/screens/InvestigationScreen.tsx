@@ -4,8 +4,6 @@ import { useEffect, useState } from 'react';
 import { InvestigationProvider, useInvestigation } from '../context/InvestigationContext';
 import { useSupplies } from '../context/SuppliesContext';
 import { FieldScanner } from '../components/Investigation/FieldScanner';
-import { CRTOverlay } from '../components/Effects/CRTOverlay';
-import { AtmosphereLayer } from '../components/Investigation/AtmosphereLayer';
 import { TopStatusBar } from '../components/HUD/TopStatusBar';
 
 import { InvestigationResultOverlay } from '../components/Investigation/InvestigationResultOverlay';
@@ -28,7 +26,7 @@ import { RadarTool } from '../components/Investigation/Tools/RadarTool';
 import { EMFTool } from '../components/Investigation/Tools/EMFTool/index';
 import { ThermalTool } from '../components/Investigation/Tools/ThermalTool';
 import { CameraTool } from '../components/Investigation/Tools/CameraTool';
-import { SpiritBoxTool } from '../components/Investigation/Tools/SpiritBoxTool';
+import { SpiritBoxTool } from '../components/Investigation/Tools/SpiritBoxTool/index';
 
 
 
@@ -291,42 +289,7 @@ function InvestigationContent() {
         overflow: 'hidden',
       }}
     >
-      {/* Subtle CRT Overlay - Match main screen */}
-      <CRTOverlay intensity={0.15} scanlineSpacing={4} staticOpacity={0.01} flickerEnabled={false} />
-
-      {/* Atmosphere Layer - Vignette and particles */}
-      <AtmosphereLayer sanity={sanity} />
-
-      {/* Gradient Overlay - Match main screen */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 400,
-          background: `
-            radial-gradient(circle at center, transparent 0%, rgba(11, 15, 26, 0.2) 60%, rgba(11, 15, 26, 0.4) 100%),
-            linear-gradient(to top, rgba(11, 15, 26, 0.5) 0%, rgba(11, 15, 26, 0.2) 30%, transparent 60%)
-          `,
-        }}
-      />
-
-      {/* Vignette effect - Match main screen */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          pointerEvents: 'none',
-          zIndex: 401,
-          background: 'radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.2) 100%)',
-        }}
-      />
+      {/* All filter overlays removed per user request */}
 
       {/* Loading Overlay */}
       <LoadingOverlay

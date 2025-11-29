@@ -14,3 +14,4 @@ export function CameraTool({ mode }: CameraToolProps) {
   return <CameraViewfinderMock />;
 }
 
+

@@ -11,48 +11,58 @@ interface VentGrilleProps {
  * VentGrilles - Industrial cooling vents for metal tools
  * 
  * Features:
+ * - Multiple vent sections (top and bottom)
  * - Vertical slits with gradient
  * - Left or right side placement
- * - Customizable slit count (default 15)
- * - Inset shadows for depth
+ * - Matches EMF mock placement
  * 
  * Usage:
- * <VentGrilles side="left" slitCount={15} />
- * <VentGrilles side="right" slitCount={15} />
+ * <VentGrilles side="left" />
+ * <VentGrilles side="right" />
  */
 export const VentGrilles: React.FC<VentGrilleProps> = ({ 
   side, 
-  slitCount = 15,
-  width = '8px',
+  slitCount = 8,
+  width = '2px',
   height = '120px'
 }) => {
+  // Industrial vent slits (like EMF mock) - Multiple sections
+  const ventSections = [
+    { top: '18%', bottom: '27%', count: 8 },  // Upper section
+    { top: '60%', bottom: '68%', count: 6 },  // Lower section
+  ];
+  
   return (
-    <div
-      style={{
-        position: 'absolute',
-        [side]: '8px',
-        top: '50%',
-        transform: 'translateY(-50%)',
-        width,
-        height,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '3px',
-        pointerEvents: 'none',
-        zIndex: 9,
-      }}
-    >
-      {[...Array(slitCount)].map((_, i) => (
+    <>
+      {ventSections.map((section, sectionIndex) => (
         <div
-          key={i}
+          key={`${side}-section-${sectionIndex}`}
           style={{
-            width: '100%',
-            height: '2px',
-            background: 'linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.8) 20%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.8) 80%, transparent 100%)',
-            boxShadow: 'inset 0 1px 1px rgba(0,0,0,0.9)',
+            position: 'absolute',
+            [side]: side === 'left' ? '3%' : '3%',
+            top: section.top,
+            bottom: section.bottom,
+            width,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '3px',
+            pointerEvents: 'none',
+            zIndex: 9,
           }}
-        />
+        >
+          {[...Array(section.count)].map((_, i) => (
+            <div
+              key={i}
+              style={{
+                flex: 1,
+                background: 'linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.7) 50%, rgba(0,0,0,0.95) 100%)',
+                boxShadow: 'inset 0 0 3px rgba(0,0,0,0.9)',
+                borderRadius: '1px',
+              }}
+            />
+          ))}
+        </div>
       ))}
-    </div>
+    </>
   );
 };

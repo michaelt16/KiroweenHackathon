@@ -767,13 +767,12 @@ export function MapVariationsMock() {
                   position: 'absolute',
                   top: '30px',
                   left: '50%',
-                  transform: 'translateX(-50%)',
+                  transform: `translateX(-50%) rotate(${Math.random() * 4 - 2}deg)`,
                   fontFamily: '"Caveat", cursive',
                   fontSize: '11px',
                   color: '#8B4513',
                   whiteSpace: 'nowrap',
                   textShadow: '0 1px 2px rgba(255,255,255,0.8)',
-                  transform: `translateX(-50%) rotate(${Math.random() * 4 - 2}deg)`,
                 }}>
                   {loc.name}
                 </div>
@@ -911,7 +910,7 @@ export function MapVariationsMock() {
                   position: 'absolute',
                   top: '35px',
                   left: '50%',
-                  transform: 'translateX(-50%)',
+                  transform: `translateX(-50%) rotate(${Math.random() * 3 - 1.5}deg)`,
                   fontFamily: '"Caveat", cursive',
                   fontSize: '12px',
                   color: '#fff',
@@ -920,7 +919,6 @@ export function MapVariationsMock() {
                   borderRadius: '4px',
                   whiteSpace: 'nowrap',
                   textShadow: '0 1px 2px rgba(0,0,0,0.8)',
-                  transform: `translateX(-50%) rotate(${Math.random() * 3 - 1.5}deg)`,
                 }}>
                   {loc.name}
                 </div>

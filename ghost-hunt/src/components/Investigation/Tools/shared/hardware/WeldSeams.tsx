@@ -19,43 +19,25 @@ interface WeldSeamsProps {
  * WeldSeams - Industrial construction seams for metal tools
  * 
  * Features:
- * - Horizontal and vertical seams
+ * - Horizontal and vertical seams aligned with casing sections
  * - Gradient for depth
  * - 3-5 per device
- * - Seed-based deterministic randomization
+ * - Matches EMF mock placement
  * 
  * Usage:
  * <WeldSeams count={5} seed="emf-001" />
  */
 export const WeldSeams: React.FC<WeldSeamsProps> = ({ count = 5, seed = 0 }) => {
-  const getRandom = (index: number) => {
-    const seedNum = typeof seed === 'number' ? seed : seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return ((seedNum + index * 331) % 100) / 100;
-  };
-
-  // Generate horizontal seams
-  const horizontalSeams: SeamConfig[] = [];
-  for (let i = 0; i < Math.ceil(count * 0.6); i++) {
-    horizontalSeams.push({
-      top: `${getRandom(i) * 60 + 15}%`,
-      left: `${getRandom(i + 1) * 10 + 8}%`,
-      right: `${getRandom(i + 2) * 10 + 8}%`,
-      height: '1px',
-      opacity: getRandom(i + 3) * 0.15 + 0.4,
-    });
-  }
-
-  // Generate vertical seams
-  const verticalSeams: SeamConfig[] = [];
-  for (let i = 0; i < Math.floor(count * 0.4); i++) {
-    verticalSeams.push({
-      top: `${getRandom(i + 10) * 20 + 10}%`,
-      bottom: `${getRandom(i + 11) * 30 + 20}%`,
-      left: `${getRandom(i + 12) * 80 + 6}%`,
-      width: '2px',
-      opacity: getRandom(i + 13) * 0.1 + 0.45,
-    });
-  }
+  // Welded metal seams aligned with casing sections (match EMF mock)
+  const horizontalSeams: SeamConfig[] = [
+    { top: '10%', left: '8%', right: '8%', height: '2px', opacity: 0.6 },  // Top seam - aligns with top section end
+    { bottom: '25%', left: '10%', right: '10%', height: '2px', opacity: 0.55 },  // Bottom seam - aligns with bottom section start
+  ];
+  
+  const verticalSeams: SeamConfig[] = [
+    { top: '10%', left: '6%', width: '2px', bottom: '25%', opacity: 0.5 },  // Left vertical seam
+    { top: '10%', right: '6%', width: '2px', bottom: '25%', opacity: 0.5 },  // Right vertical seam
+  ];
 
   return (
     <>

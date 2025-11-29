@@ -10,6 +10,8 @@ import { memo } from 'react';
 import type { LEDDisplayProps } from './types';
 import filmgrain from '../../../../assets/texture/filmgrain.png';
 import dust from '../../../../assets/texture/dust.png';
+import metalTexture from '../../../../assets/texture/metalscratchedtexture.png';
+import rust from '../../../../assets/texture/brownrust.png';
 
 const LEDDisplayComponent = ({ 
   emfLevel, 
@@ -54,7 +56,20 @@ const LEDDisplayComponent = ({
           right: '-28px',
           bottom: '-28px',
           borderRadius: '12px',
-          background: `linear-gradient(135deg, #5a5a5a 0%, #4a4a4a 15%, #3a3a3a 30%, #4a4a4a 50%, #3a3a3a 70%, #2a2a2a 85%, #1a1a1a 100%)`,
+          background: `
+            linear-gradient(135deg, 
+              #5a5a5a 0%, 
+              #4a4a4a 15%, 
+              #3a3a3a 30%, 
+              #4a4a4a 50%, 
+              #3a3a3a 70%, 
+              #2a2a2a 85%, 
+              #1a1a1a 100%
+            ),
+            url(${metalTexture})
+          `,
+          backgroundBlendMode: 'overlay',
+          backgroundSize: 'cover, cover',
           boxShadow: 
             'inset 0 4px 8px rgba(255,255,255,0.2), ' +
             'inset 0 -4px 8px rgba(0,0,0,0.9), ' +
@@ -65,7 +80,136 @@ const LEDDisplayComponent = ({
           border: '5px solid rgba(0,0,0,0.8)',
           borderTop: '4px solid rgba(255,255,255,0.1)',
           zIndex: 12,
+          overflow: 'hidden',
         }}>
+          
+          {/* Rust/wear on bezel - match mock intensity */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${rust})`,
+            backgroundSize: 'cover',
+            mixBlendMode: 'multiply',
+            opacity: 0.4,
+            pointerEvents: 'none',
+            zIndex: 2,
+          }} />
+          
+          {/* Dust on bezel - match mock intensity */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${dust})`,
+            backgroundSize: 'cover',
+            mixBlendMode: 'multiply',
+            opacity: 0.3,
+            pointerEvents: 'none',
+            zIndex: 3,
+          }} />
+          
+          {/* Brushed metal highlight */}
+          <div style={{
+            position: 'absolute',
+            top: '20%',
+            left: '10%',
+            right: '10%',
+            height: '30%',
+            background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
+            borderRadius: '50%',
+            transform: 'rotate(-45deg)',
+            pointerEvents: 'none',
+            zIndex: 4,
+          }} />
+          
+          {/* Rust spot on bezel */}
+          <div style={{
+            position: 'absolute',
+            top: '15%',
+            right: '20%',
+            width: '40px',
+            height: '40px',
+            backgroundImage: `url(${rust})`,
+            backgroundSize: 'cover',
+            mixBlendMode: 'multiply',
+            opacity: 0.4,
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 5,
+          }} />
+          
+          {/* Dust/grime on bezel */}
+          <div style={{
+            position: 'absolute',
+            top: '30%',
+            left: '25%',
+            width: '60px',
+            height: '60px',
+            backgroundImage: `url(${dust})`,
+            backgroundSize: 'cover',
+            mixBlendMode: 'multiply',
+            opacity: 0.3,
+            borderRadius: '50%',
+            pointerEvents: 'none',
+            zIndex: 5,
+          }} />
+          
+          {/* Deeper scratches around LED panel edges - match mock intensity */}
+          {[
+            { top: '10%', left: '12%', width: '45px', angle: -30, opacity: 0.65 },
+            { bottom: '25%', right: '15%', width: '50px', angle: 35, opacity: 0.6 },
+            { top: '25%', right: '10%', width: '38px', angle: -22, opacity: 0.58 },
+            { top: '35%', left: '14%', width: '42px', angle: 28, opacity: 0.62 },
+            { bottom: '40%', left: '16%', width: '40px', angle: -25, opacity: 0.6 },
+          ].map((scratch, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                ...(scratch.top ? { top: scratch.top } : {}),
+                ...(scratch.bottom ? { bottom: scratch.bottom } : {}),
+                ...(scratch.left ? { left: scratch.left } : {}),
+                ...(scratch.right ? { right: scratch.right } : {}),
+                width: scratch.width,
+                height: '1.5px',
+                background: 'rgba(0,0,0,0.7)',
+                transform: `rotate(${scratch.angle}deg)`,
+                opacity: scratch.opacity,
+                boxShadow: '0 0 2px rgba(0,0,0,0.8)',
+                pointerEvents: 'none',
+                zIndex: 6,
+              }}
+            />
+          ))}
+          
+          {/* Fingerprint smudges on bezel */}
+          {[
+            { top: '35%', left: '30%', size: '25px' },
+            { bottom: '40%', right: '28%', size: '20px' },
+          ].map((smudge, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                ...(smudge.top ? { top: smudge.top } : {}),
+                ...(smudge.bottom ? { bottom: smudge.bottom } : {}),
+                ...(smudge.left ? { left: smudge.left } : {}),
+                ...(smudge.right ? { right: smudge.right } : {}),
+                width: smudge.size,
+                height: smudge.size,
+                background: 'radial-gradient(circle, rgba(0,0,0,0.3) 0%, transparent 70%)',
+                borderRadius: '50%',
+                pointerEvents: 'none',
+                filter: 'blur(2px)',
+                zIndex: 6,
+              }}
+            />
+          ))}
           {/* Bezel screws at cardinal points */}
           {[
             { top: '18px', left: '50%', transform: 'translateX(-50%)' },
@@ -87,7 +231,7 @@ const LEDDisplayComponent = ({
                   'inset 0 -2px 3px rgba(0,0,0,0.9), ' +
                   '0 2px 4px rgba(0,0,0,0.8)',
                 border: '1px solid rgba(0,0,0,0.7)',
-                zIndex: 10,
+                zIndex: 20,
               }}
             >
               {/* Screw slot */}
