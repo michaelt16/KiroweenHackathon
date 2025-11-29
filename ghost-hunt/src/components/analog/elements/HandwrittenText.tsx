@@ -54,9 +54,9 @@ export function HandwrittenText({
     fontFamily: '"Caveat", cursive',
     lineHeight: '1.9',
     marginBottom: '15px',
-    wordWrap: 'break-word',
-    overflowWrap: 'break-word',
-    hyphens: 'auto',
+    wordWrap: 'break-word' as const,
+    overflowWrap: 'break-word' as const,
+    hyphens: 'auto' as const,
     ...urgencyStyles[urgency],
     ...style,
   };
