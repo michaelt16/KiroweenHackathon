@@ -195,7 +195,7 @@ const initialState = {
   evidence: [],
   photos: [],
   evidenceChecklist: {
-    spiritBoxPersonality: 'unknown',
+    spiritBoxPersonality: 'unknown' as SpiritBoxPersonality,
     whispers: 'unknown',
     thermalReading: 'unknown',
     cameraManifestation: 'unknown',

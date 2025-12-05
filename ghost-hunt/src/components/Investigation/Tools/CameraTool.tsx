@@ -139,7 +139,12 @@ const CameraToolComponent = ({
       
       if (isRightInFront && emfLevel >= 3 && emfLevel <= 5) {
         // Ghost is right in front AND EMF is 3-5 - use normal probability logic
-        const manifestationResult = determineCameraManifestation(distance, manifestations);
+        // Convert CameraManifestation[] to the format expected by determineCameraManifestation
+        const manifestArray = manifestations.map(m => ({
+          primary: m.primary as any, // Type conversion between enum types
+          probability: m.probability
+        }));
+        const manifestationResult = determineCameraManifestation(distance, manifestArray);
         manifestation = manifestationResult ? manifestationResult : null;
       } else {
         // Ghost is not right in front OR EMF is too low - zero chance of manifestation

@@ -318,11 +318,24 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     console.log('🎯 Investigation completed. Selected:', selectedGhostId, 'Actual:', state.ghostType);
     const isCorrect = selectedGhostId === state.ghostType;
     
+    // Calculate rewards
+    const baseMoney = isCorrect ? 500 : 100;
+    const baseXP = isCorrect ? 200 : 50;
+    const moneyBonus = isCorrect ? 250 : 0;
+    const xpBonus = isCorrect ? 100 : 0;
+    
+    const rewards = {
+      money: baseMoney + moneyBonus,
+      xp: baseXP + xpBonus,
+    };
+    
     // Set mode to show result
     setState((prev) => ({
       ...prev,
       mode: isCorrect ? 'success' : 'failure',
     }));
+    
+    return { isCorrect, rewards };
   }, [state.ghostType]);
 
   const initializeInvestigation = useCallback(() => {
