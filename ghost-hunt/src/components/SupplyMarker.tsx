@@ -178,14 +178,14 @@ const SUPPLY_CONFIG = {
 const getSupplyIcon = (type: 'film' | 'boost' | 'charm', inRange: boolean) => {
   const config = SUPPLY_CONFIG[type];
   const opacity = inRange ? 1 : 0.95; // Increased from 0.6 to 0.95 for better visibility
-  const glowSize = inRange ? parseInt(config.glowSize) * 1.5 : 8; // Increase glow size when in range
-  // When in range, counteract parent filter and add strong boost for pop
+  const glowSize = inRange ? parseInt(config.glowSize) * 1.2 : 8; // Slightly increase glow size when in range
+  // When in range, counteract parent filter and add subtle boost for visibility
   // Parent filter: saturate(0.6) brightness(0.92)
-  // To get back to normal with strong boost: saturate(3.2) brightness(1.4)
+  // Reduced brightness and saturation for less glare
   const iconSize = inRange ? 56 : 44; // Larger when in range
   const filmSize = inRange ? 48 : 36; // Larger when in range
   const brightnessFilter = inRange 
-    ? `filter: brightness(1.4) saturate(3.2) contrast(1.25) drop-shadow(0 0 ${glowSize}px ${config.color}) drop-shadow(0 0 ${glowSize * 0.6}px ${config.color}) drop-shadow(0 0 ${glowSize * 0.3}px ${config.color}) !important; animation: supplyPulse 2s ease-in-out infinite;`
+    ? `filter: brightness(1.1) saturate(1.6) contrast(1.1) drop-shadow(0 0 ${glowSize}px ${config.color}88) drop-shadow(0 0 ${glowSize * 0.5}px ${config.color}66) !important; animation: supplyPulse 2s ease-in-out infinite;`
     : `filter: brightness(1) saturate(1) drop-shadow(0 0 8px ${config.color}80);`; // Subtle glow even when out of range
 
   // Use CSS art for film roll, emoji for others

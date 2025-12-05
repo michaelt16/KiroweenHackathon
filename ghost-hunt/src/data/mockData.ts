@@ -1,8 +1,9 @@
 // Mock data as per design spec
 import type { Position, SupplyNode, Hotspot, SupplyType, FieldJournalNode } from '../types/game';
 
-// Default starting position (San Francisco)
-export const DEFAULT_POSITION: Position = { lat: 37.7749, lng: -122.4194 };
+// Default starting position (Calgary, Canada - Downtown)
+// Downtown Calgary has lots of landmarks, parks, and POIs
+export const DEFAULT_POSITION: Position = { lat: 51.0478, lng: -114.0593 };
 
 // Supply amounts by type
 const SUPPLY_AMOUNTS = {
@@ -61,39 +62,40 @@ export const MOCK_SUPPLY_NODES: SupplyNode[] = generateSupplyNodes();
 // Example hotspots - SAFETY RULE: Must be in parks or safe pedestrian areas, NOT on roads
 // See steering/009-safety-investigation-node-placement.md for full safety guidelines
 // All locations positioned in park-like areas or safe zones, minimum 50m from roads
+// Updated to Calgary, Panorama Hills area (51.15, -114.08)
 export const MOCK_HOTSPOTS: Hotspot[] = [
   {
     id: 'hotspot-1',
-    lat: 37.7770,  // Positioned in park area (Golden Gate Park vicinity)
-    lng: -122.4185,
+    lat: 51.152,  // Panorama Hills area, Calgary
+    lng: -114.082,
     name: 'Abandoned Victorian House',
     status: 'unlocked',
   },
   {
     id: 'hotspot-2',
-    lat: 37.7740,  // Park location, away from all roads
-    lng: -122.4215,
+    lat: 51.148,  // Panorama Hills area, Calgary
+    lng: -114.078,
     name: 'Abandoned Classroom',
     status: 'unlocked',
   },
   {
     id: 'hotspot-3',
-    lat: 37.7775,  // Safe park area, no road access required
-    lng: -122.4200,
+    lat: 51.155,  // Panorama Hills area, Calgary
+    lng: -114.085,
     name: 'Haunted Hospital',
     status: 'unlocked',
   },
   {
     id: 'hotspot-4',
-    lat: 37.7735,  // Park interior, safe pedestrian access only
-    lng: -122.4190,
+    lat: 51.150,  // Panorama Hills area, Calgary
+    lng: -114.075,
     name: 'Cursed Chapel',
     status: 'unlocked',
   },
   {
     id: 'hotspot-5',
-    lat: 37.7760,  // Park location, minimum 50m from nearest road
-    lng: -122.4220,
+    lat: 51.153,  // Panorama Hills area, Calgary
+    lng: -114.088,
     name: 'Forgotten Asylum',
     status: 'unlocked',
   },
@@ -103,36 +105,47 @@ export const MOCK_HOTSPOTS: Hotspot[] = [
 // These are rare collectibles with pre-written stories
 // Only a few spawn at a time to make them special finds
 export const MOCK_FIELD_JOURNAL_NODES: FieldJournalNode[] = [
-  // Rare spawn - only 1-2 of these will appear at a time
+  // All 7 ghost-based journals spawned across the map
   {
     id: 'field-journal-node-1',
     lat: 37.7753,  // Park area, safe location
     lng: -122.4195,
-    journalId: 'journal-001',
+    journalId: 'journal-wraith',
   },
   {
     id: 'field-journal-node-2',
     lat: 37.7743,  // Park area, safe location
     lng: -122.4205,
-    journalId: 'journal-004',  // Different story
+    journalId: 'journal-shade',
   },
   {
     id: 'field-journal-node-3',
     lat: 37.7762,  // Park area, safe location
     lng: -122.4180,
-    journalId: 'journal-007',  // Different story
+    journalId: 'journal-poltergeist',
   },
-  // Additional rare spawns - can add more journal IDs from the 15 available stories
   {
     id: 'field-journal-node-4',
     lat: 37.7758,  // Park area, safe location
     lng: -122.4192,
-    journalId: 'journal-011',  // Different story
+    journalId: 'journal-banshee',
   },
   {
     id: 'field-journal-node-5',
     lat: 37.7748,  // Park area, safe location
     lng: -122.4208,
-    journalId: 'journal-014',  // Different story
+    journalId: 'journal-phantom',
+  },
+  {
+    id: 'field-journal-node-6',
+    lat: 37.7765,  // Park area, safe location
+    lng: -122.4198,
+    journalId: 'journal-onyx',
+  },
+  {
+    id: 'field-journal-node-7',
+    lat: 37.7750,  // Park area, safe location
+    lng: -122.4185,
+    journalId: 'journal-trickster',
   },
 ];

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="200" height="300">
+  <!-- Poltergeist: Chaotic, distorted, motion blur effect -->
+  <defs>
+    <filter id="distort">
+      <feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/>
+      <feDisplacementMap in2="turbulence" in="SourceGraphic" scale="8" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+  
+  <!-- Multiple overlapping forms suggesting movement -->
+  <ellipse cx="95" cy="150" rx="45" ry="80" fill="#1a1a1a" opacity="0.6" />
+  <ellipse cx="100" cy="150" rx="45" ry="80" fill="#1a1a1a" opacity="0.7" />
+  <ellipse cx="105" cy="150" rx="45" ry="80" fill="#1a1a1a" opacity="0.6" />
+  
+  <!-- Distorted head -->
+  <ellipse cx="98" cy="60" rx="32" ry="38" fill="#1a1a1a" opacity="0.7" filter="url(#distort)" />
+  <ellipse cx="102" cy="60" rx="32" ry="38" fill="#1a1a1a" opacity="0.7" />
+  
+  <!-- Chaotic arms in multiple positions -->
+  <path d="M 60 120 Q 30 110 15 100" stroke="#1a1a1a" stroke-width="12" fill="none" opacity="0.5" />
+  <path d="M 65 130 Q 35 125 20 120" stroke="#1a1a1a" stroke-width="12" fill="none" opacity="0.6" />
+  <path d="M 140 120 Q 170 110 185 100" stroke="#1a1a1a" stroke-width="12" fill="none" opacity="0.5" />
+  <path d="M 135 130 Q 165 125 180 120" stroke="#1a1a1a" stroke-width="12" fill="none" opacity="0.6" />
+  
+  <!-- Erratic lower tendrils -->
+  <path d="M 80 220 Q 70 250 65 280" stroke="#1a1a1a" stroke-width="15" fill="none" opacity="0.7" />
+  <path d="M 100 220 Q 95 255 90 285" stroke="#1a1a1a" stroke-width="18" fill="none" opacity="0.8" />
+  <path d="M 120 220 Q 130 250 135 280" stroke="#1a1a1a" stroke-width="15" fill="none" opacity="0.7" />
+  
+  <!-- Distorted eyes -->
+  <ellipse cx="88" cy="55" rx="5" ry="8" fill="#0a0a0a" opacity="0.8" />
+  <ellipse cx="112" cy="55" rx="5" ry="8" fill="#0a0a0a" opacity="0.8" />
+</svg>

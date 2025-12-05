@@ -1,4 +1,4 @@
-/* Top Status Bar - Analog Horror UI */
+/* Top Status Bar - 5 Even Items */
 
 .top-status-bar {
   position: fixed;
@@ -9,7 +9,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 16px;
+  padding: min(10px, 2.5vw) min(16px, 4vw);
   background: #c4b49a; /* Darkest aged paper */
   border-bottom: 2px solid #1a0f0a;
   box-shadow: 
@@ -17,7 +17,11 @@
     inset 0 1px 0 rgba(0, 0, 0, 0.1);
   pointer-events: none;
   touch-action: none;
-  position: relative;
+  gap: min(8px, 2vw);
+  min-height: 56px;
+  height: auto;
+  width: 100vw;
+  box-sizing: border-box;
 }
 
 /* Aged paper texture overlay */
@@ -33,6 +37,7 @@
   mix-blend-mode: multiply;
   opacity: 0.4;
   pointer-events: none;
+  z-index: -1;
 }
 
 /* Dust overlay */
@@ -48,20 +53,87 @@
   mix-blend-mode: overlay;
   opacity: 0.2;
   pointer-events: none;
+  z-index: -1;
 }
 
-.status-section {
+/* Each of the 5 items - equal flex */
+.status-item-wrapper {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 100%;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  height: 100%;
   pointer-events: auto;
+  overflow: hidden;
 }
 
-.status-item {
+/* Make ID card wrapper bigger */
+.status-item-wrapper:first-child {
+  flex: 3 1 0;
+}
+
+/* Compress middle supply items (items 2, 3, 4) */
+.status-item-wrapper:nth-child(2),
+.status-item-wrapper:nth-child(3),
+.status-item-wrapper:nth-child(4) {
+  flex: 0.6 1 0;
+}
+
+/* Make balance (money) wrapper wider */
+.status-item-wrapper:last-child {
+  flex: 2 1 0;
+}
+
+/* Supply Items (Film, Boost, Charm) - Compressed */
+.supply-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
+  justify-content: center;
+  gap: min(2px, 0.5vw);
+  padding: min(3px, 0.8vw) min(3px, 0.8vw);
+  background: rgba(216, 212, 200, 0.8); /* Medium aged paper */
+  border-radius: 3px;
+  border: 1px solid #2a2520;
+  transform: rotate(-0.2deg);
+  white-space: nowrap;
+  min-height: 30px;
+  height: 30px;
+  box-shadow: 
+    inset 0 1px 0 rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.supply-icon {
+  font-size: clamp(10px, 2.5vw, 14px);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.supply-count {
+  font-size: clamp(9px, 2vw, 11px);
+  font-weight: 700;
+  color: #1a0f0a;
+  font-family: 'Courier New', monospace;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: clamp(14px, 3vw, 18px);
+}
+
+/* Money Item */
+.money-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: min(4px, 1vw);
+  padding: min(6px, 1.5vw) min(8px, 2vw);
   background: rgba(244, 240, 230, 0.7); /* Light aged paper */
   border: 1px solid #1a0f0a;
   border-radius: 4px;
@@ -69,148 +141,128 @@
     inset 0 1px 0 rgba(0, 0, 0, 0.1),
     0 2px 4px rgba(0, 0, 0, 0.3);
   transform: rotate(-0.3deg);
-  position: relative;
-  z-index: 1;
+  white-space: nowrap;
+  min-height: 36px;
+  height: 36px;
 }
 
-.status-icon {
-  font-size: 20px;
-  filter: drop-shadow(0 0 4px rgba(45, 212, 191, 0.4));
+.money-icon {
+  font-size: clamp(14px, 3.5vw, 18px);
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.status-content {
+.money-content {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.status-label {
-  font-size: 9px;
+.money-label {
+  font-size: clamp(7px, 1.8vw, 9px);
   color: #1a0f0a;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   font-family: 'Courier New', monospace;
   font-weight: 600;
   opacity: 0.8;
+  line-height: 1;
 }
 
-.status-value {
-  font-size: 12px;
+.money-value {
+  font-size: clamp(10px, 2.5vw, 12px);
   color: #1a0f0a;
   font-family: 'Courier New', monospace;
   font-weight: 700;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+  line-height: 1;
 }
 
-/* Supplies Section */
-.status-supplies {
-  gap: 6px;
-  padding: 4px 8px;
-  background: rgba(244, 240, 230, 0.7); /* Light aged paper */
-  border: 1px solid #1a0f0a;
-  border-radius: 4px;
-  transform: rotate(0.2deg);
-  position: relative;
-  z-index: 1;
-}
-
-.supply-item {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  background: rgba(216, 212, 200, 0.8); /* Medium aged paper */
-  border-radius: 3px;
-  border: 1px solid #2a2520;
-  transform: rotate(-0.2deg);
-}
-
-.supply-icon {
-  font-size: 16px;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
-}
-
-.supply-count {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a0f0a;
-  font-family: 'Courier New', monospace;
-  min-width: 20px;
-  text-align: center;
-  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-}
-
-/* Signal Indicator */
-.signal-indicator {
-  display: flex;
+/* Left-side variant for cork board view */
+.top-status-bar-left {
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: auto;
+  width: auto;
+  min-width: 200px;
   flex-direction: column;
-  gap: 2px;
-  align-items: center;
+  justify-content: flex-start;
+  padding: min(16px, 4vw) min(12px, 3vw);
+  border-bottom: none;
+  border-right: 2px solid #1a0f0a;
+  box-shadow: 
+    4px 0 12px rgba(0, 0, 0, 0.6),
+    inset 1px 0 0 rgba(0, 0, 0, 0.1);
+  gap: min(12px, 3vw);
 }
 
-.signal-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #1a0f0a;
-  opacity: 0.4;
-  transition: all 0.3s ease;
+.top-status-bar-left .status-item-wrapper {
+  width: 100%;
+  flex: 0 0 auto;
+  justify-content: flex-start;
 }
 
-.signal-dot.signal-active {
-  background: #1a0f0a;
-  opacity: 1;
-  box-shadow: 0 0 2px rgba(0, 0, 0, 0.4);
-  animation: signalPulse 2s ease-in-out infinite;
+.top-status-bar-left .status-item-wrapper:first-child {
+  flex: 0 0 auto;
+  margin-bottom: min(8px, 2vw);
 }
 
-.signal-dot:nth-child(1) {
-  animation-delay: 0s;
+.top-status-bar-left .status-item-wrapper:nth-child(2),
+.top-status-bar-left .status-item-wrapper:nth-child(3),
+.top-status-bar-left .status-item-wrapper:nth-child(4) {
+  flex: 0 0 auto;
+  width: 100%;
 }
 
-.signal-dot:nth-child(2) {
-  animation-delay: 0.2s;
+.top-status-bar-left .status-item-wrapper:last-child {
+  flex: 0 0 auto;
+  margin-top: auto;
+  width: 100%;
 }
 
-.signal-dot:nth-child(3) {
-  animation-delay: 0.4s;
+.top-status-bar-left .supply-item {
+  width: 100%;
+  justify-content: flex-start;
+  padding: min(8px, 2vw) min(10px, 2.5vw);
 }
 
-@keyframes signalPulse {
-  0%, 100% {
-    opacity: 0.8;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
+.top-status-bar-left .money-item {
+  width: 100%;
+  justify-content: flex-start;
 }
 
 /* Mobile optimizations */
 @media (max-width: 480px) {
   .top-status-bar {
     padding: 10px 12px;
+    gap: min(6px, 1.5vw);
   }
   
-  .status-item {
-    padding: 5px 10px;
+  .supply-item,
+  .money-item {
+    padding: min(5px, 1.2vw) min(6px, 1.5vw);
+    min-height: 32px;
+    height: 32px;
   }
   
-  .status-label {
-    font-size: 8px;
-  }
-  
-  .status-value {
-    font-size: 11px;
-  }
-  
-  .supply-icon {
+  .supply-icon,
+  .money-icon {
     font-size: 14px;
   }
   
   .supply-count {
     font-size: 12px;
   }
+  
+  .money-label {
+    font-size: 7px;
+  }
+  
+  .money-value {
+    font-size: 10px;
+  }
 }
-

@@ -5,6 +5,11 @@ import dirtyGlass from '../../../assets/texture/dirtyglass.png';
 import rust from '../../../assets/texture/brownrust.png';
 import dust from '../../../assets/texture/dust.png';
 import tape from '../../../assets/texture/tape.png';
+import { useInvestigationStore } from '../../../stores/investigationStore';
+import { useGhostRelationship } from '../../../hooks/useGhostRelationship';
+import { 
+  addRadarWobble 
+} from '../../../utils/toolBehaviors';
 
 /**
  * RadarTool - Production component for circular CRT radar display
@@ -15,14 +20,14 @@ import tape from '../../../assets/texture/tape.png';
  * 
  * Supports two modes:
  * - 'view': Inventory viewer mode with internal mock state
- * - 'investigation': Active investigation mode with real data
+ * - 'investigation': Active investigation mode with real data from investigation store
  * 
  * Design reference: src/ui-playground/tools/RadarToolMock.tsx
  */
 
 export interface RadarToolProps {
   mode: 'view' | 'investigation';
-  // Investigation mode props
+  // Investigation mode props (optional - will use store if not provided)
   ghostBearing?: number;        // 0-360 degrees (direction to ghost)
   playerHeading?: number;       // 0-360 degrees (player facing direction)
   isGhostInCone?: boolean;      // Is ghost within ±45° forward cone?
@@ -32,30 +37,146 @@ export interface RadarToolProps {
 
 const RadarToolComponent = ({
   mode,
-  ghostBearing = 45,
-  playerHeading = 0,
-  isGhostInCone = false,
+  ghostBearing: propGhostBearing,
+  playerHeading: propPlayerHeading,
+  isGhostInCone: propIsGhostInCone,
   isGhostMoving = false,
   sweepSpeed = 2,
 }: RadarToolProps) => {
+  // Get investigation store data
+  const investigationStore = useInvestigationStore();
+  
+  // ✅ Use centralized ghost relationship hook (single source of truth)
+  const relationship = useGhostRelationship();
+  
   // Internal state for view mode
   const [sweepAngle, setSweepAngle] = useState(0);
   const [mockGhostBlip, setMockGhostBlip] = useState({ angle: 45, visible: true });
   const [staticNoise, setStaticNoise] = useState(0);
 
+  // Calculate radar-specific data from centralized relationship
+  const calculatedGhostData = useMemo(() => {
+    if (mode === 'view') {
+      return null;
+    }
+
+    // Use centralized relationship data
+    if (!relationship.isValid) {
+      return null;
+    }
+
+    // Apply radar-specific wobble to bearing for realism
+    const wobbledBearing = addRadarWobble(relationship.bearing);
+
+    return {
+      bearing: wobbledBearing,
+      trueBearing: relationship.bearing,
+      distance: relationship.distance,
+      inCone: relationship.isInForwardCone,
+      playerHeading: investigationStore.playerHeading,
+    };
+  }, [mode, relationship, investigationStore.playerHeading]);
+
+  // Determine effective values based on mode
+  const ghostBearing = mode === 'investigation' 
+    ? (propGhostBearing ?? calculatedGhostData?.bearing ?? 0)
+    : mockGhostBlip.angle;
+    
+  const playerHeading = mode === 'investigation'
+    ? (propPlayerHeading ?? calculatedGhostData?.playerHeading ?? 0)
+    : sweepAngle;
+    
+  // In investigation mode: always show ghost blip (compass mode - no cone restriction)
+  // In view mode: only show when in forward cone
+  const isGhostInCone = mode === 'investigation'
+    ? true // Always visible in investigation mode (compass behavior)
+    : mockGhostBlip.visible;
+
   // Memoize ghost blip calculation
-  const ghostBlip = useMemo(() => 
-    mode === 'view' 
-      ? mockGhostBlip 
-      : { angle: ghostBearing, visible: isGhostInCone },
-    [mode, mockGhostBlip, ghostBearing, isGhostInCone]
-  );
+  // Use ABSOLUTE bearing: since the radar SVG rotates, we use absolute bearing
+  // The radar rotation will handle making top = forward
+  // Convert compass angle (0°=North) to math angle (0°=right, 270°=up)
+  const ghostBlip = useMemo(() => {
+    if (mode === 'investigation') {
+      // Use absolute bearing since the radar SVG rotates with player heading
+      // The rotation will make the player's facing direction appear at the top
+      const absoluteBearing = relationship.isValid 
+        ? relationship.bearing 
+        : ghostBearing;
+      
+      // Convert compass absolute bearing to math/SVG coordinates
+      // In SVG: 0° = right (East), 90° = down (South), 180° = left (West), 270° = up (North)
+      // In Compass: 0° = North (top), 90° = East (right), 180° = South (bottom), 270° = West (left)
+      // We want: Compass 0° (North) → SVG 270° (up/top)
+      //          Compass 90° (East) → SVG 0° (right)
+      //          Compass 180° (South) → SVG 90° (down/bottom)
+      //          Compass 270° (West) → SVG 180° (left)
+      // Formula: mathAngle = (compassAngle - 90 + 360) % 360
+      // Verified: 0° → 270° ✓, 90° → 0° ✓, 180° → 90° ✓, 270° → 180° ✓
+      const mathAngle = (absoluteBearing - 90 + 360) % 360;
+      
+      // Calculate relative bearing for reference
+      const relativeBearing = relationship.isValid 
+        ? relationship.relativeBearing 
+        : (ghostBearing - playerHeading + 360) % 360;
+      
+      // Helper function to get cardinal direction from angle
+      const getCardinalFromAngle = (angle: number): string => {
+        const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+        const normalized = ((angle % 360) + 360) % 360;
+        const index = Math.round(normalized / 45) % 8;
+        return directions[index];
+      };
+      
+      // Debug logging - log all calculations to help diagnose
+      // ✅ Now using absolute bearing since radar rotates
+      console.log('🎯 Radar Blip Calc (using absolute bearing):', {
+        ghostBearing: absoluteBearing.toFixed(1) + '° (' + getCardinalFromAngle(absoluteBearing) + ')',
+        playerHeading: playerHeading.toFixed(1) + '° (' + getCardinalFromAngle(playerHeading) + ')',
+        relativeBearing: relativeBearing.toFixed(1) + '° (' + getCardinalFromAngle(relativeBearing) + ')',
+        distance: relationship.isValid ? relationship.distance.toFixed(1) + 'm' : 'N/A',
+        mathAngle: mathAngle.toFixed(1) + '°',
+        radarRotation: (-playerHeading).toFixed(1) + '°',
+      });
+      
+      // Calculate where the dot will actually appear on screen
+      // Dot position: cx = 170 + cos(mathAngle) * 120, cy = 170 - sin(mathAngle) * 120
+      // Convert math angle back to compass direction for display
+      // Math: 0°=right(E), 90°=down(S), 180°=left(W), 270°=up(N)
+      // Compass: 0°=N, 90°=E, 180°=S, 270°=W
+      // Formula: compassAngle = (90 - mathAngle + 360) % 360
+      const dotVisualDirection = (90 - mathAngle + 360) % 360;
+      const dotCardinal = getCardinalFromAngle(dotVisualDirection);
+      
+      return {
+        angle: mathAngle, // Math coordinate angle for SVG rendering (absolute bearing)
+        relativeBearing: relativeBearing, // Relative bearing (0-360°) for reference
+        absoluteAngle: absoluteBearing, // Absolute bearing (0-360°)
+        visualDirection: dotVisualDirection, // Where dot actually appears (compass direction)
+        visualCardinal: dotCardinal, // Cardinal direction where dot appears
+        visible: isGhostInCone,
+      };
+    } else {
+      // View mode: use mock angle directly
+      const mathAngle = (ghostBearing - 90 + 360) % 360;
+      return {
+        angle: mathAngle,
+        relativeBearing: ghostBearing,
+        absoluteAngle: ghostBearing,
+        visible: isGhostInCone,
+      };
+    }
+  }, [ghostBearing, playerHeading, isGhostInCone, mode, relationship]);
 
   // Memoize sweep angle calculation
-  const effectiveSweepAngle = useMemo(() => 
-    mode === 'investigation' ? playerHeading : sweepAngle,
-    [mode, playerHeading, sweepAngle]
-  );
+  // In investigation mode: sweep always points to top (0° = where you're facing)
+  // In view mode: continuous rotating sweep for demo
+  const effectiveSweepAngle = useMemo(() => {
+    if (mode === 'investigation') {
+      return 0; // Always point straight up (top = where you're facing)
+    }
+    return sweepAngle; // View mode uses continuous rotation
+  }, [mode, sweepAngle]);
 
   useEffect(() => {
     let animationId: number;
@@ -68,7 +189,7 @@ const RadarToolComponent = ({
       if (deltaTime >= 50) {
         lastTime = currentTime;
         
-        // Only update sweep angle in view mode (investigation mode uses playerHeading)
+        // Only update sweep angle in view mode (investigation mode: sweep always points up)
         if (mode === 'view') {
           setSweepAngle((prev) => (prev + sweepSpeed) % 360);
         }
@@ -769,23 +890,10 @@ const RadarToolComponent = ({
                 left: '-10%',
                 right: '-10%',
                 bottom: '-10%',
-                background: 'radial-gradient(circle, rgba(0,255,0,0.2) 0%, rgba(0,255,0,0.1) 40%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(0,255,0,0.15) 0%, rgba(0,255,0,0.08) 40%, transparent 70%)',
                 pointerEvents: 'none',
                 zIndex: 9,
                 filter: 'blur(20px)',
-              }} />
-              
-              {/* Additional CRT Glow Layer */}
-              <div style={{
-                position: 'absolute',
-                top: '-5%',
-                left: '-5%',
-                right: '-5%',
-                bottom: '-5%',
-                background: 'radial-gradient(circle, rgba(0,255,0,0.12) 0%, transparent 60%)',
-                pointerEvents: 'none',
-                zIndex: 9,
-                filter: 'blur(30px)',
               }} />
               
               {/* CRT Distortion/Noise */}
@@ -974,8 +1082,19 @@ const RadarToolComponent = ({
                 zIndex: 14,
               }} />
               
-              {/* Radar display */}
-              <svg width="100%" height="100%" viewBox="0 0 340 340">
+              {/* Radar display - Rotates with player heading in investigation mode */}
+              <svg 
+                width="100%" 
+                height="100%" 
+                viewBox="0 0 340 340"
+                style={{
+                  transform: mode === 'investigation' 
+                    ? `rotate(${-playerHeading}deg)` // Rotate so player's facing direction is at top
+                    : 'none',
+                  transformOrigin: '50% 50%',
+                  transition: 'transform 0.1s linear', // Smooth rotation
+                }}
+              >
                 {/* Range rings */}
                 <circle cx="170" cy="170" r="150" fill="none" stroke="#00ff00" strokeWidth="1" opacity="0.3" />
                 <circle cx="170" cy="170" r="100" fill="none" stroke="#00ff00" strokeWidth="1" opacity="0.3" />
@@ -984,13 +1103,70 @@ const RadarToolComponent = ({
                 {/* Crosshair */}
                 <line x1="170" y1="20" x2="170" y2="320" stroke="#00ff00" strokeWidth="1" opacity="0.2" />
                 <line x1="20" y1="170" x2="320" y2="170" stroke="#00ff00" strokeWidth="1" opacity="0.2" />
+                
+                {/* North indicator (N) - Shows actual North, rotates around edge */}
+                {/* Compass directions NSEW */}
+                <g>
+                  {/* N marker at top */}
+                  <text
+                    x="170"
+                    y="30"
+                    textAnchor="middle"
+                    fill="#00ff00"
+                    fontSize="18"
+                    fontFamily="'Courier New', monospace"
+                    fontWeight="bold"
+                    opacity="0.8"
+                  >
+                    N
+                  </text>
+                  {/* S marker at bottom */}
+                  <text
+                    x="170"
+                    y="310"
+                    textAnchor="middle"
+                    fill="#00ff00"
+                    fontSize="18"
+                    fontFamily="'Courier New', monospace"
+                    fontWeight="bold"
+                    opacity="0.8"
+                  >
+                    S
+                  </text>
+                  {/* E marker at right */}
+                  <text
+                    x="310"
+                    y="170"
+                    textAnchor="middle"
+                    fill="#00ff00"
+                    fontSize="18"
+                    fontFamily="'Courier New', monospace"
+                    fontWeight="bold"
+                    opacity="0.8"
+                  >
+                    E
+                  </text>
+                  {/* W marker at left */}
+                  <text
+                    x="30"
+                    y="170"
+                    textAnchor="middle"
+                    fill="#00ff00"
+                    fontSize="18"
+                    fontFamily="'Courier New', monospace"
+                    fontWeight="bold"
+                    opacity="0.8"
+                  >
+                    W
+                  </text>
+                </g>
 
                 {/* Sweep line */}
                 <line
                   x1="170"
                   y1="170"
-                  x2={170 + Math.cos((effectiveSweepAngle * Math.PI) / 180) * 150}
-                  y2={170 + Math.sin((effectiveSweepAngle * Math.PI) / 180) * 150}
+                  x2={170 + Math.cos(((effectiveSweepAngle - 90) * Math.PI) / 180) * 150}
+                  y2={170 + Math.sin(((effectiveSweepAngle - 90) * Math.PI) / 180) * 150}
                   stroke="#00ff00"
                   strokeWidth="2"
                   opacity="0.8"
@@ -999,24 +1175,43 @@ const RadarToolComponent = ({
 
                 {/* Sweep fade trail (30-degree arc with gradient) */}
                 <path
-                  d={`M 170 170 L ${170 + Math.cos(((effectiveSweepAngle - 30) * Math.PI) / 180) * 150} ${170 + Math.sin(((effectiveSweepAngle - 30) * Math.PI) / 180) * 150} A 150 150 0 0 1 ${170 + Math.cos((effectiveSweepAngle * Math.PI) / 180) * 150} ${170 + Math.sin((effectiveSweepAngle * Math.PI) / 180) * 150} Z`}
+                  d={`M 170 170 L ${170 + Math.cos((((effectiveSweepAngle - 30) - 90) * Math.PI) / 180) * 150} ${170 + Math.sin((((effectiveSweepAngle - 30) - 90) * Math.PI) / 180) * 150} A 150 150 0 0 1 ${170 + Math.cos(((effectiveSweepAngle - 90) * Math.PI) / 180) * 150} ${170 + Math.sin(((effectiveSweepAngle - 90) * Math.PI) / 180) * 150} Z`}
                   fill="url(#sweepGradient)"
                   opacity="0.4"
                 />
 
-                {/* Ghost blip - ONLY shows when in forward cone (±45°) */}
-                {ghostBlip.visible && (
-                  <circle
-                    cx={170 + Math.cos((ghostBlip.angle * Math.PI) / 180) * 120}
-                    cy={170 + Math.sin((ghostBlip.angle * Math.PI) / 180) * 120}
-                    r="6"
-                    fill="#ff0000"
-                    opacity="0.9"
-                    filter="url(#glow)"
-                  >
-                    <animate attributeName="r" values="6;8;6" dur="1s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0.9;1;0.9" dur="1s" repeatCount="indefinite" />
-                  </circle>
+                {/* Ghost blip - Shows relative position (where ghost is relative to where you're facing) */}
+                {/* In investigation mode: always visible if ghost exists, position is relative */}
+                {/* In view mode: only visible when in forward cone */}
+                {/* ghostBlip.angle is already a math angle (0°=East, 90°=South, 180°=West, 270°=North) */}
+                {/* For math angles: X=cos(angle), Y=sin(angle) (SVG Y increases downward) */}
+                {(mode === 'investigation' ? (ghostBlip.visible !== false) : ghostBlip.visible) && (
+                  <g>
+                    <circle
+                      cx={170 + Math.cos((ghostBlip.angle * Math.PI) / 180) * 120}
+                      cy={170 + Math.sin((ghostBlip.angle * Math.PI) / 180) * 120}
+                      r="8"
+                      fill="#ff0000"
+                      opacity="0.9"
+                      filter="url(#glow)"
+                    >
+                      <animate attributeName="r" values="6;10;6" dur="1.5s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.9;1;0.9" dur="1.5s" repeatCount="indefinite" />
+                    </circle>
+                    {/* Pulse ring around blip */}
+                    <circle
+                      cx={170 + Math.cos((ghostBlip.angle * Math.PI) / 180) * 120}
+                      cy={170 + Math.sin((ghostBlip.angle * Math.PI) / 180) * 120}
+                      r="12"
+                      fill="none"
+                      stroke="#ff0000"
+                      strokeWidth="2"
+                      opacity="0.4"
+                    >
+                      <animate attributeName="r" values="8;16;8" dur="1.5s" repeatCount="indefinite" />
+                      <animate attributeName="opacity" values="0.6;0;0.6" dur="1.5s" repeatCount="indefinite" />
+                    </circle>
+                  </g>
                 )}
 
                 {/* Glow filter */}
@@ -1039,13 +1234,13 @@ const RadarToolComponent = ({
               {/* Compass heading - Vintage CRT Style */}
               <div style={{
                 position: 'absolute',
-                top: '10px',
+                top: '50%',
                 left: '50%',
-                transform: 'translateX(-50%)',
+                transform: 'translate(-50%, -50%)',
                 fontFamily: '"Courier New", monospace',
-                fontSize: '14px',
+                fontSize: '10px',
                 color: '#00ff00',
-                letterSpacing: '2px',
+                letterSpacing: '1px',
                 filter: 'blur(0.3px)',
                 textShadow: 
                   '0 0 2px #00ff00, ' +
@@ -1055,34 +1250,14 @@ const RadarToolComponent = ({
                   '-1px 0 0 rgba(0,0,255,0.3)',
                 imageRendering: 'pixelated',
                 zIndex: 25,
+                textAlign: 'center',
               }}>
-                HDG: {Math.floor(effectiveSweepAngle)}°
+                {mode === 'investigation' ? (
+                  <>HDG: {Math.floor(playerHeading)}°<br />(TOP = FORWARD)</>
+                ) : (
+                  <>HDG: {Math.floor(effectiveSweepAngle)}°</>
+                )}
               </div>
-
-              {/* Target bearing indicator - ONLY shows when ghost is in cone */}
-              {ghostBlip.visible && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: '10px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  fontFamily: '"Courier New", monospace',
-                  fontSize: '14px',
-                  color: '#ff0000',
-                  letterSpacing: '2px',
-                  filter: 'blur(0.3px)',
-                  textShadow: 
-                    '0 0 2px #ff0000, ' +
-                    '0 0 4px #ff0000, ' +
-                    '0 0 8px rgba(255,0,0,0.6), ' +
-                    '1px 0 0 rgba(255,0,0,0.3), ' +
-                    '-1px 0 0 rgba(0,0,255,0.3)',
-                  imageRendering: 'pixelated',
-                  zIndex: 25,
-                }}>
-                  TARGET: {Math.floor(ghostBlip.angle)}°
-                </div>
-              )}
               
               {/* CRT Glass Curvature Effect */}
               <div style={{

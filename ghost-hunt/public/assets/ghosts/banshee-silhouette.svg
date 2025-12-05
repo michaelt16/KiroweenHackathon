@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="200" height="300">
+  <!-- Banshee: Screaming, aggressive, flowing hair/robes -->
+  
+  <!-- Flowing robes/dress -->
+  <path d="M 100 120 L 60 180 L 50 240 L 45 290 L 100 290 L 100 120" 
+        fill="#1a1a1a" opacity="0.9" />
+  <path d="M 100 120 L 140 180 L 150 240 L 155 290 L 100 290 L 100 120" 
+        fill="#1a1a1a" opacity="0.9" />
+  
+  <!-- Torso -->
+  <ellipse cx="100" cy="100" rx="38" ry="55" fill="#1a1a1a" opacity="0.95" />
+  
+  <!-- Outstretched arms - aggressive pose -->
+  <path d="M 65 100 Q 30 80 10 70" stroke="#1a1a1a" stroke-width="14" fill="none" opacity="0.9" />
+  <path d="M 135 100 Q 170 80 190 70" stroke="#1a1a1a" stroke-width="14" fill="none" opacity="0.9" />
+  
+  <!-- Head tilted back (screaming) -->
+  <ellipse cx="100" cy="45" rx="32" ry="38" fill="#1a1a1a" opacity="0.95" />
+  
+  <!-- Open mouth (screaming) -->
+  <ellipse cx="100" cy="55" rx="8" ry="12" fill="#0a0a0a" opacity="1" />
+  
+  <!-- Wild flowing hair -->
+  <path d="M 70 35 Q 50 20 40 10" stroke="#1a1a1a" stroke-width="10" fill="none" opacity="0.85" />
+  <path d="M 75 30 Q 60 15 55 5" stroke="#1a1a1a" stroke-width="8" fill="none" opacity="0.8" />
+  <path d="M 130 35 Q 150 20 160 10" stroke="#1a1a1a" stroke-width="10" fill="none" opacity="0.85" />
+  <path d="M 125 30 Q 140 15 145 5" stroke="#1a1a1a" stroke-width="8" fill="none" opacity="0.8" />
+  
+  <!-- Eyes - intense -->
+  <ellipse cx="88" cy="40" rx="5" ry="7" fill="#0a0a0a" opacity="0.9" />
+  <ellipse cx="112" cy="40" rx="5" ry="7" fill="#0a0a0a" opacity="0.9" />
+</svg>

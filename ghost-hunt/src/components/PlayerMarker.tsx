@@ -4,7 +4,7 @@ import { useGameState } from '../context/GameStateContext';
 import { useMapData } from '../context/MapDataContext';
 import { isInRange } from '../utils/distance';
 import { divIcon } from 'leaflet';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import detectiveIdleVideo from '../assets/videos/dectective/dectective_idle.mp4';
 import detectiveIdle2Video from '../assets/videos/dectective/dectective_idle2.mp4';
 import detectiveIdle3Video from '../assets/videos/dectective/dectective_idle3.mp4';
@@ -24,6 +24,8 @@ function ZoomAwarePlayerMarker() {
   const [wasInInvestigationRadius, setWasInInvestigationRadius] = useState(false);
   const [wasMoving, setWasMoving] = useState(false);
   const [currentIdleIndex, setCurrentIdleIndex] = useState(0);
+  const switchTimeoutRef = useRef<number | null>(null);
+  const lastVideoRef = useRef<string | null>(null);
   
   // Array of idle animations
   const idleVideos = [detectiveIdleVideo, detectiveIdle2Video, detectiveIdle3Video];
@@ -109,16 +111,20 @@ function ZoomAwarePlayerMarker() {
         : detectiveWalkVideo) // Default/south uses walk
       : idleVideos[currentIdleIndex]); // Random idle when not in investigation radius
 
-  // Preload all videos to prevent loading delays
+  // Only preload the current video (lazy loading optimization)
   useEffect(() => {
-    const videos = [detectiveIdleVideo, detectiveIdle2Video, detectiveIdle3Video, detectiveWalkVideo, detectiveWalk2Video, detectiveWalk3Video, detectiveWalk4Video, detectiveMagnifyingVideo];
-    videos.forEach((videoSrc) => {
-      const video = document.createElement('video');
-      video.src = videoSrc;
-      video.preload = 'auto';
-      video.muted = true;
-    });
-  }, []);
+    if (!currentVideo) return;
+    
+    const video = document.createElement('video');
+    video.src = currentVideo;
+    video.preload = 'auto';
+    video.muted = true;
+    
+    // Cleanup
+    return () => {
+      video.src = '';
+    };
+  }, [currentVideo]);
   
   // Cycle through idle animations when idle (not in investigation radius and not moving)
   useEffect(() => {
@@ -136,54 +142,70 @@ function ZoomAwarePlayerMarker() {
       return () => clearInterval(idleInterval);
     }
   }, [isInInvestigationRadius, isPlayerMoving]);
+  
+  // OPTIMIZED: Use requestAnimationFrame instead of setInterval for better performance
+  // (Keeping old code above for now, but this is the optimized version)
+  useEffect(() => {
+    if (isInInvestigationRadius || isPlayerMoving) {
+      return;
+    }
+    
+    const targetInterval = 4000 + Math.random() * 3000;
+    let lastSwitchTime = performance.now();
+    let animationFrameId: number | null = null;
+    
+    const animate = (currentTime: number) => {
+      if (isInInvestigationRadius || isPlayerMoving) {
+        if (animationFrameId !== null) cancelAnimationFrame(animationFrameId);
+        return;
+      }
+      
+      const elapsed = currentTime - lastSwitchTime;
+      if (elapsed >= targetInterval) {
+        setCurrentIdleIndex((prevIndex) => {
+          const availableIndices = idleVideos.map((_, index) => index).filter(index => index !== prevIndex);
+          const randomIndex = Math.floor(Math.random() * availableIndices.length);
+          return availableIndices[randomIndex];
+        });
+        lastSwitchTime = currentTime;
+      }
+      
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    
+    animationFrameId = requestAnimationFrame(animate);
+    
+    return () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [isInInvestigationRadius, isPlayerMoving]);
 
   // Ensure video autoplays and handles transitions smoothly
   useEffect(() => {
-    const videoElements = document.querySelectorAll('.detective-character-video');
-    videoElements.forEach((video) => {
-      if (video instanceof HTMLVideoElement) {
-        // Get the full URL for comparison
+    if (lastVideoRef.current === currentVideo) {
+      return; // nothing to do
+    }
+    lastVideoRef.current = currentVideo;
+
+    if (switchTimeoutRef.current !== null) {
+      clearTimeout(switchTimeoutRef.current);
+    }
+
+    switchTimeoutRef.current = window.setTimeout(() => {
+      const videoElements = document.querySelectorAll('.detective-character-video');
+      videoElements.forEach((video) => {
+        if (!(video instanceof HTMLVideoElement)) return;
+        
         const currentVideoUrl = new URL(currentVideo, window.location.href).href;
         const videoUrl = video.src || video.currentSrc;
         
-        // If video source changed, update it smoothly
-        if (videoUrl !== currentVideoUrl && !videoUrl.includes(currentVideo)) {
-          const wasPlaying = !video.paused;
-          
-          // Don't change src if video is already loading the same file
-          // Just update the src property directly - browser will use cached version if available
-          video.src = currentVideo;
-          
-          // Set loop property
+        if (videoUrl === currentVideoUrl || videoUrl.includes(currentVideo)) {
+          // same video – just ensure loop / play logic like before
           if (isInInvestigationRadius && currentVideo === detectiveMagnifyingVideo && !isPlayerMoving) {
             video.loop = false;
-          } else {
-            video.loop = true;
-          }
-          
-          // Try to play immediately if video is already cached
-          const tryPlay = () => {
-            if (wasPlaying) {
-              video.play().catch(() => {});
-            }
-          };
-          
-          // If video is already ready (cached), play immediately
-          if (video.readyState >= 3) {
-            tryPlay();
-          } else {
-            // Wait for video to be ready, but don't call load() - let browser handle it
-            const handleCanPlay = () => {
-              video.removeEventListener('canplay', handleCanPlay);
-              tryPlay();
-            };
-            video.addEventListener('canplay', handleCanPlay, { once: true });
-          }
-        } else {
-          // Same video source, just ensure it's set up correctly
-          if (isInInvestigationRadius && currentVideo === detectiveMagnifyingVideo && !isPlayerMoving) {
-            video.loop = false;
-            if (!hasPlayedMagnifying && video.paused) {
+            if (video.paused) {
               const handleEnded = () => {
                 video.pause();
                 if (video.duration && !isNaN(video.duration)) {
@@ -200,9 +222,42 @@ function ZoomAwarePlayerMarker() {
               video.play().catch(() => {});
             }
           }
+          return;
         }
+        
+        // actually switching to a new src (debounced)
+        const wasPlaying = !video.paused;
+        video.src = currentVideo;
+        
+        if (isInInvestigationRadius && currentVideo === detectiveMagnifyingVideo && !isPlayerMoving) {
+          video.loop = false;
+        } else {
+          video.loop = true;
+        }
+        
+        const tryPlay = () => {
+          if (wasPlaying) {
+            video.play().catch(() => {});
+          }
+        };
+        
+        if (video.readyState >= 3) {
+          tryPlay();
+        } else {
+          const handleCanPlay = () => {
+            video.removeEventListener('canplay', handleCanPlay);
+            tryPlay();
+          };
+          video.addEventListener('canplay', handleCanPlay, { once: true });
+        }
+      });
+    }, 120);
+
+    return () => {
+      if (switchTimeoutRef.current !== null) {
+        clearTimeout(switchTimeoutRef.current);
       }
-    });
+    };
   }, [currentVideo, isInInvestigationRadius, hasPlayedMagnifying, isPlayerMoving]);
 
   const icon = useMemo(() => {
@@ -226,7 +281,7 @@ function ZoomAwarePlayerMarker() {
             loop
             muted
             playsinline
-            preload="auto"
+            preload="none"
             style="
               width: 100%;
               height: 100%;

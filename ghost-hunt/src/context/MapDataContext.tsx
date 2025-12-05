@@ -9,27 +9,58 @@ interface MapDataContextType {
   fieldJournalNodes: FieldJournalNode[];
   removeSupplyNode: (id: string) => void;
   removeFieldJournalNode: (id: string) => void;
+  resetFieldJournalNodes: () => void;
+  setHotspots: (hotspots: Hotspot[]) => void;
+  setSupplyNodes: (nodes: SupplyNode[]) => void;
+  setFieldJournalNodes: (nodes: FieldJournalNode[]) => void;
 }
 
 const MapDataContext = createContext<MapDataContextType | undefined>(undefined);
 
 export function MapDataProvider({ children }: { children: ReactNode }) {
-  const [supplyNodes, setSupplyNodes] = useState<SupplyNode[]>(MOCK_SUPPLY_NODES);
-  const [hotspots] = useState<Hotspot[]>(MOCK_HOTSPOTS);
-  const [fieldJournalNodes, setFieldJournalNodes] = useState<FieldJournalNode[]>(MOCK_FIELD_JOURNAL_NODES);
+  const [supplyNodes, setSupplyNodesState] = useState<SupplyNode[]>(MOCK_SUPPLY_NODES);
+  const [hotspots, setHotspotsState] = useState<Hotspot[]>(MOCK_HOTSPOTS);
+  const [fieldJournalNodes, setFieldJournalNodesState] = useState<FieldJournalNode[]>(MOCK_FIELD_JOURNAL_NODES);
 
   const removeSupplyNode = (id: string) => {
     console.log('🗑️ Removing supply node:', id);
-    setSupplyNodes((prev) => prev.filter((node) => node.id !== id));
+    setSupplyNodesState((prev) => prev.filter((node) => node.id !== id));
+  };
+
+  const setSupplyNodes = (nodes: SupplyNode[]) => {
+    setSupplyNodesState(nodes);
+  };
+
+  const setHotspots = (newHotspots: Hotspot[]) => {
+    setHotspotsState(newHotspots);
+  };
+
+  const setFieldJournalNodes = (nodes: FieldJournalNode[]) => {
+    setFieldJournalNodesState(nodes);
   };
 
   const removeFieldJournalNode = (id: string) => {
     console.log('🗑️ Removing field journal node:', id);
-    setFieldJournalNodes((prev) => prev.filter((node) => node.id !== id));
+    setFieldJournalNodesState((prev) => prev.filter((node) => node.id !== id));
+  };
+
+  const resetFieldJournalNodes = () => {
+    console.log('🔄 Resetting all field journal nodes to map');
+    setFieldJournalNodesState([...MOCK_FIELD_JOURNAL_NODES]);
   };
 
   return (
-    <MapDataContext.Provider value={{ supplyNodes, hotspots, fieldJournalNodes, removeSupplyNode, removeFieldJournalNode }}>
+    <MapDataContext.Provider value={{ 
+      supplyNodes, 
+      hotspots, 
+      fieldJournalNodes, 
+      removeSupplyNode, 
+      removeFieldJournalNode,
+      resetFieldJournalNodes,
+      setHotspots,
+      setSupplyNodes,
+      setFieldJournalNodes
+    }}>
       {children}
     </MapDataContext.Provider>
   );
@@ -38,7 +69,10 @@ export function MapDataProvider({ children }: { children: ReactNode }) {
 export function useMapData() {
   const context = useContext(MapDataContext);
   if (!context) {
-    throw new Error('useMapData must be used within MapDataProvider');
+    // More helpful error message for debugging
+    console.error('MapDataContext is undefined. Make sure MapDataProvider wraps the component.');
+    console.trace('Stack trace:');
+    throw new Error('useMapData must be used within MapDataProvider. If you see this during hot reload, try refreshing the page.');
   }
   return context;
 }

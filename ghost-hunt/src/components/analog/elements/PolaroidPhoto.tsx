@@ -1,5 +1,8 @@
 import tape from '../../../assets/texture/tape.png';
 import dust from '../../../assets/texture/dust.png';
+import filmgrain from '../../../assets/texture/filmgrain.png';
+import wrinkledpaper from '../../../assets/texture/wrinkledpaper.png';
+import burnhole from '../../../assets/texture/burnhole.png';
 import { getDamageVariant } from '../utils/randomization';
 
 interface PolaroidPhotoProps {
@@ -9,6 +12,7 @@ interface PolaroidPhotoProps {
   damage?: 'light' | 'medium' | 'heavy';
   withTape?: boolean;
   seed?: string | number;
+  extraDarkness?: boolean; // Additional darkening for specific images
 }
 
 export function PolaroidPhoto({ 
@@ -17,7 +21,8 @@ export function PolaroidPhoto({
   rotation, 
   damage = 'medium', 
   withTape = true,
-  seed = Date.now() 
+  seed = Date.now(),
+  extraDarkness = false
 }: PolaroidPhotoProps) {
   const rotations = [-8, -5, -3, 3, 5, 8];
   const finalRotation = rotation ?? rotations[getDamageVariant(seed, rotations.length)];
@@ -58,7 +63,143 @@ export function PolaroidPhoto({
         background: '#e8e4dc',
         padding: '12px 12px 45px 12px',
         boxShadow: '0 12px 30px rgba(0,0,0,0.7), 0 4px 8px rgba(0,0,0,0.4)',
+        position: 'relative',
+        overflow: 'visible',
       }}>
+        {/* Damaged border effects */}
+        {damage !== 'light' && (
+          <>
+            {/* Worn edges */}
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '2px',
+              background: 'linear-gradient(90deg, transparent, rgba(139, 111, 78, 0.4) 20%, rgba(139, 111, 78, 0.6) 50%, rgba(139, 111, 78, 0.4) 80%, transparent)',
+              opacity: damage === 'heavy' ? 0.8 : 0.5,
+            }} />
+            <div style={{
+              position: 'absolute',
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: 'linear-gradient(90deg, transparent, rgba(139, 111, 78, 0.5) 20%, rgba(139, 111, 78, 0.7) 50%, rgba(139, 111, 78, 0.5) 80%, transparent)',
+              opacity: damage === 'heavy' ? 0.9 : 0.6,
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              bottom: 0,
+              width: '2px',
+              background: 'linear-gradient(180deg, transparent, rgba(139, 111, 78, 0.4) 20%, rgba(139, 111, 78, 0.6) 50%, rgba(139, 111, 78, 0.4) 80%, transparent)',
+              opacity: damage === 'heavy' ? 0.8 : 0.5,
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              bottom: 0,
+              width: '2px',
+              background: 'linear-gradient(180deg, transparent, rgba(139, 111, 78, 0.4) 20%, rgba(139, 111, 78, 0.6) 50%, rgba(139, 111, 78, 0.4) 80%, transparent)',
+              opacity: damage === 'heavy' ? 0.8 : 0.5,
+            }} />
+            
+            {/* Corner damage */}
+            <div style={{
+              position: 'absolute',
+              top: `${-2 + getDamageVariant(seed + 'corner1', 4)}px`,
+              left: `${-2 + getDamageVariant(seed + 'corner1x', 4)}px`,
+              width: `${8 + getDamageVariant(seed + 'corner1w', 6)}px`,
+              height: `${8 + getDamageVariant(seed + 'corner1h', 6)}px`,
+              background: 'radial-gradient(circle, rgba(139, 111, 78, 0.6) 0%, transparent 70%)',
+              borderRadius: '50%',
+              opacity: damage === 'heavy' ? 0.7 : 0.4,
+            }} />
+            <div style={{
+              position: 'absolute',
+              top: `${-2 + getDamageVariant(seed + 'corner2', 4)}px`,
+              right: `${-2 + getDamageVariant(seed + 'corner2x', 4)}px`,
+              width: `${6 + getDamageVariant(seed + 'corner2w', 5)}px`,
+              height: `${6 + getDamageVariant(seed + 'corner2h', 5)}px`,
+              background: 'radial-gradient(circle, rgba(139, 111, 78, 0.5) 0%, transparent 70%)',
+              borderRadius: '50%',
+              opacity: damage === 'heavy' ? 0.6 : 0.3,
+            }} />
+            {damage === 'heavy' && (
+              <>
+                <div style={{
+                  position: 'absolute',
+                  bottom: `${-2 + getDamageVariant(seed + 'corner3', 4)}px`,
+                  left: `${-2 + getDamageVariant(seed + 'corner3x', 4)}px`,
+                  width: `${7 + getDamageVariant(seed + 'corner3w', 6)}px`,
+                  height: `${7 + getDamageVariant(seed + 'corner3h', 6)}px`,
+                  background: 'radial-gradient(circle, rgba(139, 111, 78, 0.6) 0%, transparent 70%)',
+                  borderRadius: '50%',
+                  opacity: 0.6,
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  bottom: `${-2 + getDamageVariant(seed + 'corner4', 4)}px`,
+                  right: `${-2 + getDamageVariant(seed + 'corner4x', 4)}px`,
+                  width: `${5 + getDamageVariant(seed + 'corner4w', 5)}px`,
+                  height: `${5 + getDamageVariant(seed + 'corner4h', 5)}px`,
+                  background: 'radial-gradient(circle, rgba(139, 111, 78, 0.5) 0%, transparent 70%)',
+                  borderRadius: '50%',
+                  opacity: 0.5,
+                }} />
+              </>
+            )}
+            
+            {/* Wrinkles on border */}
+            {damage !== 'light' && (
+              <>
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backgroundImage: `url(${wrinkledpaper})`,
+                  backgroundSize: 'cover',
+                  mixBlendMode: 'multiply',
+                  opacity: damage === 'heavy' ? 0.15 : 0.08,
+                  pointerEvents: 'none',
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  bottom: `${30 + getDamageVariant(seed + 'wrinkle1', 15)}px`,
+                  left: `${5 + getDamageVariant(seed + 'wrinkle1x', 30)}%`,
+                  width: `${40 + getDamageVariant(seed + 'wrinkle1w', 30)}px`,
+                  height: `${20 + getDamageVariant(seed + 'wrinkle1h', 15)}px`,
+                  backgroundImage: `url(${wrinkledpaper})`,
+                  backgroundSize: 'cover',
+                  mixBlendMode: 'multiply',
+                  opacity: damage === 'heavy' ? 0.2 : 0.12,
+                  transform: `rotate(${getDamageVariant(seed + 'wrinkle1r', 10)}deg)`,
+                  pointerEvents: 'none',
+                }} />
+                {damage === 'heavy' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: `${10 + getDamageVariant(seed + 'wrinkle2', 20)}px`,
+                    right: `${5 + getDamageVariant(seed + 'wrinkle2x', 25)}%`,
+                    width: `${35 + getDamageVariant(seed + 'wrinkle2w', 25)}px`,
+                    height: `${18 + getDamageVariant(seed + 'wrinkle2h', 12)}px`,
+                    backgroundImage: `url(${wrinkledpaper})`,
+                    backgroundSize: 'cover',
+                    mixBlendMode: 'multiply',
+                    opacity: 0.15,
+                    transform: `rotate(${-getDamageVariant(seed + 'wrinkle2r', 8)}deg)`,
+                    pointerEvents: 'none',
+                  }} />
+                )}
+              </>
+            )}
+          </>
+        )}
         {/* Photo content */}
         <div style={{
           width: '100%',
@@ -74,10 +215,24 @@ export function PolaroidPhoto({
               width: '100%',
               height: '100%',
               objectFit: 'cover',
+              objectPosition: 'center top', // Position images at top to show heads
             }}
           />
           
-          {/* Static/grain overlay */}
+          {/* Heavy static/grain overlay - matching location polaroids */}
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundImage: `url(${filmgrain})`,
+            backgroundSize: '200% 200%',
+            mixBlendMode: 'overlay',
+            opacity: 0.9,
+            pointerEvents: 'none',
+          }} />
+          {/* Additional dust overlay */}
           <div style={{
             position: 'absolute',
             top: 0,
@@ -85,31 +240,51 @@ export function PolaroidPhoto({
             right: 0,
             bottom: 0,
             backgroundImage: `url(${dust})`,
+            backgroundSize: 'cover',
             mixBlendMode: 'overlay',
-            opacity: staticOpacity[damage],
+            opacity: 0.6,
+            pointerEvents: 'none',
           }} />
 
-          {/* Damage effects */}
+
+          {/* Burn hole - heavy damage only */}
+          {damage === 'heavy' && (
+            <div style={{
+              position: 'absolute',
+              bottom: `${10 + getDamageVariant(seed + 'burn', 30)}px`,
+              left: `${15 + getDamageVariant(seed + 'burnx', 25)}px`,
+              width: `${20 + getDamageVariant(seed + 'burnw', 15)}px`,
+              height: `${20 + getDamageVariant(seed + 'burnh', 15)}px`,
+              backgroundImage: `url(${burnhole})`,
+              backgroundSize: 'contain',
+              backgroundRepeat: 'no-repeat',
+              mixBlendMode: 'multiply',
+              opacity: 0.5,
+            }} />
+          )}
+
+          {/* Additional dark spots/blemishes */}
           {damage === 'heavy' && (
             <>
-              {/* Scratch marks */}
               <div style={{
                 position: 'absolute',
-                top: '10px',
-                left: '5px',
-                width: '30px',
-                height: '2px',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                transform: 'rotate(15deg)',
+                top: `${15 + getDamageVariant(seed + 'spot1', 60)}%`,
+                left: `${10 + getDamageVariant(seed + 'spot1x', 40)}%`,
+                width: `${8 + getDamageVariant(seed + 'spot1w', 12)}px`,
+                height: `${8 + getDamageVariant(seed + 'spot1h', 12)}px`,
+                background: 'radial-gradient(circle, rgba(0,0,0,0.6) 0%, transparent 70%)',
+                borderRadius: '50%',
+                opacity: 0.7,
               }} />
               <div style={{
                 position: 'absolute',
-                bottom: '15px',
-                right: '10px',
-                width: '25px',
-                height: '2px',
-                backgroundColor: 'rgba(255, 255, 255, 0.6)',
-                transform: 'rotate(-20deg)',
+                bottom: `${20 + getDamageVariant(seed + 'spot2', 50)}%`,
+                right: `${15 + getDamageVariant(seed + 'spot2x', 35)}%`,
+                width: `${6 + getDamageVariant(seed + 'spot2w', 10)}px`,
+                height: `${6 + getDamageVariant(seed + 'spot2h', 10)}px`,
+                background: 'radial-gradient(circle, rgba(0,0,0,0.5) 0%, transparent 70%)',
+                borderRadius: '50%',
+                opacity: 0.6,
               }} />
             </>
           )}

@@ -557,21 +557,6 @@ export function ToolIcon({ toolType, size = 80 }: ToolIconProps) {
                 borderRadius: '50%',
               }} />
             </div>
-            
-            {/* Tape patch - same as mock */}
-            <div style={{
-              position: 'absolute',
-              bottom: '10%',
-              left: '8%',
-              width: '30px',
-              height: '12px',
-              backgroundImage: `url(${tape})`,
-              backgroundSize: 'cover',
-              transform: 'rotate(-12deg)',
-              opacity: 0.7,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
-              zIndex: 2,
-            }} />
           </div>
         </div>
       );
@@ -843,21 +828,6 @@ export function ToolIcon({ toolType, size = 80 }: ToolIconProps) {
                 boxShadow: '0 0 6px rgba(255,170,0,0.6)',
               }} />
             </div>
-            
-            {/* Tape patch - same as mock */}
-            <div style={{
-              position: 'absolute',
-              bottom: '8%',
-              left: '6%',
-              width: '25px',
-              height: '10px',
-              backgroundImage: `url(${tape})`,
-              backgroundSize: 'cover',
-              transform: 'rotate(-10deg)',
-              opacity: 0.7,
-              boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
-              zIndex: 2,
-            }} />
           </div>
         </div>
       );

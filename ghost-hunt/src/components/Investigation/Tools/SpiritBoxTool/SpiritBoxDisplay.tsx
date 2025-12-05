@@ -6,13 +6,15 @@
  * - Grid lines
  * - Frequency readout
  * - Static level indicator
- * - EVP text overlays
+ * - EVP text overlays with typed-out animation
+ * - Question buttons (when signal is locked)
  * 
  * Extracted from SpiritBoxMock.tsx
  */
 
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import type { SpiritBoxDisplayProps } from './types';
+import type { QuestionId } from '../../../../data/spiritBoxWords';
 import crtTexture from '../../../../assets/texture/crtexture.png';
 import filmgrain from '../../../../assets/texture/filmgrain.png';
 import dirtyGlass from '../../../../assets/texture/dirtyglass.png';
@@ -23,12 +25,106 @@ import tape from '../../../../assets/texture/tape.png';
 import { DirtyGlass } from '../shared/effects/DirtyGlass';
 import { FilmGrain } from '../shared/effects/FilmGrain';
 
+interface SpiritBoxQuestion {
+  id: QuestionId;
+  text: string;
+  category: 'nature' | 'presence' | 'motivation';
+}
+
+const QUESTIONS: SpiritBoxQuestion[] = [
+  { id: 'q1', text: 'What do you want?', category: 'motivation' },
+  { id: 'q2', text: 'Where are you?', category: 'presence' },
+  { id: 'q3', text: 'Are you here?', category: 'presence' },
+];
+
+/**
+ * EVPTextDisplay Component - Task 11: Add Word Display Animation
+ * 
+ * Displays EVP text with typed-out animation (0.5-1s duration)
+ * Applies green phosphor glow effect (CRT aesthetic)
+ * Clears previous word before showing new one
+ * 
+ * Requirement 13: Response Display and Audio
+ */
+interface EVPTextDisplayProps {
+  text: string;
+}
+
+const EVPTextDisplay = memo(({ text }: EVPTextDisplayProps) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
+
+  useEffect(() => {
+    // Clear previous word before showing new one (Requirement 13)
+    setDisplayedText('');
+    setIsTyping(true);
+
+    if (!text) return;
+
+    // Typed-out animation with 0.5-1s duration (Requirement 13)
+    const typingDuration = 700; // 0.7s for typing animation
+    const charDelay = typingDuration / text.length;
+
+    let currentIndex = 0;
+    const typingInterval = setInterval(() => {
+      if (currentIndex < text.length) {
+        setDisplayedText(text.substring(0, currentIndex + 1));
+        currentIndex++;
+      } else {
+        setIsTyping(false);
+        clearInterval(typingInterval);
+      }
+    }, charDelay);
+
+    return () => clearInterval(typingInterval);
+  }, [text]);
+
+  return (
+    <div style={{
+      position: 'absolute',
+      top: '50%',
+      left: '50%',
+      transform: 'translate(-50%, -50%)',
+      fontFamily: '"Courier New", monospace',
+      fontSize: '28px',
+      color: '#00ff00', // Green phosphor glow (Requirement 13)
+      textShadow: 
+        '0 0 8px #00ff00, ' +
+        '0 0 16px #00ff00, ' +
+        '0 0 24px #00ff00, ' +
+        '0 0 32px rgba(0,255,0,0.5)',
+      zIndex: 15,
+      fontWeight: 'bold',
+      letterSpacing: '3px',
+      textTransform: 'uppercase',
+      filter: 'blur(0.3px)', // Slight blur for CRT phosphor effect
+      opacity: isTyping ? 1 : undefined,
+    }}>
+      {displayedText}
+      {/* Typing cursor effect */}
+      {isTyping && (
+        <span style={{
+          animation: 'blink 0.8s infinite',
+          marginLeft: '4px',
+        }}>
+          _
+        </span>
+      )}
+    </div>
+  );
+});
+
 const SpiritBoxDisplayComponent = ({
   waveform,
   frequency,
   staticLevel,
   evpResponse = '',
   showEvp = false,
+  isLocked = false,
+  showNoResponse = false,
+  showFrequencyReset = false,
+  onQuestionAsked,
+  questionCooldown = false,
 }: SpiritBoxDisplayProps) => {
   return (
     <>
@@ -38,6 +134,10 @@ const SpiritBoxDisplayComponent = ({
           20% { opacity: 1; }
           80% { opacity: 1; }
           100% { opacity: 0; }
+        }
+        @keyframes blink {
+          0%, 49% { opacity: 1; }
+          50%, 100% { opacity: 0.3; }
         }
         @keyframes grain {
           0%, 100% { background-position: 0% 0%; }
@@ -271,10 +371,10 @@ const SpiritBoxDisplayComponent = ({
             </svg>
 
             {/* Waveform */}
-            <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, zIndex: 5 }}>
+            <svg width="100%" height="100%" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: 'absolute', top: 0, left: 0, zIndex: 5 }}>
               <polyline
                 points={waveform.length > 0 ? waveform
-                  .map((val, i) => `${(i / waveform.length) * 100}%,${90 - val * 80}`)
+                  .map((val, i) => `${(i / waveform.length) * 100},${90 - val * 80}`)
                   .join(' ') : ''}
                 fill="none"
                 stroke="#00ff00"
@@ -324,28 +424,170 @@ const SpiritBoxDisplayComponent = ({
             {/* Film grain */}
             <FilmGrain opacity={0.3} />
 
-            {/* EVP response text */}
-            {showEvp && evpResponse && (
+            {/* Question buttons - Show ONLY when signal is locked and NO word/response is displaying */}
+            {isLocked && !showEvp && !showNoResponse && !showFrequencyReset && !questionCooldown && (
               <div style={{
                 position: 'absolute',
                 top: '50%',
                 left: '50%',
                 transform: 'translate(-50%, -50%)',
-                fontFamily: '"Courier New", monospace',
-                fontSize: '22px',
-                color: '#ff6666',
-                textShadow: 
-                  '0 0 15px #ff6666, ' +
-                  '0 0 30px rgba(255,102,102,0.6), ' +
-                  '0 -1px 1px rgba(255,255,255,0.2), ' +
-                  '0 1px 2px rgba(0,0,0,0.9)',
-                animation: 'fadeInOut 3s',
-                zIndex: 15,
-                letterSpacing: '3px',
-                fontWeight: 'bold',
+                width: '85%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
+                zIndex: 20,
+                pointerEvents: 'auto',
               }}>
-                {evpResponse}
+                {/* Header indicator */}
+                <div style={{
+                  fontFamily: '"Courier New", monospace',
+                  fontSize: '10px',
+                  color: 'rgba(0,255,0,0.5)',
+                  textAlign: 'center',
+                  letterSpacing: '2px',
+                  marginBottom: '4px',
+                  textShadow: '0 0 4px rgba(0,255,0,0.3)',
+                }}>
+                  ▼ SELECT QUERY ▼
+                </div>
+                
+                {QUESTIONS.map((question, index) => (
+                  <button
+                    key={question.id}
+                    onClick={() => onQuestionAsked?.(question.id)}
+                    style={{
+                      width: '100%',
+                      padding: '10px 14px',
+                      fontFamily: '"Courier New", monospace',
+                      fontSize: '11px',
+                      fontWeight: 'normal',
+                      letterSpacing: '0.5px',
+                      color: 'rgba(0,255,0,0.85)',
+                      background: 'rgba(0,26,10,0.4)',
+                      border: '1px solid rgba(0,255,0,0.25)',
+                      borderRadius: '2px',
+                      boxShadow: 
+                        'inset 0 1px 2px rgba(0,0,0,0.5), ' +
+                        '0 0 4px rgba(0,255,0,0.15)',
+                      textShadow: '0 0 3px rgba(0,255,0,0.4)',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease',
+                      textTransform: 'none',
+                      position: 'relative',
+                      overflow: 'hidden',
+                      textAlign: 'left',
+                    }}
+                    onMouseEnter={(e) => {
+                      const target = e.currentTarget;
+                      target.style.background = 'rgba(0,40,15,0.6)';
+                      target.style.borderColor = 'rgba(0,255,0,0.45)';
+                      target.style.color = 'rgba(0,255,0,1)';
+                      target.style.boxShadow = 
+                        'inset 0 1px 2px rgba(0,0,0,0.5), ' +
+                        '0 0 8px rgba(0,255,0,0.3)';
+                    }}
+                    onMouseLeave={(e) => {
+                      const target = e.currentTarget;
+                      target.style.background = 'rgba(0,26,10,0.4)';
+                      target.style.borderColor = 'rgba(0,255,0,0.25)';
+                      target.style.color = 'rgba(0,255,0,0.85)';
+                      target.style.boxShadow = 
+                        'inset 0 1px 2px rgba(0,0,0,0.5), ' +
+                        '0 0 4px rgba(0,255,0,0.15)';
+                    }}
+                    onMouseDown={(e) => {
+                      const target = e.currentTarget;
+                      target.style.transform = 'scale(0.98)';
+                      target.style.background = 'rgba(0,50,20,0.7)';
+                    }}
+                    onMouseUp={(e) => {
+                      const target = e.currentTarget;
+                      target.style.transform = 'scale(1)';
+                    }}
+                  >
+                    {/* Subtle scanline effect */}
+                    <div style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      background: 'repeating-linear-gradient(0deg, transparent 0px, rgba(0,255,0,0.015) 1px, transparent 2px)',
+                      pointerEvents: 'none',
+                    }} />
+                    
+                    {/* Question number prefix */}
+                    <span style={{
+                      opacity: 0.5,
+                      marginRight: '8px',
+                    }}>
+                      [{index + 1}]
+                    </span>
+                    
+                    {question.text}
+                  </button>
+                ))}
+                
+                {/* Footer hint */}
+                <div style={{
+                  fontFamily: '"Courier New", monospace',
+                  fontSize: '9px',
+                  color: 'rgba(0,255,0,0.35)',
+                  textAlign: 'center',
+                  letterSpacing: '1px',
+                  marginTop: '4px',
+                  textShadow: '0 0 2px rgba(0,255,0,0.2)',
+                }}>
+                  SIGNAL LOCKED - READY FOR QUERY
+                </div>
               </div>
+            )}
+
+            {/* NO RESPONSE feedback */}
+            {showNoResponse && (
+              <div style={{
+                position: 'absolute',
+                top: '20%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontFamily: '"Courier New", monospace',
+                fontSize: '16px',
+                color: '#ffaa00',
+                textShadow: '0 0 10px #ffaa00, 0 0 5px rgba(255,170,0,0.8)',
+                fontWeight: 'bold',
+                letterSpacing: '3px',
+                zIndex: 12,
+                pointerEvents: 'none',
+                animation: 'blink 0.8s infinite',
+              }}>
+                NO RESPONSE
+              </div>
+            )}
+
+            {/* FREQUENCY RESET feedback */}
+            {showFrequencyReset && (
+              <div style={{
+                position: 'absolute',
+                top: '20%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontFamily: '"Courier New", monospace',
+                fontSize: '14px',
+                color: '#ff6666',
+                textShadow: '0 0 10px #ff6666, 0 0 5px rgba(255,102,102,0.8)',
+                fontWeight: 'bold',
+                letterSpacing: '2px',
+                zIndex: 12,
+                pointerEvents: 'none',
+                animation: 'fadeInOut 2s',
+              }}>
+                FREQUENCY RESET
+              </div>
+            )}
+
+            {/* EVP response text with typed-out animation (Task 11) */}
+            {showEvp && evpResponse && (
+              <EVPTextDisplay text={evpResponse} />
             )}
 
             {/* Static indicator - Top right */}

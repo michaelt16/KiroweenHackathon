@@ -293,24 +293,6 @@ export function ProfilePanel() {
           </div>
         </Clipboard>
 
-        {/* Footer note */}
-        <div style={{
-          textAlign: 'center',
-          marginTop: window.innerWidth < 768 ? '20px' : '30px',
-          padding: window.innerWidth < 768 ? '12px' : '15px',
-          background: 'rgba(42, 37, 32, 0.8)',
-          border: '1px solid #5a4f48',
-          borderRadius: '8px',
-        }}>
-          <p style={{
-            fontFamily: '"Courier New", monospace',
-            fontSize: window.innerWidth < 768 ? "10px" : "12px",
-            color: '#999',
-            margin: 0,
-          }}>
-            📋 OFFICIAL AGENT DOSSIER - CLIPBOARD FORMAT
-          </p>
-        </div>
       </div>
 
       {/* Zoomed ID Card Modal - Centered with Edit Mode */}

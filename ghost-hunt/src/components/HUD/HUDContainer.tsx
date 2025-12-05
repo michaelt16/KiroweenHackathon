@@ -8,6 +8,7 @@ interface HUDContainerProps {
 export function HUDContainer({ children }: HUDContainerProps) {
   return (
     <div
+      data-hud-container
       style={{
         position: 'absolute',
         bottom: '0',
@@ -19,6 +20,8 @@ export function HUDContainer({ children }: HUDContainerProps) {
         alignItems: 'flex-end',
         padding: '0 20px 24px 20px',
         pointerEvents: 'none',
+        gap: '20px',
+        background: 'transparent',
       }}
     >
       {children}

@@ -68,11 +68,14 @@ export function HorizontalIDCard({
       background: '#f4f0e6',
       border: '2px solid #2a2520',
       borderRadius: '4px',
-      padding: '3px 6px',
+      padding: 'min(5px, 1.2vw) min(8px, 2vw)',
       transform: `rotate(${rotation}deg)`,
       boxShadow: '0 4px 12px rgba(0,0,0,0.5), 0 2px 4px rgba(0,0,0,0.3)',
-      width: '140px',
+      width: '100%',
+      maxWidth: '100%',
       height: '36px',
+      minHeight: '36px',
+      boxSizing: 'border-box',
     }}>
       {/* Left stripe - Red header */}
       <div style={{
@@ -87,8 +90,8 @@ export function HorizontalIDCard({
 
       {/* Photo */}
       <div style={{
-        width: '28px',
-        height: '28px',
+        width: '30px',
+        height: '30px',
         border: '1px solid #2a2520',
         background: '#1a1a1a',
         overflow: 'hidden',
@@ -123,19 +126,16 @@ export function HorizontalIDCard({
         }}>
           <div style={{
             fontFamily: 'Impact, sans-serif',
-            fontSize: '9px',
+            fontSize: '10px',
             color: '#1a0f0a',
             letterSpacing: '0.3px',
             whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: '60px',
           }}>
             {agentName}
           </div>
           <div style={{
             fontFamily: '"Courier New", monospace',
-            fontSize: '8px',
+            fontSize: '9px',
             color: '#666',
             fontWeight: 'bold',
           }}>
@@ -151,24 +151,18 @@ export function HorizontalIDCard({
         }}>
           <div style={{
             fontFamily: '"Courier New", monospace',
-            fontSize: '6px',
+            fontSize: '7px',
             color: '#666',
             whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: '50px',
           }}>
             {agentId}
           </div>
           <div style={{
             fontFamily: 'Impact, sans-serif',
-            fontSize: '7px',
+            fontSize: '8px',
             color: '#8b0000',
             letterSpacing: '0.3px',
             whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            maxWidth: '50px',
           }}>
             {rank}
           </div>

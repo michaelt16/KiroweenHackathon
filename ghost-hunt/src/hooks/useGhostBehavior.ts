@@ -48,18 +48,6 @@ const GHOST_PROFILES: Record<
     },
     sanityDrain: 0.35,
   },
-  Peccy: {
-    movementSpeed: 0.4,
-    anomalyWeights: {
-      emf: 0.4,
-      cold: 0.0,
-      whisper: 0.0,
-      motion: 0.2,
-      static: 0.3,
-      silhouette: 0.1,
-    },
-    sanityDrain: 0.0,
-  },
 };
 
 export function useGhostBehavior() {
@@ -110,7 +98,7 @@ export function useGhostBehavior() {
     setGhostPosition({ angle: 45, distance: 0.6 });
   }, [setGhostPosition]);
 
-  // Behavior Loop - Generate anomalies with sanity impacts
+  // Behavior Loop - Generate anomalies WITHOUT sanity impacts (TESTING MODE)
   useEffect(() => {
     const profile = GHOST_PROFILES[ghostType];
 
@@ -125,7 +113,9 @@ export function useGhostBehavior() {
           const intensity = Math.random() * 0.5 + 0.5; // 0.5 to 1.0
           addAnomaly(anomalyType as AnomalyType, intensity);
           
-          // Apply sanity impact based on anomaly type
+          // SANITY IMPACTS DISABLED FOR TESTING
+          // TODO: Re-enable after EMF tool testing is complete
+          /*
           switch (anomalyType) {
             case 'whisper':
               applySanityImpact('whisper', intensity * 2);
@@ -141,6 +131,7 @@ export function useGhostBehavior() {
               // Other anomalies have small impact
               applySanityImpact('ambient', intensity);
           }
+          */
           
           break;
         }
@@ -150,8 +141,9 @@ export function useGhostBehavior() {
     return () => clearInterval(behaviorInterval);
   }, [ghostType, addAnomaly, applySanityImpact]);
 
-  // Ambient sanity drain - low frequency, small impact
-  // This creates constant tension without linear per-second drain
+  // Ambient sanity drain - DISABLED FOR TESTING
+  // TODO: Re-enable after EMF tool testing is complete
+  /*
   useEffect(() => {
     const ambientInterval = setInterval(() => {
       // Small ambient drain every 5 seconds
@@ -160,4 +152,5 @@ export function useGhostBehavior() {
 
     return () => clearInterval(ambientInterval);
   }, [applySanityImpact]);
+  */
 }

@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { BackpackIconCSS } from './BackpackIconCSS';
 import wrinkledpaper from '../../assets/texture/wrinkledpaper.png';
 import dust from '../../assets/texture/dust.png';
+import { playButtonClick } from '../../utils/soundEffects';
 
 interface BackpackMenuProps {
   onOpenInventory: () => void;
@@ -14,6 +15,7 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleMenu = () => {
+    playButtonClick();
     console.log('🎒 Backpack menu toggled:', !isOpen);
     setIsOpen(!isOpen);
   };
@@ -27,50 +29,68 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
         gap: '12px',
         position: 'relative',
         pointerEvents: 'auto',
+        background: 'transparent',
       }}
     >
-      {/* Radial menu buttons (Items, Codex, Field Journals) */}
+      {/* Radial menu buttons (Items, Codex, Field Journals) - Floating Icons */}
       {isOpen && (
         <div
           style={{
             display: 'flex',
-            gap: '12px',
+            gap: '16px',
             animation: 'fadeIn 0.2s',
             flexWrap: 'wrap',
             justifyContent: 'center',
             maxWidth: '200px',
+            background: 'transparent',
           }}
         >
           <button
             onClick={() => {
+              playButtonClick();
               onOpenInventory();
               setIsOpen(false);
             }}
             className="hud-button"
             style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '12px',
-              backgroundColor: 'rgba(15, 23, 42, 0.95)',
-              border: '2px solid rgba(45, 212, 191, 0.3)',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6), inset 0 2px 0 rgba(45, 212, 191, 0.1)',
+              width: '64px',
+              height: '64px',
+              borderRadius: '16px',
+              backgroundColor: '#d8d4c8',
+              border: '3px solid #1a0f0a',
+              boxShadow: 
+                '0 8px 24px rgba(0, 0, 0, 0.8), ' +
+                '0 4px 12px rgba(0, 0, 0, 0.6), ' +
+                '0 2px 6px rgba(0, 0, 0, 0.4), ' +
+                'inset 0 1px 0 rgba(255, 255, 255, 0.2)',
               cursor: 'pointer',
-              fontSize: '26px',
+              fontSize: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
-              color: 'rgba(45, 212, 191, 0.8)',
+              color: '#1a0f0a',
+              position: 'relative',
+              transform: 'translateY(-4px)',
+              overflow: 'hidden',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.6)';
-              e.currentTarget.style.boxShadow = '0 0 16px rgba(45, 212, 191, 0.5), inset 0 0 12px rgba(45, 212, 191, 0.2)';
-              e.currentTarget.style.transform = 'scale(1.08)';
+              e.currentTarget.style.borderColor = '#8b0000';
+              e.currentTarget.style.boxShadow = 
+                '0 12px 32px rgba(0, 0, 0, 0.9), ' +
+                '0 6px 16px rgba(0, 0, 0, 0.7), ' +
+                '0 3px 8px rgba(0, 0, 0, 0.5), ' +
+                'inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-8px) scale(1.05)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(45, 212, 191, 0.3)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4)';
-              e.currentTarget.style.transform = 'scale(1)';
+              e.currentTarget.style.borderColor = '#1a0f0a';
+              e.currentTarget.style.boxShadow = 
+                '0 8px 24px rgba(0, 0, 0, 0.8), ' +
+                '0 4px 12px rgba(0, 0, 0, 0.6), ' +
+                '0 2px 6px rgba(0, 0, 0, 0.4), ' +
+                'inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(-4px) scale(1)';
             }}
             title="Items"
           >
@@ -84,7 +104,7 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
               backgroundImage: `url(${wrinkledpaper})`,
               backgroundSize: 'cover',
               mixBlendMode: 'multiply',
-              opacity: 0.3,
+              opacity: 0.4,
               pointerEvents: 'none',
             }} />
             <div style={{
@@ -96,47 +116,60 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
               backgroundImage: `url(${dust})`,
               backgroundSize: 'cover',
               mixBlendMode: 'overlay',
-              opacity: 0.2,
+              opacity: 0.3,
               pointerEvents: 'none',
             }} />
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <BackpackIconCSS size={26} color="#1a0f0a" />
+              <BackpackIconCSS size={32} color="#1a0f0a" />
             </div>
           </button>
 
           <button
             onClick={() => {
+              playButtonClick();
               onOpenCodex();
               setIsOpen(false);
             }}
             className="hud-button"
             style={{
-              width: '56px',
-              height: '56px',
-              borderRadius: '4px',
-              backgroundColor: '#d8d4c8', // Aged paper
-              border: '2px solid #1a0f0a',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4)',
+              width: '64px',
+              height: '64px',
+              borderRadius: '16px',
+              backgroundColor: '#d8d4c8',
+              border: '3px solid #1a0f0a',
+              boxShadow: 
+                '0 8px 24px rgba(0, 0, 0, 0.8), ' +
+                '0 4px 12px rgba(0, 0, 0, 0.6), ' +
+                '0 2px 6px rgba(0, 0, 0, 0.4), ' +
+                'inset 0 1px 0 rgba(255, 255, 255, 0.2)',
               cursor: 'pointer',
-              fontSize: '26px',
+              fontSize: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.2s ease',
               color: '#1a0f0a',
               position: 'relative',
-              transform: 'rotate(0.2deg)',
+              transform: 'translateY(-4px) rotate(0.2deg)',
               overflow: 'hidden',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.borderColor = '#8b0000';
-              e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.7), 0 3px 8px rgba(0, 0, 0, 0.5)';
-              e.currentTarget.style.transform = 'rotate(-0.2deg) scale(1.05)';
+              e.currentTarget.style.boxShadow = 
+                '0 12px 32px rgba(0, 0, 0, 0.9), ' +
+                '0 6px 16px rgba(0, 0, 0, 0.7), ' +
+                '0 3px 8px rgba(0, 0, 0, 0.5), ' +
+                'inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+              e.currentTarget.style.transform = 'translateY(-8px) scale(1.05) rotate(-0.2deg)';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.borderColor = '#1a0f0a';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4)';
-              e.currentTarget.style.transform = 'rotate(0.2deg) scale(1)';
+              e.currentTarget.style.boxShadow = 
+                '0 8px 24px rgba(0, 0, 0, 0.8), ' +
+                '0 4px 12px rgba(0, 0, 0, 0.6), ' +
+                '0 2px 6px rgba(0, 0, 0, 0.4), ' +
+                'inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+              e.currentTarget.style.transform = 'translateY(-4px) scale(1) rotate(0.2deg)';
             }}
             title="Codex"
           >
@@ -150,7 +183,7 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
               backgroundImage: `url(${wrinkledpaper})`,
               backgroundSize: 'cover',
               mixBlendMode: 'multiply',
-              opacity: 0.3,
+              opacity: 0.4,
               pointerEvents: 'none',
             }} />
             <div style={{
@@ -162,7 +195,7 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
               backgroundImage: `url(${dust})`,
               backgroundSize: 'cover',
               mixBlendMode: 'overlay',
-              opacity: 0.2,
+              opacity: 0.3,
               pointerEvents: 'none',
             }} />
             <div style={{ position: 'relative', zIndex: 1 }}>📖</div>
@@ -171,37 +204,50 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
           {onOpenFieldJournals && (
             <button
               onClick={() => {
+                playButtonClick();
                 onOpenFieldJournals();
                 setIsOpen(false);
               }}
               className="hud-button"
               style={{
-                width: '56px',
-                height: '56px',
-                borderRadius: '4px',
-                backgroundColor: '#d8d4c8', // Aged paper
-                border: '2px solid #1a0f0a',
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4)',
+                width: '64px',
+                height: '64px',
+                borderRadius: '16px',
+                backgroundColor: '#d8d4c8',
+                border: '3px solid #1a0f0a',
+                boxShadow: 
+                  '0 8px 24px rgba(0, 0, 0, 0.8), ' +
+                  '0 4px 12px rgba(0, 0, 0, 0.6), ' +
+                  '0 2px 6px rgba(0, 0, 0, 0.4), ' +
+                  'inset 0 1px 0 rgba(255, 255, 255, 0.2)',
                 cursor: 'pointer',
-                fontSize: '26px',
+                fontSize: '32px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.2s ease',
                 color: '#1a0f0a',
                 position: 'relative',
-                transform: 'rotate(-0.2deg)',
+                transform: 'translateY(-4px) rotate(-0.2deg)',
                 overflow: 'hidden',
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.borderColor = '#8b0000';
-                e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.7), 0 3px 8px rgba(0, 0, 0, 0.5)';
-                e.currentTarget.style.transform = 'rotate(0.2deg) scale(1.05)';
+                e.currentTarget.style.boxShadow = 
+                  '0 12px 32px rgba(0, 0, 0, 0.9), ' +
+                  '0 6px 16px rgba(0, 0, 0, 0.7), ' +
+                  '0 3px 8px rgba(0, 0, 0, 0.5), ' +
+                  'inset 0 1px 0 rgba(255, 255, 255, 0.3)';
+                e.currentTarget.style.transform = 'translateY(-8px) scale(1.05) rotate(0.2deg)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.borderColor = '#1a0f0a';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.4)';
-                e.currentTarget.style.transform = 'rotate(-0.2deg) scale(1)';
+                e.currentTarget.style.boxShadow = 
+                  '0 8px 24px rgba(0, 0, 0, 0.8), ' +
+                  '0 4px 12px rgba(0, 0, 0, 0.6), ' +
+                  '0 2px 6px rgba(0, 0, 0, 0.4), ' +
+                  'inset 0 1px 0 rgba(255, 255, 255, 0.2)';
+                e.currentTarget.style.transform = 'translateY(-4px) scale(1) rotate(-0.2deg)';
               }}
               title="Field Journals"
             >
@@ -215,7 +261,7 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
                 backgroundImage: `url(${wrinkledpaper})`,
                 backgroundSize: 'cover',
                 mixBlendMode: 'multiply',
-                opacity: 0.3,
+                opacity: 0.4,
                 pointerEvents: 'none',
               }} />
               <div style={{
@@ -227,7 +273,7 @@ export function BackpackMenu({ onOpenInventory, onOpenCodex, onOpenFieldJournals
                 backgroundImage: `url(${dust})`,
                 backgroundSize: 'cover',
                 mixBlendMode: 'overlay',
-                opacity: 0.2,
+                opacity: 0.3,
                 pointerEvents: 'none',
               }} />
               <div style={{ position: 'relative', zIndex: 1 }}>📓</div>

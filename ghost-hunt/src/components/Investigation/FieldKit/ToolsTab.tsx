@@ -17,7 +17,7 @@ const TOOLS = [
   { toolType: 'radar' as const, name: 'Radar' },
   { toolType: 'emf' as const, name: 'EMF Meter' },
   { toolType: 'thermal' as const, name: 'Thermal' },
-  { toolType: 'audio' as const, name: 'Audio' },
+  { toolType: 'audio' as const, name: 'Spirit Box' },
   { toolType: 'camera' as const, name: 'Camera' },
 ];
 
@@ -77,45 +77,107 @@ export function ToolsTab({ onSelectTool }: ToolsTabProps) {
             gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
             gap: '16px',
           }}>
-            {TOOLS.map((item) => (
-              <div 
-                key={item.toolType} 
-                onClick={() => handleSelectTool(item.toolType)}
-                style={{
-                  background: 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  border: '2px solid #1a1a1a',
-                  boxShadow: 'inset 0 6px 16px rgba(0,0,0,0.95), inset 0 -3px 8px rgba(0,0,0,0.9)',
-                  position: 'relative',
-                  minHeight: '140px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                }}
-              >
-                {/* Foam texture */}
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  backgroundImage: `url(${foamTexture})`,
-                  backgroundSize: 'cover',
-                  mixBlendMode: 'soft-light',
-                  opacity: 0.9,
-                  pointerEvents: 'none',
-                  borderRadius: '8px',
-                }} />
-                <PhysicalToolDevice 
-                  toolType={item.toolType} 
-                  size={90}
-                  onClick={() => {}}
-                />
-              </div>
-            ))}
+            {TOOLS.map((item) => {
+              const isActive = activeTool === item.toolType;
+              return (
+                <div 
+                  key={item.toolType} 
+                  onClick={() => handleSelectTool(item.toolType)}
+                  style={{
+                    background: isActive 
+                      ? 'linear-gradient(135deg, #3a3a2a 0%, #2f2f1f 50%, #2a2a1a 100%)'
+                      : 'linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 50%, #1a1a1a 100%)',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    border: isActive 
+                      ? '3px solid #2dd4bf'
+                      : '2px solid #1a1a1a',
+                    boxShadow: isActive
+                      ? 'inset 0 6px 16px rgba(0,0,0,0.95), inset 0 -3px 8px rgba(0,0,0,0.9), 0 0 20px rgba(45, 212, 191, 0.4), 0 0 10px rgba(45, 212, 191, 0.3)'
+                      : 'inset 0 6px 16px rgba(0,0,0,0.95), inset 0 -3px 8px rgba(0,0,0,0.9)',
+                    position: 'relative',
+                    minHeight: '140px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s ease',
+                    transform: isActive ? 'scale(1.02)' : 'scale(1)',
+                  }}
+                >
+                  {/* Active indicator badge */}
+                  {isActive && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '8px',
+                      right: '8px',
+                      background: '#2dd4bf',
+                      color: '#0a0a0a',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontFamily: '"Courier New", monospace',
+                      fontSize: '9px',
+                      fontWeight: 'bold',
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      boxShadow: '0 2px 8px rgba(45, 212, 191, 0.6)',
+                      zIndex: 2,
+                    }}>
+                      ACTIVE
+                    </div>
+                  )}
+
+                  {/* Foam texture */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundImage: `url(${foamTexture})`,
+                    backgroundSize: 'cover',
+                    mixBlendMode: 'soft-light',
+                    opacity: isActive ? 0.7 : 0.9,
+                    pointerEvents: 'none',
+                    borderRadius: '8px',
+                  }} />
+
+                  {/* Tool device */}
+                  <div style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    filter: isActive ? 'drop-shadow(0 0 8px rgba(45, 212, 191, 0.5))' : 'none',
+                    transition: 'filter 0.2s ease',
+                  }}>
+                    <PhysicalToolDevice 
+                      toolType={item.toolType} 
+                      size={90}
+                      onClick={() => {}}
+                    />
+                  </div>
+
+                  {/* Tool name label */}
+                  <div style={{
+                    marginTop: '12px',
+                    fontFamily: '"Courier New", monospace',
+                    fontSize: '11px',
+                    color: isActive ? '#2dd4bf' : 'rgba(200,200,200,0.6)',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px',
+                    fontWeight: isActive ? 'bold' : 'normal',
+                    textShadow: isActive 
+                      ? '0 0 8px rgba(45, 212, 191, 0.6), 0 1px 2px rgba(0,0,0,0.8)'
+                      : '0 1px 2px rgba(0,0,0,0.8)',
+                    position: 'relative',
+                    zIndex: 1,
+                    transition: 'all 0.2s ease',
+                  }}>
+                    {item.name}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
 

@@ -1,18 +1,11 @@
-// Floating Clippy - Appears on all pages like original Microsoft Clippy
+// Floating Pengu - Investigation assistant
 import { useState, useEffect, useRef } from 'react';
-import clippyImage from '../../assets/images/agent/clippy.png';
-import clippyVideo1 from '../../assets/videos/clippy_1.mp4';
-import clippyVideo2 from '../../assets/videos/clippy_2.mp4';
-import clippyVideo3 from '../../assets/videos/clippy_3.mp4';
-import clippyVideo4 from '../../assets/videos/clippy_4.mp4';
-import clippyIdle1 from '../../assets/videos/clippy_idle_1.mp4';
-import clippyIdle2 from '../../assets/videos/clippy_idle_2.mp4';
-import clippyIdle3 from '../../assets/videos/clippy_idle_3.mp4';
-import clippyMagnifyingGlass from '../../assets/videos/clippy_magnifying_glass.mp4';
+import penguImage from '../../assets/images/agent/pengu.png';
 import wrinkledpaper from '../../assets/texture/wrinkledpaper.png';
 import dust from '../../assets/texture/dust.png';
+import { playButtonClick } from '../../utils/soundEffects';
 
-// Random tips for Clippy to share
+// Random tips for Pengu to share
 const RANDOM_TIPS = [
   'EMF readings spike near active entities',
   'Freezing temperatures often indicate presence',
@@ -43,7 +36,7 @@ const CONVERSATION_TREE: ConversationOption[] = [
   {
     id: 'greeting',
     text: 'Hello! How can I help?',
-    response: "Hi there! I'm Clippy, your investigation assistant. I'm here to help you with tips and information about ghost hunting!",
+    response: "Hi there! I'm Pengu, your investigation assistant. I'm here to help you with tips and information about ghost hunting!",
     nextOptions: [
       {
         id: 'tips',
@@ -65,7 +58,7 @@ const CONVERSATION_TREE: ConversationOption[] = [
       {
         id: 'about',
         text: 'Tell me about yourself',
-        response: "I'm Clippy, your friendly ghost hunting assistant! I've been helping investigators like you for years. I can provide tips, answer questions, and guide you through your investigations.",
+        response: "I'm Pengu, your friendly ghost hunting assistant! I've been helping investigators like you for years. I can provide tips, answer questions, and guide you through your investigations.",
         nextOptions: [
           {
             id: 'back',
@@ -90,7 +83,7 @@ const CONVERSATION_TREE: ConversationOption[] = [
   },
 ];
 
-export function FloatingClippy() {
+export function FloatingPengu() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [currentTip, setCurrentTip] = useState<string>('');
   const [isHovered, setIsHovered] = useState(false);
@@ -104,18 +97,24 @@ export function FloatingClippy() {
   const [dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null); // Only set when dragging
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const clippyRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const modalVideoRef = useRef<HTMLVideoElement>(null);
+  const penguRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true); // Track visibility for performance
   
-  // Clippy animation videos - idle animations and action animations
-  const idleVideos = [clippyIdle1, clippyIdle2, clippyIdle3];
-  const actionVideos = [clippyVideo1, clippyVideo2, clippyVideo3, clippyVideo4, clippyMagnifyingGlass];
-  const [currentActionIndex, setCurrentActionIndex] = useState(0);
-  const [currentIdleIndex, setCurrentIdleIndex] = useState(0);
-  
-  // Use showTooltip to determine if Clippy should be idle or active
-  const isIdle = !showTooltip;
+  // Visibility detection
+  useEffect(() => {
+    if (!penguRef.current) return;
+    
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const isIntersecting = entries[0]?.isIntersecting ?? true;
+        setIsVisible(isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+    
+    observer.observe(penguRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   // Get a random tip
   const getRandomTip = () => {
@@ -139,17 +138,23 @@ export function FloatingClippy() {
     }, duration);
   };
 
-  // Set up periodic tip display
+  // Set up periodic tip display - only when visible
   useEffect(() => {
+    if (!isVisible) return; // Don't run timers when not visible
+    
     // Show first tip after 8-12 seconds
     const initialDelay = 8000 + Math.random() * 4000;
     const initialTimeout = setTimeout(() => {
-      showTip();
-      
-      // Then show tips every 15-25 seconds
-      intervalRef.current = setInterval(() => {
+      if (isVisible) {
         showTip();
-      }, 15000 + Math.random() * 10000);
+        
+        // Then show tips every 15-25 seconds
+        intervalRef.current = setInterval(() => {
+          if (isVisible) {
+            showTip();
+          }
+        }, 15000 + Math.random() * 10000);
+      }
     }, initialDelay);
 
     return () => {
@@ -161,45 +166,7 @@ export function FloatingClippy() {
         clearTimeout(timeoutRef.current);
       }
     };
-  }, []);
-
-  // Cycle through action animations when speech bubble is showing
-  useEffect(() => {
-    if (showTooltip) {
-      // When speech bubble appears, cycle through action animations
-      const actionCycleInterval = setInterval(() => {
-        setCurrentActionIndex((prev) => (prev + 1) % actionVideos.length);
-      }, 3000 + Math.random() * 2000); // Change action animation every 3-5 seconds
-
-      return () => clearInterval(actionCycleInterval);
-    }
-  }, [showTooltip]);
-
-  // Randomly switch between idle animations when speech bubble is not showing
-  useEffect(() => {
-    if (!showTooltip) {
-      // When idle, randomly pick from idle animations (but not the same one twice in a row)
-      const idleCycleInterval = setInterval(() => {
-        setCurrentIdleIndex((prev) => {
-          // Get all possible indices except the current one
-          const availableIndices = idleVideos
-            .map((_, index) => index)
-            .filter((index) => index !== prev);
-          // Randomly pick from available indices
-          const randomIndex = Math.floor(Math.random() * availableIndices.length);
-          return availableIndices[randomIndex];
-        });
-      }, 4000 + Math.random() * 3000); // Change idle animation every 4-7 seconds
-
-      return () => clearInterval(idleCycleInterval);
-    }
-  }, [showTooltip]);
-
-  // Handle video end - loop it
-  const handleVideoEnd = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    e.currentTarget.currentTime = 0;
-    e.currentTarget.play();
-  };
+  }, [isVisible]);
 
   // Handle drag
   const [mouseDownPos, setMouseDownPos] = useState({ x: 0, y: 0 });
@@ -208,8 +175,8 @@ export function FloatingClippy() {
     if (e.button !== 0) return; // Only left mouse button
     e.preventDefault();
     setMouseDownPos({ x: e.clientX, y: e.clientY });
-    if (clippyRef.current) {
-      const rect = clippyRef.current.getBoundingClientRect();
+    if (penguRef.current) {
+      const rect = penguRef.current.getBoundingClientRect();
       // Calculate initial drag position based on current position
       const currentX = dragPosition ? dragPosition.x : window.innerWidth - 100; // 80px width + 20px right
       const currentY = dragPosition ? dragPosition.y : window.innerHeight - 112; // 80px height + 32px bottom
@@ -224,11 +191,11 @@ export function FloatingClippy() {
 
   useEffect(() => {
     const constrainPosition = (x: number, y: number) => {
-      const clippySize = 80;
+      const penguSize = 80;
       const padding = 20;
       return {
-        x: Math.max(padding, Math.min(window.innerWidth - clippySize - padding, x)),
-        y: Math.max(padding, Math.min(window.innerHeight - clippySize - padding, y)),
+        x: Math.max(padding, Math.min(window.innerWidth - penguSize - padding, x)),
+        y: Math.max(padding, Math.min(window.innerHeight - penguSize - padding, y)),
       };
     };
 
@@ -279,6 +246,7 @@ export function FloatingClippy() {
       setIsDragging(false);
       return;
     }
+    playButtonClick();
     e.stopPropagation();
     // Open conversation modal
     setShowConversation(true);
@@ -287,6 +255,7 @@ export function FloatingClippy() {
   };
 
   const handleOptionSelect = (option: ConversationOption) => {
+    playButtonClick();
     if (option.id === 'back' && conversationHistory.length > 0) {
       // Go back to previous conversation
       const previous = conversationHistory[conversationHistory.length - 1];
@@ -300,6 +269,7 @@ export function FloatingClippy() {
   };
 
   const handleCloseConversation = () => {
+    playButtonClick();
     setShowConversation(false);
     setCurrentConversation(null);
     setConversationHistory([]);
@@ -307,15 +277,14 @@ export function FloatingClippy() {
 
   return (
     <div
-      ref={clippyRef}
+      ref={penguRef}
       style={{
-        position: 'fixed',
+        position: dragPosition ? 'fixed' : 'relative',
         ...(dragPosition ? {
           left: `${dragPosition.x}px`,
           top: `${dragPosition.y}px`,
         } : {
-          bottom: '32px', // Align with HUD bottom (24px padding + 8px margin)
-          right: '20px',
+          // When in container, use relative positioning
         }),
         zIndex: 9999,
         cursor: isDragging ? 'grabbing' : 'grab',
@@ -323,10 +292,12 @@ export function FloatingClippy() {
         userSelect: 'none',
         width: '80px',
         height: '80px',
+        display: 'flex',
+        alignItems: 'flex-end',
       }}
       onMouseDown={handleMouseDown}
     >
-      {/* Speech Bubble - Late-90s Office Assistant (Clippy) Style */}
+      {/* Speech Bubble - Late-90s Office Assistant (Pengu) Style */}
       {showTooltip && currentTip && (
         <div
           className="clippy-bubble"
@@ -366,7 +337,7 @@ export function FloatingClippy() {
               color: '#ffffff',
               padding: '2px 0',
             }}>
-              Clippy
+              Pengu
             </div>
             <div style={{
               width: '12px',
@@ -401,7 +372,7 @@ export function FloatingClippy() {
             </p>
           </div>
 
-          {/* Tail - pointing down to Clippy (Clippy-style) */}
+          {/* Tail - pointing down to Pengu */}
           <div
             style={{
               position: 'absolute',
@@ -430,7 +401,7 @@ export function FloatingClippy() {
         </div>
       )}
 
-      {/* Clippy button - Draggable */}
+      {/* Pengu button - Draggable */}
       <div
         onClick={handleClick}
         onMouseEnter={() => setIsHovered(true)}
@@ -456,21 +427,16 @@ export function FloatingClippy() {
           overflow: 'hidden',
           pointerEvents: 'auto',
         }}
-        title="Clippy Assistant - Click to talk! Drag to move."
+        title="Pengu Assistant - Click to talk! Drag to move."
       >
-        <video
-          ref={videoRef}
-          src={isIdle ? idleVideos[currentIdleIndex] : actionVideos[currentActionIndex]}
-          autoPlay
-          loop
-          muted
-          playsInline
-          onEnded={handleVideoEnd}
-          key={isIdle ? `idle-${currentIdleIndex}` : `action-${currentActionIndex}`}
+        <img
+          src={penguImage}
+          alt="Pengu"
           style={{
             width: '100%',
             height: '100%',
             objectFit: 'cover',
+            objectPosition: 'center top',
             display: 'block',
             pointerEvents: 'none',
           }}
@@ -581,7 +547,7 @@ export function FloatingClippy() {
               ×
             </button>
 
-            {/* Clippy Image - Zoomed with analog styling */}
+            {/* Pengu Image - Zoomed with analog styling */}
             <div style={{ display: 'flex', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
               <div style={{
                 padding: '8px',
@@ -591,15 +557,9 @@ export function FloatingClippy() {
                 transform: 'rotate(1deg)',
                 boxShadow: '0 4px 12px rgba(0, 0, 0, 0.5)',
               }}>
-                <video
-                  ref={modalVideoRef}
-                  src={isIdle ? idleVideos[currentIdleIndex] : actionVideos[currentActionIndex]}
-                  autoPlay
-                  loop
-                  muted
-                  playsInline
-                  onEnded={handleVideoEnd}
-                  key={isIdle ? 'idle-modal' : `action-modal-${currentActionIndex}`}
+                <img
+                  src={penguImage}
+                  alt="Pengu"
                   style={{
                     width: '180px',
                     height: '180px',
@@ -610,7 +570,7 @@ export function FloatingClippy() {
               </div>
             </div>
 
-            {/* Clippy's Response - Typewriter style */}
+            {/* Pengu's Response - Typewriter style */}
             <div
               style={{
                 backgroundColor: '#f4f0e6',
@@ -637,7 +597,7 @@ export function FloatingClippy() {
                 fontFamily: '"Courier New", monospace',
                 letterSpacing: '0.3px',
               }}>
-                <span style={{ fontWeight: 'bold', color: '#8b0000' }}>CLIPPY:</span> {currentConversation.response}
+                <span style={{ fontWeight: 'bold', color: '#8b0000' }}>PENGU:</span> {currentConversation.response}
               </p>
             </div>
 

@@ -6,6 +6,10 @@ import dust from '../../../assets/texture/dust.png';
 import dirtyGlass from '../../../assets/texture/dirtyglass.png';
 import filmgrain from '../../../assets/texture/filmgrain.png';
 import tape from '../../../assets/texture/tape.png';
+import { useGhostRelationship } from '../../../hooks/useGhostRelationship';
+import { useInvestigationStore } from '../../../stores/investigationStore';
+import { determineCameraManifestation, calculateEMFLevel } from '../../../utils/toolBehaviors';
+import type { PhotoEntry } from '../../../stores/investigationStore';
 
 /**
  * CameraTool - Production component for Polaroid ghost camera
@@ -40,6 +44,19 @@ const CameraToolComponent = ({
   const [shutterReady, setShutterReady] = useState(true);
   const [showPhotoPreview, setShowPhotoPreview] = useState(false);
   const [viewfinderGlow, setViewfinderGlow] = useState(0.16);
+  const [screenFlash, setScreenFlash] = useState(false);
+  
+  // ✅ Use centralized ghost relationship hook (single source of truth)
+  const relationship = useGhostRelationship();
+  
+  // Get investigation store state and actions
+  const cameraLocked = useInvestigationStore((state) => state.cameraLocked);
+  const investigationFilmCount = useInvestigationStore((state) => state.filmCount);
+  const lockCamera = useInvestigationStore((state) => state.lockCamera);
+  const capturePhoto = useInvestigationStore((state) => state.capturePhoto);
+  
+  // Use investigation film count in investigation mode, prop in view mode
+  const effectiveFilmCount = mode === 'investigation' ? investigationFilmCount : filmCount;
 
   // Memoize battery calculation
   const effectiveBattery = useMemo(() => 
@@ -75,23 +92,124 @@ const CameraToolComponent = ({
 
   // Memoize shutter click handler
   const handleShutterClick = useCallback(() => {
+    // Check if camera is locked (cooldown active)
+    if (mode === 'investigation' && cameraLocked) {
+      return; // Camera is developing, don't allow capture
+    }
+    
     if (!shutterReady) return;
+    
+    // Check if we have film
+    if (mode === 'investigation' && effectiveFilmCount <= 0) {
+      return; // No film available
+    }
     
     setShutterReady(false);
     setShowPhotoPreview(true);
     setViewfinderGlow(0.35);
+    setScreenFlash(true);
     
-    // Call onCapture callback if in investigation mode
-    if (mode === 'investigation' && onCapture) {
+    // Investigation mode: Capture photo with manifestation
+    if (mode === 'investigation' && relationship.isValid && relationship.ghostBehavior) {
+      // ✅ Use centralized relationship data
+      const distance = relationship.distance;
+      const manifestations = relationship.ghostBehavior.cameraManifestations || [];
+      const emfPersonality = relationship.ghostBehavior.emfPersonality;
+      
+      // ✅ Calculate EMF level to check if ghost is close enough
+      const emfLevel = calculateEMFLevel(distance, emfPersonality);
+      
+      // ✅ Check if ghost is RIGHT in front (narrow cone ±15°)
+      // relativeBearing: 0° = straight ahead, 180° = directly behind, 360° = also straight ahead
+      const relativeBearing = relationship.relativeBearing;
+      // Calculate angle difference from straight ahead (0°)
+      // Handle wraparound: 350° is only 10° away from 0° (wraps around)
+      let angleDiff: number;
+      if (relativeBearing <= 180) {
+        angleDiff = relativeBearing; // 0-180°: difference is just the bearing
+      } else {
+        angleDiff = 360 - relativeBearing; // 180-360°: difference wraps around (e.g., 350° = 10° from 0°)
+      }
+      const isRightInFront = angleDiff <= 15; // Within ±15° of straight ahead
+      
+      // ✅ Camera requirements:
+      // 1. Ghost must be RIGHT in front (within ±15°)
+      // 2. EMF level must be 3-5 (ghost is close enough)
+      let manifestation: string | null = null;
+      
+      if (isRightInFront && emfLevel >= 3 && emfLevel <= 5) {
+        // Ghost is right in front AND EMF is 3-5 - use normal probability logic
+        const manifestationResult = determineCameraManifestation(distance, manifestations);
+        manifestation = manifestationResult ? manifestationResult : null;
+      } else {
+        // Ghost is not right in front OR EMF is too low - zero chance of manifestation
+        manifestation = null;
+      }
+      
+      // Create photo entry with 'developing' status
+      // Manifestation will be revealed after 7 seconds
+      const photoEntry: PhotoEntry = {
+        id: `photo-${Date.now()}-${Math.random()}`,
+        timestamp: Date.now(),
+        distance: Math.round(distance * 10) / 10, // Round to 1 decimal
+        manifestation: manifestation, // Stored but hidden until status is 'ready'
+        status: 'developing', // Photo is developing, manifestation hidden
+      };
+      
+      // Store photo in investigation store (this also decrements film count)
+      capturePhoto(photoEntry);
+      
+      // Lock camera for 7 seconds
+      lockCamera();
+      
+      console.log('📸 Photo captured:', {
+        distance: distance.toFixed(1) + 'm',
+        bearing: relationship.bearing.toFixed(1) + '°',
+        relativeBearing: relationship.relativeBearing.toFixed(1) + '°',
+        isRightInFront: isRightInFront,
+        emfLevel: emfLevel,
+        emfRequirement: emfLevel >= 3 && emfLevel <= 5 ? '✓' : '✗',
+        manifestation: manifestation || 'Nothing captured (not in front or EMF too low)',
+        filmRemaining: effectiveFilmCount - 1,
+      });
+    }
+    
+    // Call onCapture callback if provided
+    if (onCapture) {
       onCapture();
     }
     
+    // Screen flash effect
     setTimeout(() => {
+      setScreenFlash(false);
       setViewfinderGlow(0.16);
+    }, 200);
+    
+    // Reset shutter ready after animation
+    setTimeout(() => {
       setShutterReady(true);
       setTimeout(() => setShowPhotoPreview(false), 4000);
     }, 500);
-  }, [shutterReady, mode, onCapture]);
+  }, [
+    shutterReady,
+    mode,
+    onCapture,
+    cameraLocked,
+    effectiveFilmCount,
+    relationship.isValid,
+    relationship.distance,
+    relationship.ghostBehavior,
+    capturePhoto,
+    lockCamera,
+  ]);
+  
+  // Determine if shutter should be disabled
+  const isShutterDisabled = mode === 'investigation' 
+    ? (cameraLocked || effectiveFilmCount <= 0 || !relationship.isValid)
+    : !shutterReady;
+  
+  // Determine developing status
+  const isDeveloping = mode === 'investigation' && cameraLocked;
 
   return (
     <>
@@ -130,8 +248,30 @@ const CameraToolComponent = ({
         width: '100vw',
         height: '100vh',
         overflow: 'hidden',
-        background: '#0a0a0a',
+        background: screenFlash ? '#ffffff' : '#0a0a0a',
+        transition: 'background 0.2s ease',
       }}>
+        
+        {/* DEVELOPING... Overlay */}
+        {isDeveloping && (
+          <div style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            zIndex: 100,
+            fontFamily: '"Courier New", monospace',
+            fontSize: '32px',
+            color: '#ffff00',
+            textShadow: '0 0 20px #ffff00, 0 0 10px rgba(255,255,0,0.8)',
+            letterSpacing: '4px',
+            fontWeight: 'bold',
+            animation: 'blink 1s infinite',
+            pointerEvents: 'none',
+          }}>
+            DEVELOPING...
+          </div>
+        )}
         
         {/* MAIN DEVICE BODY - Full-frame vertical Polaroid camera shape */}
         <div style={{
@@ -626,10 +766,10 @@ const CameraToolComponent = ({
                 width: '80px',
                 height: '80px',
                 borderRadius: '50%',
-                background: shutterReady 
+                background: !isShutterDisabled
                   ? 'radial-gradient(circle at 30% 30%, #ff8844 0%, #ff6622 40%, #cc4400 100%)'
                   : 'radial-gradient(circle at 30% 30%, #884422 0%, #663311 40%, #442200 100%)',
-                boxShadow: shutterReady
+                boxShadow: !isShutterDisabled
                   ? `
                     inset 0 2px 4px rgba(255,255,255,0.3),
                     inset 0 -3px 6px rgba(0,0,0,0.8),
@@ -641,10 +781,11 @@ const CameraToolComponent = ({
                     inset 0 -2px 4px rgba(255,255,255,0.1),
                     0 2px 6px rgba(0,0,0,0.8)
                   `,
-                cursor: shutterReady ? 'pointer' : 'not-allowed',
+                cursor: !isShutterDisabled ? 'pointer' : 'not-allowed',
                 transition: 'all 0.2s',
                 zIndex: 20,
                 border: '3px solid rgba(0,0,0,0.6)',
+                opacity: isShutterDisabled ? 0.5 : 1,
               }}
             >
               {/* Shutter icon */}
@@ -669,13 +810,31 @@ const CameraToolComponent = ({
               width: '12px',
               height: '12px',
               borderRadius: '50%',
-              background: shutterReady ? '#00ff00' : '#ff0000',
-              boxShadow: shutterReady 
+              background: !isShutterDisabled ? '#00ff00' : '#ff0000',
+              boxShadow: !isShutterDisabled
                 ? '0 0 12px #00ff00, inset 0 1px 2px rgba(255,255,255,0.3)'
                 : '0 0 12px #ff0000, inset 0 1px 2px rgba(255,255,255,0.3)',
-              animation: shutterReady ? 'none' : 'blink 0.5s infinite',
+              animation: !isShutterDisabled ? 'none' : 'blink 0.5s infinite',
               zIndex: 20,
             }} />
+            
+            {/* Film Counter */}
+            {mode === 'investigation' && (
+              <div style={{
+                position: 'absolute',
+                bottom: '12%',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                fontFamily: '"Courier New", monospace',
+                fontSize: '14px',
+                color: effectiveFilmCount <= 0 ? '#ff0000' : '#00ff00',
+                textShadow: `0 0 8px ${effectiveFilmCount <= 0 ? '#ff0000' : '#00ff00'}`,
+                letterSpacing: '2px',
+                zIndex: 20,
+              }}>
+                FILM: {effectiveFilmCount}
+              </div>
+            )}
 
             {/* DAMAGE & WEAR ELEMENTS */}
             

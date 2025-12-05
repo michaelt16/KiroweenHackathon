@@ -124,16 +124,19 @@ button:active {
 .player-marker {
   filter: drop-shadow(0 0 12px rgba(45, 212, 191, 0.8));
   animation: playerGlow 2s ease-in-out infinite;
+  will-change: filter, transform;
   z-index: 1000 !important;
 }
 
 .player-marker-ring {
   animation: playerRingPulse 2s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 .player-marker-core {
   filter: drop-shadow(0 0 8px rgba(94, 234, 212, 1));
   animation: playerCorePulse 1.5s ease-in-out infinite;
+  will-change: opacity, filter;
   z-index: 1001 !important;
 }
 
@@ -173,10 +176,12 @@ button:active {
 /* Collection radius animations */
 .collection-radius-main {
   animation: collectionRadiusPulse 3s ease-in-out infinite;
+  will-change: opacity;
 }
 
 .collection-radius-glow {
   animation: collectionGlowPulse 3s ease-in-out infinite;
+  will-change: opacity, transform;
 }
 
 @keyframes collectionRadiusPulse {
@@ -199,11 +204,11 @@ button:active {
   }
 }
 
-/* When icons are in range, counteract parent filter and add strong boost for pop */
+/* When icons are in range, counteract parent filter and add subtle boost for visibility */
 .supply-icon-in-range,
 .hotspot-in-range,
 .hotspot-in-range span {
-  filter: brightness(1.4) saturate(3.2) contrast(1.25) !important;
+  filter: brightness(1.1) saturate(1.6) contrast(1.1) !important;
 }
 
 
@@ -232,6 +237,7 @@ button:active {
 /* Hotspot marker styles */
 .hotspot-marker-circle {
   animation: hotspotPulse 3s ease-in-out infinite;
+  will-change: transform, box-shadow;
 }
 
 @keyframes hotspotPulse {
@@ -297,4 +303,15 @@ button:active {
     filter: drop-shadow(0 0 40px currentColor) drop-shadow(0 0 25px currentColor);
     transform: scale(1.05);
   }
+}
+
+/* Add will-change to animated elements for GPU acceleration */
+.supply-icon-in-range,
+.hotspot-in-range {
+  will-change: filter, transform;
+}
+
+/* Hide UI elements when journal modal is open */
+body.journal-modal-open [data-hud-container] {
+  display: none !important;
 }

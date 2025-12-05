@@ -50,7 +50,7 @@ function preloadTexture(src: string): Promise<HTMLImageElement> {
     const img = new Image();
     
     img.onload = () => {
-      console.log(`✅ Texture loaded: ${src}`);
+      // Removed log for cleaner console
       resolve(img);
     };
     

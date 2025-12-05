@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="200" height="300">
+  <!-- Onyx: Deep shadow, subterranean, dense darkness -->
+  
+  <!-- Dense shadow base - very dark -->
+  <ellipse cx="100" cy="200" rx="70" ry="80" fill="#0a0a0a" opacity="0.95" />
+  
+  <!-- Rising shadow form -->
+  <path d="M 30 280 Q 50 220 70 160 Q 80 120 90 80 L 100 40 L 110 80 Q 120 120 130 160 Q 150 220 170 280 Z" 
+        fill="#0a0a0a" opacity="0.9" />
+  
+  <!-- Dense core -->
+  <ellipse cx="100" cy="140" rx="50" ry="70" fill="#000000" opacity="1" />
+  
+  <!-- Head emerging from shadow -->
+  <ellipse cx="100" cy="50" rx="35" ry="40" fill="#0a0a0a" opacity="0.95" />
+  
+  <!-- Deep void eyes -->
+  <ellipse cx="88" cy="45" rx="6" ry="9" fill="#000000" opacity="1" />
+  <ellipse cx="112" cy="45" rx="6" ry="9" fill="#000000" opacity="1" />
+  
+  <!-- Shadow tendrils reaching down -->
+  <path d="M 60 240 Q 50 260 40 285" stroke="#0a0a0a" stroke-width="18" fill="none" opacity="0.9" />
+  <path d="M 80 250 Q 75 270 70 290" stroke="#0a0a0a" stroke-width="16" fill="none" opacity="0.85" />
+  <path d="M 100 255 Q 100 275 100 295" stroke="#0a0a0a" stroke-width="20" fill="none" opacity="0.9" />
+  <path d="M 120 250 Q 125 270 130 290" stroke="#0a0a0a" stroke-width="16" fill="none" opacity="0.85" />
+  <path d="M 140 240 Q 150 260 160 285" stroke="#0a0a0a" stroke-width="18" fill="none" opacity="0.9" />
+  
+  <!-- Grasping shadow arms -->
+  <path d="M 65 120 Q 35 140 15 160" stroke="#0a0a0a" stroke-width="15" fill="none" opacity="0.85" />
+  <path d="M 135 120 Q 165 140 185 160" stroke="#0a0a0a" stroke-width="15" fill="none" opacity="0.85" />
+  
+  <!-- Additional shadow depth -->
+  <ellipse cx="100" cy="180" rx="45" ry="55" fill="#000000" opacity="0.7" />
+</svg>

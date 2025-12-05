@@ -25,13 +25,6 @@ const GHOST_INFO: Record<GhostType, { traits: string[] }> = {
       '📷 Camera distortion frequent',
     ],
   },
-  Peccy: {
-    traits: [
-      '🟠 Friendly orange glow',
-      '⚡ High EMF from excitement',
-      '📷 Appears in photos',
-    ],
-  },
 };
 
 export function DeductionUI() {
@@ -39,7 +32,7 @@ export function DeductionUI() {
   const [selectedGhost, setSelectedGhost] = useState<GhostType | null>(null);
   const [showResult, setShowResult] = useState(false);
 
-  const allGhosts: GhostType[] = ['Wraith', 'Shade', 'Poltergeist'];
+  const allGhosts: GhostType[] = ['Wraith', 'Shade', 'Poltergeist', 'Banshee', 'Phantom', 'Onyx', 'Trickster'];
 
   const handleConfirm = () => {
     if (!selectedGhost) return;
@@ -86,7 +79,7 @@ export function DeductionUI() {
         </p>
         {isCorrect && (
           <p style={{ fontSize: 'clamp(14px, 4vw, 18px)', opacity: 0.8 }}>
-            Clippy is performing the banishment ritual...
+            Pengu is performing the banishment ritual...
           </p>
         )}
       </div>

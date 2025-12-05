@@ -1,6 +1,9 @@
 // Debug overlay for monitoring sensor data and performance
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import type { GPSPosition } from '../../utils/gps';
+import { useInvestigationStore } from '../../stores/investigationStore';
+import { useGhostRelationship } from '../../hooks/useGhostRelationship';
+import { calculateEMFLevel } from '../../utils/toolBehaviors';
 
 interface DebugOverlayProps {
   playerPosition: GPSPosition | null;
@@ -26,6 +29,45 @@ export function DebugOverlay({
   sanity,
 }: DebugOverlayProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  
+  // ✅ Use centralized ghost relationship hook (single source of truth)
+  const relationship = useGhostRelationship();
+  
+  // Calculate current EMF level from centralized relationship
+  const emfData = useMemo(() => {
+    if (!relationship.isValid || !relationship.ghostBehavior) {
+      return null;
+    }
+    
+    // ✅ Use centralized relationship data
+    const distance = relationship.distance;
+    const emfLevel = calculateEMFLevel(distance);
+    
+    return {
+      level: emfLevel,
+      distance,
+    };
+  }, [relationship.isValid, relationship.distance]);
+  
+  // EMF level descriptions (distance-based only)
+  const emfLevelInfo: Record<number, string> = {
+    0: 'No signal (>40m)',
+    1: 'Weak signal (20-40m)',
+    2: 'Moderate signal (10-20m)',
+    3: 'Strong signal (6-10m)',
+    4: 'Very strong (3-6m)',
+    5: 'Maximum (<3m)',
+  };
+  
+  // Distance thresholds for EMF levels
+  const emfThresholds = [
+    { level: 5, distance: '<3m' },
+    { level: 4, distance: '3-6m' },
+    { level: 3, distance: '6-10m' },
+    { level: 2, distance: '10-20m' },
+    { level: 1, distance: '20-40m' },
+    { level: 0, distance: '>40m' },
+  ];
 
   if (!isExpanded) {
     return (
@@ -180,20 +222,25 @@ export function DebugOverlay({
         <div style={{ color: '#fca5a5', fontWeight: 'bold', marginBottom: '6px' }}>
           👻 Ghost Data
         </div>
-        {ghostPosition ? (
+        {relationship.isValid ? (
           <>
             <div style={{ color: '#fecaca' }}>
-              Distance: {ghostDistance.toFixed(1)}m
+              Distance: {relationship.distance.toFixed(1)}m
             </div>
             <div style={{ color: '#fecaca' }}>
-              Bearing: {ghostBearing.toFixed(1)}°
+              Bearing: {relationship.bearing.toFixed(1)}°
             </div>
             <div style={{ color: '#64748b', fontSize: '9px', marginTop: '4px' }}>
-              {getCardinalDirection(ghostBearing)}
+              {getCardinalDirection(relationship.bearing)}
             </div>
             {playerHeading !== null && (
               <div style={{ color: '#fca5a5', marginTop: '4px' }}>
-                Relative: {getRelativeAngle(ghostBearing, playerHeading).toFixed(1)}°
+                Relative: {relationship.relativeBearing.toFixed(1)}°
+              </div>
+            )}
+            {relationship.ghostType && (
+              <div style={{ color: '#fecaca', marginTop: '4px', fontSize: '9px' }}>
+                Type: {relationship.ghostType}
               </div>
             )}
           </>
@@ -201,6 +248,56 @@ export function DebugOverlay({
           <div style={{ color: '#ef4444' }}>Ghost not spawned</div>
         )}
       </div>
+
+      {/* EMF Section */}
+      {emfData && (
+        <div
+          style={{
+            marginBottom: '12px',
+            padding: '8px',
+            backgroundColor: 'rgba(251, 191, 36, 0.1)',
+            borderRadius: '6px',
+            border: `2px solid ${
+              emfData.level >= 4 
+                ? 'rgba(239, 68, 68, 0.5)' 
+                : emfData.level >= 2 
+                ? 'rgba(251, 191, 36, 0.5)' 
+                : 'rgba(34, 197, 94, 0.5)'
+            }`,
+          }}
+        >
+          <div style={{ color: '#fbbf24', fontWeight: 'bold', marginBottom: '6px' }}>
+            ⚡ EMF Meter
+          </div>
+          <div style={{ color: '#fef3c7', fontSize: '16px', fontWeight: 'bold', marginBottom: '4px' }}>
+            Level: {emfData.level}/5
+          </div>
+          <div style={{ color: '#fde68a', marginBottom: '4px' }}>
+            Distance: {emfData.distance.toFixed(1)}m
+          </div>
+          <div style={{ 
+            marginTop: '6px', 
+            paddingTop: '6px', 
+            borderTop: '1px solid rgba(251, 191, 36, 0.3)',
+            fontSize: '9px',
+          }}>
+            <div style={{ color: '#fde68a', marginBottom: '4px', fontWeight: 'bold' }}>
+              Distance Thresholds:
+            </div>
+            {emfThresholds.map((threshold) => (
+              <div 
+                key={threshold.level}
+                style={{ 
+                  color: threshold.level === emfData.level ? '#fbbf24' : '#fde68a',
+                  fontWeight: threshold.level === emfData.level ? 'bold' : 'normal',
+                }}
+              >
+                Level {threshold.level}: {threshold.distance}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Game State Section */}
       {(ghostType || sanity !== undefined) && (

@@ -1,5 +1,6 @@
 // Journal Reading Modal - Full reading interface when journal is collected
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { EvidencePage } from './analog/templates/EvidencePage';
 import { HandwrittenText } from './analog/elements/HandwrittenText';
 import { TypewrittenText } from './analog/elements/TypewrittenText';
@@ -16,6 +17,14 @@ interface JournalReadingModalProps {
 
 export function JournalReadingModal({ journal, onClose, onAddToCollection }: JournalReadingModalProps) {
   const [currentPage, setCurrentPage] = useState(0);
+  
+  // Add/remove body class to hide UI elements when modal is open
+  React.useEffect(() => {
+    document.body.classList.add('journal-modal-open');
+    return () => {
+      document.body.classList.remove('journal-modal-open');
+    };
+  }, []);
   
   // Split content into pages (similar to FieldJournalsScreen)
   const getPages = (entry: JournalEntry) => {
@@ -52,7 +61,7 @@ export function JournalReadingModal({ journal, onClose, onAddToCollection }: Jou
   const pages = getPages(journal);
   const notesPerPage = 3;
   
-  return (
+  const modalContent = (
     <div
       style={{
         position: 'fixed',
@@ -60,53 +69,56 @@ export function JournalReadingModal({ journal, onClose, onAddToCollection }: Jou
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.95)',
-        zIndex: 10000,
+        width: '100vw',
+        height: '100vh',
+        backgroundColor: '#1a0f0a', // Full opaque background
+        zIndex: 999999, // Extremely high z-index to be above everything (HUD, Pengu, etc.)
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '20px',
-        overflowY: 'auto',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        pointerEvents: 'auto', // Block all interactions
+        isolation: 'isolate', // Create new stacking context
       }}
-      onClick={onClose}
     >
-      <div
+      {/* Close button */}
+      <button
+        onClick={onClose}
         style={{
-          maxWidth: '900px',
-          width: '100%',
-          maxHeight: '90vh',
-          position: 'relative',
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          width: '50px',
+          height: '50px',
+          borderRadius: '50%',
+          backgroundColor: '#8b0000',
+          color: '#f4f0e6',
+          border: '2px solid #1a0f0a',
+          fontSize: '28px',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontFamily: 'monospace',
+          zIndex: 100000,
+          boxShadow: '0 4px 8px rgba(0,0,0,0.5)',
         }}
-        onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '-50px',
-            right: '0',
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            backgroundColor: '#8b0000',
-            color: '#f4f0e6',
-            border: '2px solid #1a0f0a',
-            fontSize: '24px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontFamily: 'monospace',
-            zIndex: 10001,
-          }}
-        >
-          ✕
-        </button>
-        
-        {/* Journal Content */}
+        ✕
+      </button>
+      
+      {/* Journal Content - Full Screen */}
+      <div style={{
+        width: '100%',
+        height: '100%',
+        overflowY: 'auto',
+        padding: '40px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}>
         <div style={{
-          maxWidth: window.innerWidth < 768 ? '100%' : '600px',
+          width: '100%',
+          maxWidth: '900px',
           margin: '0 auto',
         }}>
           <EvidencePage investigationId={journal.id + '-reading-' + currentPage}>
@@ -173,9 +185,10 @@ export function JournalReadingModal({ journal, onClose, onAddToCollection }: Jou
                     return (
                       <div key={index} style={{ marginBottom: '20px' }}>
                         <HandwrittenText 
-                          urgency={journal.agentStatus === 'DECEASED' ? 'frantic' : 'urgent'} 
-                          fontSize="16px"
-                          color={journal.agentStatus === 'DECEASED' ? '#8b0000' : '#1a0f0a'}
+                          urgency={journal.agentStatus === 'DECEASED' || journal.threatLevel === 'EXTREME' ? 'frantic' : journal.threatLevel === 'HIGH' ? 'urgent' : 'calm'} 
+                          fontSize={journal.agentStatus === 'DECEASED' || journal.threatLevel === 'EXTREME' ? '24px' : journal.threatLevel === 'HIGH' ? '20px' : '18px'}
+                          color={journal.agentStatus === 'DECEASED' ? '#cc0000' : journal.threatLevel === 'EXTREME' ? '#8b0000' : '#1a0f0a'}
+                          style={{ lineHeight: journal.threatLevel === 'EXTREME' ? '1.4' : '1.6' }}
                         >
                           {note}
                         </HandwrittenText>
@@ -322,5 +335,8 @@ export function JournalReadingModal({ journal, onClose, onAddToCollection }: Jou
       </div>
     </div>
   );
+  
+  // Render modal at document.body level using Portal to escape all parent wrappers
+  return createPortal(modalContent, document.body);
 }
 

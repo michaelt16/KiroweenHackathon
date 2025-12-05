@@ -29,6 +29,7 @@ import { RadarToolMock } from './tools/RadarToolMock';
 import { EMFMeterMock } from './tools/EMFMeterMock';
 import { ThermalScannerMock } from './tools/ThermalScannerMock';
 import { SpiritBoxMock } from './tools/SpiritBoxMock';
+import { SpiritBoxQuestionTest } from './tools/SpiritBoxQuestionTest';
 import { CameraViewfinderMock } from './tools/CameraViewfinderMock';
 import { RadarToolTest } from './tools/RadarToolTest';
 import { IconVariationsMock } from './IconVariationsMock';
@@ -40,7 +41,7 @@ import { LEDBoostGaugeDemo } from './LEDBoostGaugeDemo';
 import { AnalogCharmsIndicatorDemo } from './AnalogCharmsIndicatorDemo';
 import { InvestigationDrawerMock } from './InvestigationDrawerMock';
 
-type Screen = 'profile' | 'codex' | 'investigation' | 'map' | 'horror-ghost' | 'horror-notes' | 'horror-evidence' | 'horror-id' | 'horror-id-texture' | 'horror-map' | 'horror-codex' | 'horror-investigation' | 'example-codex' | 'example-report' | 'example-case' | 'codex-journal' | 'component-system' | 'investigation-log' | 'ghost-codex-book' | 'profile-cork' | 'profile-clipboard' | 'media-1' | 'media-2' | 'media-3' | 'media-4' | 'tool-radar' | 'tool-radar-test' | 'tool-emf' | 'tool-thermal' | 'tool-spirit' | 'tool-camera' | 'icon-variations' | 'map-variations' | 'corkboard-map' | 'physical-tool-device-test' | 'mechanical-film-counter' | 'led-boost-gauge' | 'analog-charms-indicator' | 'investigation-drawer';
+type Screen = 'profile' | 'codex' | 'investigation' | 'map' | 'horror-ghost' | 'horror-notes' | 'horror-evidence' | 'horror-id' | 'horror-id-texture' | 'horror-map' | 'horror-codex' | 'horror-investigation' | 'example-codex' | 'example-report' | 'example-case' | 'codex-journal' | 'component-system' | 'investigation-log' | 'ghost-codex-book' | 'profile-cork' | 'profile-clipboard' | 'media-1' | 'media-2' | 'media-3' | 'media-4' | 'tool-radar' | 'tool-radar-test' | 'tool-emf' | 'tool-thermal' | 'tool-spirit' | 'tool-spirit-test' | 'tool-camera' | 'icon-variations' | 'map-variations' | 'corkboard-map' | 'physical-tool-device-test' | 'mechanical-film-counter' | 'led-boost-gauge' | 'analog-charms-indicator' | 'investigation-drawer';
 type Style = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
 
 export function PlaygroundRouter() {
@@ -520,6 +521,19 @@ export function PlaygroundRouter() {
               📻 Spirit Box
             </button>
             <button
+              onClick={() => setActiveScreen('tool-spirit-test')}
+              style={{
+                padding: '8px 16px',
+                background: activeScreen === 'tool-spirit-test' ? '#22c55e' : '#333',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              📻 Spirit Box (Q&A)
+            </button>
+            <button
               onClick={() => setActiveScreen('tool-camera')}
               style={{
                 padding: '8px 16px',
@@ -712,6 +726,7 @@ export function PlaygroundRouter() {
         {activeScreen === 'tool-emf' && <EMFMeterMock />}
         {activeScreen === 'tool-thermal' && <ThermalScannerMock />}
         {activeScreen === 'tool-spirit' && <SpiritBoxMock />}
+        {activeScreen === 'tool-spirit-test' && <SpiritBoxQuestionTest />}
         {activeScreen === 'tool-camera' && <CameraViewfinderMock />}
         {activeScreen === 'physical-tool-device-test' && <PhysicalToolDeviceTest />}
         {activeScreen === 'mechanical-film-counter' && <MechanicalFilmCounterDemo />}

@@ -12,11 +12,11 @@ interface HotspotMarkerProps {
 
 // Create custom icon for hotspots
 const getHotspotIcon = (inRange: boolean) => {
-  // When in range, counteract parent filter and add strong boost for pop
+  // When in range, counteract parent filter and add subtle boost for visibility
   // Parent filter: saturate(0.6) brightness(0.92)
-  // To get back to normal with strong boost: saturate(3.2) brightness(1.4)
+  // Reduced brightness and saturation for less glare
   const brightnessBoost = inRange 
-    ? `filter: brightness(1.4) saturate(3.2) contrast(1.25) drop-shadow(0 0 20px rgba(167, 139, 250, 0.9)) drop-shadow(0 0 10px rgba(167, 139, 250, 0.6)) !important;`
+    ? `filter: brightness(1.1) saturate(1.6) contrast(1.1) drop-shadow(0 0 12px rgba(167, 139, 250, 0.4)) drop-shadow(0 0 6px rgba(167, 139, 250, 0.3)) !important;`
     : `filter: brightness(1) saturate(1);`;
   
   const size = inRange ? 68 : 52; // Larger when in range
@@ -32,7 +32,7 @@ const getHotspotIcon = (inRange: boolean) => {
         border-radius: 50%;
         background-color: #a78bfa;
         border: ${borderSize}px solid rgba(167, 139, 250, 0.6);
-        box-shadow: 0 0 35px rgba(167, 139, 250, 1), 0 0 20px rgba(167, 139, 250, 0.8), 0 4px 12px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 0 20px rgba(167, 139, 250, 0.5), 0 0 12px rgba(167, 139, 250, 0.4), 0 4px 12px rgba(0, 0, 0, 0.5);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -47,7 +47,7 @@ const getHotspotIcon = (inRange: boolean) => {
           position: absolute;
           width: ${outerRingSize}px;
           height: ${outerRingSize}px;
-          border: 2px solid rgba(167, 139, 250, 0.5);
+          border: 2px solid rgba(167, 139, 250, 0.4);
           border-radius: 50%;
           top: 50%;
           left: 50%;

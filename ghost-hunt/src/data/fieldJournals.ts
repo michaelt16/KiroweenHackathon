@@ -1,330 +1,491 @@
-// Field Journal entries data
+// Field Journal entries data - Generated from ghostStore with behavioral hints
 import type { JournalEntry } from '../types/game';
-import ghost1Image from '../assets/images/ghost1.png';
-import ghost2Image from '../assets/images/ghost2.png';
+import { GhostType } from '../stores/ghostStore';
+import type { GhostData } from '../stores/ghostStore';
+import WraithImage from '../assets/images/ghosts/Wraith.png';
+import ShadeImage from '../assets/images/ghosts/Shade.png';
+import PoltergeistImage from '../assets/images/ghosts/Poltergeist.png';
+import BansheeImage from '../assets/images/ghosts/Banshee.png';
+import PhantomImage from '../assets/images/ghosts/Phantom.png';
+import OnyxImage from '../assets/images/ghosts/Onyx.png';
+import TricksterImage from '../assets/images/ghosts/Trickster.png';
 
-// Field Journal entries - Many pre-written stories for rare collection
-// These are cursed files, agent deaths, and horror investigation logs
-export const MOCK_JOURNALS: JournalEntry[] = [
-  {
-    id: 'journal-001',
-    date: '11/15/2024',
-    location: 'Whitmore Estate',
-    agentName: 'Agent Morrison',
-    agentStatus: 'MISSING',
-    threatLevel: 'HIGH',
-    notes: [
-      'Arrived on site at 21:30. Temperature outside: 8°C. Clear night.',
-      'Initial sweep of ground floor revealed no anomalies. EMF baseline: 0.2-0.4.',
-      '22:15 - First contact. EMF spike to 4.8 in second floor hallway.',
-      'Temperature dropped to -2°C within 30 seconds. Breath visible. Equipment functioning normally.',
-      'Heard distinct footsteps above me. No one else in building.',
-      '22:47 - Camera captured anomaly in bedroom. Shadow figure near window.',
-      'Spirit box session yielded three distinct responses. Voice pattern matches previous recordings.',
-      '23:30 - ENTITY BECAME HOSTILE. All doors slammed simultaneously.',
-      'Lights failed. Backup flashlight only. Evacuated immediately.',
-    ],
-    evidence: ['EMF Level 5', 'Freezing Temps', 'Spirit Box Response', 'Photo Evidence'],
-    photos: [ghost1Image],
-    finalEntry: 'Last transmission: 23:45. Agent Morrison failed to check in. Search team found this journal in the master bedroom. No sign of agent. File marked MISSING.',
-  },
-  {
-    id: 'journal-002',
-    date: '11/20/2024',
-    location: 'Oakwood Cemetery',
-    agentName: 'Agent Rodriguez',
-    agentStatus: 'DECEASED',
-    threatLevel: 'EXTREME',
-    notes: [
-      '23:45 - Arrived on site. Fog rolling in. Visibility poor. Temperature: 4°C',
-      '00:12 - EMF spike detected! Reading: 4.7 near Morrison plot',
-      '00:18 - Sudden temp drop. Now at -6°C. Breath visible. Equipment functioning.',
-      '00:32 - HEARD CHILDREN LAUGHING. NO CHILDREN PRESENT. CEMETERY CLOSED AT NIGHT',
-      'Spirit box session: "GET OUT" - "LEAVE US" - "NOT WELCOME". Multiple entities confirmed.',
-      '00:51 - SITUATION ESCALATING. Footsteps behind me. Shadow figures moving between graves. EMF now at 5.0',
-      '01:03 - Flashlight flickering. Camera battery draining fast. Down to 12% from full charge.',
-      '01:15 - DIRECT CONTACT. Something touched my shoulder. Turned around - nothing there.',
-    ],
-    evidence: ['EMF Level 5', 'Freezing Temps', 'Spirit Box', 'Photo Evidence', 'Direct Contact'],
-    photos: [ghost1Image, ghost2Image],
-    finalEntry: 'Agent Rodriguez found deceased at 01:47 AM. This journal recovered from scene. Cause of death: Unknown. Autopsy inconclusive. File marked DECEASED. DO NOT RETURN TO THIS LOCATION.',
-  },
-  {
-    id: 'journal-003',
-    date: '11/22/2024',
-    location: 'Hillcrest Manor',
-    agentName: 'Agent Chen',
-    agentStatus: 'RETIRED',
-    threatLevel: 'EXTREME',
-    notes: [
-      '20:00 - Arrived with team of 3. Previous agent went missing here last month.',
-      '20:30 - Basement sweep. Found old case files. Something is wrong with this place.',
-      '21:15 - EMF readings erratic. Jumping between 0.5 and 4.2. Equipment malfunctioning?',
-      '21:45 - Team member Sarah reported seeing shadow in hallway. Investigation continues.',
-      '22:20 - MULTIPLE ENTITIES CONFIRMED. Sanity dropping rapidly. Team morale low.',
-      '22:50 - Sarah collapsed. Unconscious. Evacuated immediately. Investigation incomplete.',
-      '23:10 - Back at base. Sarah in medical. Refuses to speak about what she saw.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Fingerprints', 'Ghost Orbs', 'Multiple Entities'],
-    photos: [ghost1Image, ghost2Image],
-    finalEntry: 'Agent Chen submitted resignation effective immediately. Cited "mental health concerns" and "unsafe working conditions". File marked RETIRED. Location marked EXTREME THREAT. All future investigations require clearance level 5+ and minimum team of 4.',
-  },
-  {
-    id: 'journal-004',
-    date: '10/28/2024',
-    location: 'Ravenwood Asylum',
-    agentName: 'Agent Thompson',
-    agentStatus: 'MISSING',
-    threatLevel: 'EXTREME',
-    notes: [
-      '19:00 - Solo investigation. Building condemned since 1987. No backup available.',
-      '19:30 - Basement access found. Stairs creaking. Temperature normal.',
-      '20:15 - EMF reading 0.3. Nothing unusual yet. Proceeding to second floor.',
-      '20:45 - HEARD WHISPERING. "They never left. We never left." Spirit box picking up multiple voices.',
-      '21:20 - Doors locking behind me. Cannot exit. Phone signal lost.',
-      '21:45 - Shadow figures in hallway. EMF spiking to 5.0. Temperature dropping rapidly.',
-      '22:10 - Camera showing orbs everywhere. Too many to count. This is wrong.',
-      '22:30 - Something is following me. Footsteps matching mine. Turning around - nothing.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Ghost Orbs', 'Freezing Temps', 'Photo Evidence'],
-    photos: [ghost1Image],
-    finalEntry: 'Agent Thompson last seen entering Ravenwood Asylum at 19:00. Search team found this journal in the third floor hallway. Building searched thoroughly. No sign of agent. File marked MISSING. Location marked EXTREME THREAT - DO NOT ENTER ALONE.',
-  },
-  {
-    id: 'journal-005',
-    date: '11/05/2024',
-    location: 'Blackwater Mill',
-    agentName: 'Agent Martinez',
-    agentStatus: 'DECEASED',
-    threatLevel: 'HIGH',
-    notes: [
-      '18:30 - Arrived at abandoned mill. Reports of strange lights at night.',
-      '19:00 - Initial sweep. Building appears empty. EMF baseline normal.',
-      '19:45 - First anomaly. Temperature dropped 15°C in mill room. EMF reading 3.8.',
-      '20:15 - Spirit box: "The mill never stops. We work forever."',
-      '20:45 - Machinery started moving. No power to building. This is impossible.',
-      '21:10 - Direct contact. Felt hand on shoulder. Turned - saw figure in period clothing.',
-      '21:30 - Multiple entities confirmed. EMF readings erratic. Sanity check: 45/100.',
-      '21:50 - Equipment malfunctioning. Flashlight dimming. Need to evacuate.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Direct Contact', 'Photo Evidence'],
-    photos: [ghost2Image],
-    finalEntry: 'Agent Martinez found deceased at 22:15. Body discovered near mill machinery. Cause of death: Crushing injuries. Machinery was not operational. File marked DECEASED. Location closed to all investigations.',
-  },
-  {
-    id: 'journal-006',
-    date: '10/12/2024',
-    location: 'Shadowbrook Mansion',
-    agentName: 'Agent Kim',
-    agentStatus: 'RETIRED',
-    threatLevel: 'HIGH',
-    notes: [
-      '20:00 - Team of 2. Mansion abandoned since 1995. Previous owner disappeared.',
-      '20:30 - Ground floor clear. Moving to upper floors.',
-      '21:00 - EMF spike in master bedroom. Reading 4.5. Temperature normal.',
-      '21:30 - Spirit box: "This is my home. You are not welcome."',
-      '22:00 - Partner reported seeing figure in mirror. Investigation continues.',
-      '22:30 - Multiple cold spots detected. EMF readings fluctuating.',
-      '23:00 - Partner requested evacuation. Sanity dropping. Agreed to leave.',
-      '23:30 - Back at base. Partner in medical. Experiencing severe anxiety.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Ghost Orbs'],
-    photos: [ghost1Image],
-    finalEntry: 'Agent Kim submitted transfer request. Partner diagnosed with acute stress disorder. File marked RETIRED. Location requires team of 3+ for future investigations.',
-  },
-  {
-    id: 'journal-007',
-    date: '11/08/2024',
-    location: 'Old Harbor Lighthouse',
-    agentName: 'Agent Walsh',
-    agentStatus: 'MISSING',
-    threatLevel: 'MEDIUM',
-    notes: [
-      '19:00 - Solo investigation. Lighthouse decommissioned 2001.',
-      '19:30 - Climbing stairs. EMF baseline normal. Temperature stable.',
-      '20:00 - Reached top. EMF spike to 3.2. Brief temperature drop.',
-      '20:30 - Spirit box session. Single response: "The light never goes out."',
-      '21:00 - Flashlight flickering. Battery draining faster than normal.',
-      '21:30 - Heard footsteps on stairs below. No one else should be here.',
-      '22:00 - EMF reading 4.8. Temperature dropped to -5°C. Something is wrong.',
-      '22:30 - Light in lighthouse activated. No power source. Need to leave now.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Photo Evidence'],
-    photos: [ghost2Image],
-    finalEntry: 'Agent Walsh failed to check in at 23:00. Search team found this journal at base of lighthouse stairs. Lighthouse light was on despite no power. No sign of agent. File marked MISSING.',
-  },
-  {
-    id: 'journal-008',
-    date: '10/25/2024',
-    location: 'Crimson Theater',
-    agentName: 'Agent Foster',
-    agentStatus: 'DECEASED',
-    threatLevel: 'EXTREME',
-    notes: [
-      '21:00 - Team of 3. Theater closed since fire in 1998. 12 deaths.',
-      '21:30 - Main auditorium sweep. EMF readings normal. Temperature stable.',
-      '22:00 - Stage area. EMF spike to 4.2. Temperature dropped 10°C.',
-      '22:30 - Spirit box: Multiple voices. "The show must go on." "We never left."',
-      '23:00 - Heard music from stage. No source. Piano playing itself.',
-      '23:30 - Team member saw full apparition on stage. Investigation escalating.',
-      '00:00 - EMF readings at 5.0. Multiple entities confirmed. Sanity: 30/100.',
-      '00:30 - Direct contact. Felt push from behind. Team member fell. Evacuating.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Direct Contact', 'Photo Evidence'],
-    photos: [ghost1Image, ghost2Image],
-    finalEntry: 'Agent Foster found deceased at 01:15. Body discovered on stage. Cause of death: Unknown. Theater locked from inside. No signs of forced entry. File marked DECEASED. Location marked EXTREME THREAT.',
-  },
-  {
-    id: 'journal-009',
-    date: '11/18/2024',
-    location: 'Whispering Pines Sanatorium',
-    agentName: 'Agent Park',
-    agentStatus: 'MISSING',
-    threatLevel: 'EXTREME',
-    notes: [
-      '20:00 - Solo investigation. Sanatorium closed 1975. Multiple deaths reported.',
-      '20:30 - Ward A sweep. EMF baseline 0.5. Nothing unusual.',
-      '21:00 - Ward B. EMF spike to 4.0. Temperature dropping.',
-      '21:30 - Spirit box: "Help us. We cannot leave." Multiple voices overlapping.',
-      '22:00 - Heard crying from empty rooms. No one present.',
-      '22:30 - EMF readings erratic. Jumping between 0.5 and 5.0. Equipment malfunctioning.',
-      '23:00 - Direct contact. Felt hand grab my arm. No one there.',
-      '23:30 - Sanity check: 25/100. Need to evacuate. Cannot find exit.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Direct Contact', 'Ghost Orbs'],
-    photos: [ghost1Image],
-    finalEntry: 'Agent Park last transmission at 23:45. Journal found in Ward B. Building searched. No sign of agent. Multiple team members reported feeling "watched" during search. File marked MISSING. Location requires clearance level 5+.',
-  },
-  {
-    id: 'journal-010',
-    date: '10/30/2024',
-    location: 'Midnight Bridge',
-    agentName: 'Agent Singh',
-    agentStatus: 'RETIRED',
-    threatLevel: 'MEDIUM',
-    notes: [
-      '22:00 - Bridge investigation. Reports of figure seen at midnight.',
-      '22:30 - Initial sweep. EMF normal. Temperature stable.',
-      '23:00 - EMF spike to 3.5. Brief temperature drop.',
-      '23:30 - Spirit box: "Do not cross. Turn back."',
-      '00:00 - Midnight. EMF reading 4.8. Temperature dropped to -3°C.',
-      '00:15 - Saw figure on bridge. Approached - figure disappeared.',
-      '00:30 - Direct contact. Felt presence behind me. Turned - nothing.',
-      '00:45 - Equipment malfunctioning. Evacuated immediately.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Photo Evidence'],
-    photos: [ghost2Image],
-    finalEntry: 'Agent Singh submitted transfer request. Experiencing recurring nightmares. File marked RETIRED. Bridge investigation requires team of 2+ and midnight clearance.',
-  },
-  {
-    id: 'journal-011',
-    date: '11/12/2024',
-    location: 'Forgotten Chapel',
-    agentName: 'Agent O\'Connor',
-    agentStatus: 'DECEASED',
-    threatLevel: 'HIGH',
-    notes: [
-      '19:00 - Chapel investigation. Building abandoned 1980.',
-      '19:30 - Main hall. EMF baseline normal. Temperature stable.',
-      '20:00 - Altar area. EMF spike to 4.2. Temperature dropped.',
-      '20:30 - Spirit box: "This is sacred ground. You desecrate it."',
-      '21:00 - Heard organ music. No organ present. Building empty.',
-      '21:30 - EMF readings at 5.0. Multiple cold spots detected.',
-      '22:00 - Direct contact. Felt push. Fell down steps.',
-      '22:30 - Flashlight failed. Using phone light. Need to leave.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Direct Contact'],
-    photos: [ghost1Image],
-    finalEntry: 'Agent O\'Connor found deceased at 23:00. Body discovered at base of altar steps. Cause of death: Head trauma. No signs of struggle. File marked DECEASED. Chapel marked for closure.',
-  },
-  {
-    id: 'journal-012',
-    date: '11/25/2024',
-    location: 'Abandoned Schoolhouse',
-    agentName: 'Agent Lee',
-    agentStatus: 'MISSING',
-    threatLevel: 'HIGH',
-    notes: [
-      '18:00 - Schoolhouse investigation. Closed 1995.',
-      '18:30 - Classroom sweep. EMF normal. Temperature stable.',
-      '19:00 - Basement access. EMF spike to 3.8. Temperature dropping.',
-      '19:30 - Spirit box: "Class is in session. You are late."',
-      '20:00 - Heard children laughing. Building empty. No children present.',
-      '20:30 - EMF readings erratic. Multiple entities confirmed.',
-      '21:00 - Direct contact. Felt hand grab mine. No one there.',
-      '21:30 - Sanity check: 40/100. Equipment malfunctioning. Evacuating.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Direct Contact', 'Ghost Orbs'],
-    photos: [ghost1Image, ghost2Image],
-    finalEntry: 'Agent Lee failed to check in at 22:00. Journal found in basement. Search team reported hearing children\'s voices during search. No sign of agent. File marked MISSING.',
-  },
-  {
-    id: 'journal-013',
-    date: '10/18/2024',
-    location: 'Ironwood Factory',
-    agentName: 'Agent Brown',
-    agentStatus: 'RETIRED',
-    threatLevel: 'MEDIUM',
-    notes: [
-      '20:00 - Factory investigation. Closed 2003.',
-      '20:30 - Main floor sweep. EMF baseline normal.',
-      '21:00 - Second floor. EMF spike to 3.5. Temperature dropped.',
-      '21:30 - Spirit box: "We work until we die. Then we work more."',
-      '22:00 - Heard machinery running. No power to building.',
-      '22:30 - EMF readings at 4.8. Multiple cold spots.',
-      '23:00 - Direct contact. Felt presence watching. Evacuated.',
-      '23:30 - Back at base. Experiencing anxiety. Requesting transfer.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Photo Evidence'],
-    photos: [ghost2Image],
-    finalEntry: 'Agent Brown submitted transfer request. Diagnosed with work-related stress disorder. File marked RETIRED. Factory investigation requires team of 2+.',
-  },
-  {
-    id: 'journal-014',
-    date: '11/28/2024',
-    location: 'Cursed Farmhouse',
-    agentName: 'Agent Taylor',
-    agentStatus: 'MISSING',
-    threatLevel: 'EXTREME',
-    notes: [
-      '19:00 - Farmhouse investigation. Family disappeared 1987.',
-      '19:30 - Ground floor. EMF normal. Temperature stable.',
-      '20:00 - Upstairs bedrooms. EMF spike to 4.5. Temperature dropped.',
-      '20:30 - Spirit box: "This is our home. You cannot have it."',
-      '21:00 - Heard footsteps above. No second floor. Building single story.',
-      '21:30 - EMF readings at 5.0. Multiple entities. Sanity: 35/100.',
-      '22:00 - Direct contact. Felt hand on shoulder. Turned - saw family photo move.',
-      '22:30 - Equipment failing. Flashlight dimming. Phone signal lost.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Direct Contact', 'Photo Evidence'],
-    photos: [ghost1Image],
-    finalEntry: 'Agent Taylor last transmission at 23:00. Journal found on kitchen table. Farmhouse searched thoroughly. No sign of agent. Search team reported feeling "unwelcome". File marked MISSING. Location marked EXTREME THREAT.',
-  },
-  {
-    id: 'journal-015',
-    date: '10/22/2024',
-    location: 'Sunken Ship Graveyard',
-    agentName: 'Agent Rivera',
-    agentStatus: 'DECEASED',
-    threatLevel: 'HIGH',
-    notes: [
-      '21:00 - Ship graveyard investigation. Multiple wrecks.',
-      '21:30 - Initial sweep. EMF normal. Temperature stable.',
-      '22:00 - Old ship hull. EMF spike to 4.0. Temperature dropped.',
-      '22:30 - Spirit box: "The sea claims all. We wait here."',
-      '23:00 - Heard voices from ship. No one present.',
-      '23:30 - EMF readings at 4.8. Multiple cold spots.',
-      '00:00 - Direct contact. Felt push. Nearly fell into water.',
-      '00:30 - Equipment malfunctioning. Evacuated immediately.',
-    ],
-    evidence: ['EMF Level 5', 'Spirit Box', 'Freezing Temps', 'Direct Contact'],
-    photos: [ghost2Image],
-    finalEntry: 'Agent Rivera found deceased at 01:00. Body discovered in water near ship. Cause of death: Drowning. No signs of struggle. File marked DECEASED. Location closed to investigations.',
-  },
-];
+// Map ghost types to images
+const ghostImageMap: Record<GhostType, string> = {
+  [GhostType.WRAITH]: WraithImage,
+  [GhostType.SHADE]: ShadeImage,
+  [GhostType.POLTERGEIST]: PoltergeistImage,
+  [GhostType.BANSHEE]: BansheeImage,
+  [GhostType.PHANTOM]: PhantomImage,
+  [GhostType.ONYX]: OnyxImage,
+  [GhostType.TRICKSTER]: TricksterImage,
+};
+
+// Helper function to convert GhostData to JournalEntry with behavioral hints
+function createJournalEntryFromGhost(ghost: GhostData): JournalEntry {
+  // Defensive checks for missing data BEFORE destructuring
+  if (!ghost || !ghost.id) {
+    console.error('Invalid ghost data:', ghost);
+    return {
+      id: 'journal-unknown',
+      date: 'Unknown',
+      location: 'Unknown Location',
+      agentName: 'Unknown Agent',
+      agentStatus: 'MISSING',
+      threatLevel: 'MEDIUM',
+      notes: ['Data unavailable'],
+      evidence: [],
+      finalEntry: 'Journal data could not be loaded.',
+    };
+  }
+  
+  const { fieldJournal, cameraManifestations, thermalReading, spiritBoxResponse, threatLevel, name, id } = ghost;
+  
+  // Defensive checks for missing required properties
+  if (!fieldJournal || !spiritBoxResponse || !cameraManifestations || !thermalReading) {
+    console.error('Missing required ghost data:', { 
+      id, 
+      name, 
+      hasFieldJournal: !!fieldJournal, 
+      hasSpiritBoxResponse: !!spiritBoxResponse,
+      hasCameraManifestations: !!cameraManifestations,
+      hasThermalReading: !!thermalReading
+    });
+    // Return a minimal journal entry as fallback
+    return {
+      id: `journal-${id}`,
+      date: fieldJournal?.date || 'Unknown',
+      location: 'Unknown Location',
+      agentName: fieldJournal?.agentName || 'Unknown Agent',
+      agentStatus: 'MISSING',
+      threatLevel: threatLevel || 'MEDIUM',
+      notes: ['Data unavailable'],
+      evidence: [],
+      finalEntry: 'Journal data could not be loaded.',
+    };
+  }
+  
+  // Extract behavioral hints - now safe to access
+  const primaryManifestation = cameraManifestations[0]?.primary;
+  const manifestationStr = primaryManifestation || 'faint_silhouette';
+  const spiritBoxPersonality = Array.isArray(spiritBoxResponse.personality) 
+    ? spiritBoxResponse.personality[0] 
+    : spiritBoxResponse.personality;
+  const responseRate = spiritBoxResponse.frequency || 0.5;
+  
+  // Get unique words for Spirit Box
+  const uniqueWords = [
+    ...(spiritBoxResponse.wordPools?.q1?.unique || []),
+    ...(spiritBoxResponse.wordPools?.q2?.unique || []),
+    ...(spiritBoxResponse.wordPools?.q3?.unique || []),
+  ];
+  const sampleWords = uniqueWords.slice(0, 3).join('. ') || 'unknown';
+  
+  // Parse the story from fieldJournal and convert it into detailed timestamped notes
+  // Make them URGENT and PANICKED - agents writing during dangerous missions
+  const storyText = fieldJournal.story;
+  const notes: string[] = [];
+  
+  // Generate timestamps starting from evening (19:00-23:00 range)
+  const baseHour = 19 + Math.floor(Math.random() * 4); // 19-22
+  let currentMinute = Math.floor(Math.random() * 60);
+  
+  // Helper to get next timestamp
+  const getNextTimestamp = () => {
+    currentMinute += 15 + Math.floor(Math.random() * 30); // 15-45 minute intervals
+    if (currentMinute >= 60) {
+      const hourIncrement = Math.floor(currentMinute / 60);
+      currentMinute = currentMinute % 60;
+      const hour = baseHour + hourIncrement;
+      return `${hour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+    }
+    const hour = baseHour;
+    return `${hour.toString().padStart(2, '0')}:${currentMinute.toString().padStart(2, '0')}`;
+  };
+  
+  // Helper to add panic/urgency with strategic CAPS
+  const addUrgency = (text: string, isUrgent: boolean = false): string => {
+    if (!isUrgent) return text;
+    
+    // Add CAPS to key urgent/panicked words
+    const urgentWords = [
+      'spiked', 'spikes', 'haywire', 'fast', 'gone', 'missing', 'deceased', 'danger', 'warning',
+      'wrong', 'impossible', 'can\'t', 'couldn\'t', 'won\'t', 'didn\'t', 'isn\'t', 'aren\'t',
+      'constant', 'constantly', 'suddenly', 'immediately', 'instantly', 'quickly', 'rapidly',
+      'suffocating', 'choking', 'burning', 'frozen', 'numb', 'desperate', 'terrified', 'afraid',
+      'fear', 'panic', 'urgent', 'critical', 'extreme', 'deadly', 'lethal'
+    ];
+    
+    urgentWords.forEach(word => {
+      const regex = new RegExp(`\\b${word}\\b`, 'gi');
+      text = text.replace(regex, (match) => {
+        // Make it ALL CAPS for high/extreme threat
+        if (threatLevel === 'EXTREME' || threatLevel === 'HIGH') {
+          return match.toUpperCase();
+        }
+        // Sometimes capitalize for medium threat
+        if (threatLevel === 'MEDIUM' && Math.random() > 0.6) {
+          return match.toUpperCase();
+        }
+        return match;
+      });
+    });
+    
+    // Add urgency markers for extreme threat
+    if (threatLevel === 'EXTREME') {
+      // Capitalize key phrases
+      text = text.replace(/\b(it|entity|thing|presence|here|there|close|near)\b/gi, (match) => {
+        if (Math.random() > 0.4) return match.toUpperCase();
+        return match;
+      });
+    }
+    
+    return text;
+  };
+  
+  // Split story into paragraphs
+  const storyParagraphs = storyText.split('\n\n').filter(p => p.trim());
+  
+  // Process each paragraph - break into sentences and add timestamps with URGENCY
+  storyParagraphs.forEach((paragraph, pIndex) => {
+    // Split into sentences, preserving the original text
+    const sentences = paragraph.split(/(?<=[.!?])\s+/).filter(s => s.trim().length > 5);
+    
+    sentences.forEach((sentence, sIndex) => {
+      const timestamp = getNextTimestamp();
+      let note = sentence.trim();
+      
+      // Determine urgency based on content and threat level
+      const isUrgent = threatLevel === 'EXTREME' || 
+                       threatLevel === 'HIGH' || 
+                       note.toLowerCase().includes('spiked') ||
+                       note.toLowerCase().includes('haywire') ||
+                       note.toLowerCase().includes('fast') ||
+                       note.toLowerCase().includes('danger') ||
+                       note.toLowerCase().includes('wrong') ||
+                       note.toLowerCase().includes('impossible') ||
+                       sIndex >= sentences.length - 1; // Last sentences are more urgent
+      
+      // Enhance the original story text with more panic and urgency
+      // Make key moments more dramatic
+      if (note.toLowerCase().includes('emf') || note.toLowerCase().includes('readings') || note.toLowerCase().includes('meter')) {
+        // Add urgency to EMF readings
+        if (spiritBoxPersonality === 'aggressive' && !note.toUpperCase().includes('SPIKED')) {
+          note = note.replace(/(readings?|emf meter)/gi, (match) => {
+            return `${match} that SPIKED EARLY`;
+          });
+          if (!note.includes('!')) note += '!';
+        } else if (spiritBoxPersonality === 'chaotic' && !note.toUpperCase().includes('HAYWIRE')) {
+          note = note.replace(/(readings?|emf meter)/gi, (match) => {
+            return `${match} that went HAYWIRE`;
+          });
+          if (!note.includes('!')) note += '!';
+        }
+      }
+      
+      // Enhance Spirit Box word mentions with actual unique words from the ghost - MAKE THEM LOUD
+      if (note.toLowerCase().includes('words') && sampleWords !== 'unknown') {
+        // Check if there's a placeholder for words
+        if (note.match(/words[^"]*["']([^"']+)["']/i)) {
+          // Replace existing words with unique words - ALL CAPS for urgency
+          note = note.replace(/["']([^"']+)["']/i, `"${sampleWords.toUpperCase()}"`);
+        } else if (note.toLowerCase().includes('whispers') || note.toLowerCase().includes('picked up')) {
+          // Add the words if not present - MAKE THEM LOUD AND URGENT
+          note = note.replace(/(whispers|words|picked up)/i, (match) => {
+            return `${match}. The words came through: "${sampleWords.toUpperCase()}"`;
+          });
+        }
+      }
+      
+      // Enhance photo mentions with more panic
+      if (note.toLowerCase().includes('photo') || note.toLowerCase().includes('image')) {
+        if (manifestationStr === 'invisible' && !note.toUpperCase().includes('BLANK')) {
+          note = note.replace(/(photo|photos|image)/gi, (match) => {
+            return `${match} - EVERY SINGLE ONE CAME BACK BLANK`;
+          });
+        } else if (manifestationStr === 'screaming_face' && !note.toUpperCase().includes('FACE')) {
+          note += ' I SAW ITS FACE. A SCREAMING FACE.';
+        }
+      }
+      
+      // Add PANIC markers for high/extreme threat
+      if (isUrgent) {
+        if (threatLevel === 'EXTREME') {
+          // Add urgent prefix for extreme threats
+          if (!note.toUpperCase().includes('FAST') && !note.toUpperCase().includes('DANGER') && !note.toUpperCase().includes('URGENT')) {
+            note = `[URGENT] ${note}`;
+          }
+        }
+        
+        // Add exclamation for urgent moments - more frequent for extreme
+        if (!note.endsWith('!') && !note.endsWith('?') && (threatLevel === 'EXTREME' ? Math.random() > 0.4 : Math.random() > 0.7)) {
+          note += '!';
+        }
+      }
+      
+      // Add timestamp prefix with urgency
+      note = `${timestamp} - ${note}`;
+      
+      // Apply urgency formatting - add CAPS for panic
+      note = addUrgency(note, isUrgent);
+      
+      notes.push(note);
+    });
+  });
+  
+  // Ensure we have at least 7-8 detailed notes for a rich journal entry
+  // Add behavioral detail notes if needed
+  if (notes.length < 7) {
+    const additionalNotes: string[] = [];
+    
+    // Add EMF detail note if not already covered - MAKE IT URGENT
+    if (!notes.some(n => n.toLowerCase().includes('emf') || n.toLowerCase().includes('readings'))) {
+      const timestamp = getNextTimestamp();
+      if (spiritBoxPersonality === 'aggressive') {
+        additionalNotes.push(`${timestamp} - My EMF meter SPIKED EARLY, before I was even close. This entity was AGGRESSIVE, announcing its presence like a WARNING. The readings jumped to 4, then 5. TOO FAST. TOO DELIBERATE.`);
+      } else if (spiritBoxPersonality === 'shy') {
+        additionalNotes.push(`${timestamp} - It took me HOURS to find it. My EMF meter stayed low, barely registering anything even when I knew I was in the right area. I had to get UNCOMFORTABLY CLOSE before the readings SPIKED. Shy. Elusive.`);
+      } else if (spiritBoxPersonality === 'chaotic') {
+        additionalNotes.push(`${timestamp} - The EMF meter went HAYWIRE. One second it was at 2, the next it SPIKED to 5, then dropped to 1. I couldn't get a stable reading. UNSTABLE. CHAOTIC. The entity was moving CONSTANTLY, or the readings were just... WRONG.`);
+      } else if (spiritBoxPersonality === 'contradictory') {
+        additionalNotes.push(`${timestamp} - My EMF meter readings oscillated in a PERFECT sine wave. Up, down, up, down. TOO PERFECT. TOO DELIBERATE. MISCHIEVOUS. It was PLAYING with me from the start.`);
+      }
+    }
+    
+    // Add Spirit Box detail if not covered - MAKE IT URGENT
+    if (!notes.some(n => n.toLowerCase().includes('spirit box'))) {
+      const timestamp = getNextTimestamp();
+      if (responseRate < 0.4) {
+        additionalNotes.push(`${timestamp} - The Spirit Box took FOREVER to tune. I had to adjust both knobs CAREFULLY until the static cleared. Once I locked the signal, the words came through: "${sampleWords.toUpperCase()}." The voice was weak, distant, like it DIDN'T WANT TO BE HEARD.`);
+      } else if (responseRate > 0.7) {
+        additionalNotes.push(`${timestamp} - The Spirit Box responded QUICKLY. The words HIT ME like a PHYSICAL FORCE: "${sampleWords.toUpperCase()}." It WANTED me to hear. It WANTED me to KNOW.`);
+      } else {
+        additionalNotes.push(`${timestamp} - The Spirit Box cut through the CHAOS with static peaks. Words: "${sampleWords.toUpperCase()}." The signal kept DRIFTING, chaotic modulation. I'd lock it, then it would SLIP AWAY.`);
+      }
+    }
+    
+    // Add camera detail if not covered - MAKE IT PANICKED
+    if (!notes.some(n => n.toLowerCase().includes('photo') || n.toLowerCase().includes('image') || n.toLowerCase().includes('camera'))) {
+      const timestamp = getNextTimestamp();
+      if (manifestationStr === 'faint_silhouette') {
+        additionalNotes.push(`${timestamp} - When I finally got close enough to take a photo, I could BARELY make out a shape. Just a FAINT outline, like smoke caught in the flash. The image developed and THERE IT WAS - barely visible, but UNMISTAKABLY THERE.`);
+      } else if (manifestationStr === 'motion_blur') {
+        additionalNotes.push(`${timestamp} - When I tried to photograph it, the image came out as PURE MOTION BLUR. Like it was moving SO FAST the camera COULDN'T CAPTURE IT. DISTORTED. CHAOTIC.`);
+      } else if (manifestationStr === 'screaming_face') {
+        additionalNotes.push(`${timestamp} - When I took the photo, I SAW ITS FACE. A SCREAMING, ANGUISHED FACE frozen in the flash. The image BURNED INTO MY MIND. I can STILL SEE IT when I close my eyes.`);
+      } else if (manifestationStr === 'invisible') {
+        additionalNotes.push(`${timestamp} - I took SEVEN photos. SEVEN. Every single one came back BLANK. Just the empty room, as if NOTHING was there. But I could FEEL IT. The weight of its presence was SUFFOCATING.`);
+      } else if (manifestationStr === 'half_formed_body') {
+        additionalNotes.push(`${timestamp} - When I finally photographed it, the image showed a HALF-FORMED BODY. Not quite solid, not quite transparent. Like it was caught BETWEEN WORLDS, trying to HIDE even from the camera.`);
+      } else if (manifestationStr === 'shadow_silhouette') {
+        additionalNotes.push(`${timestamp} - When I photographed it, the image showed a SHADOW. Not a shadow cast by something - the shadow WAS THE THING. A silhouette of PURE DARKNESS, denser than the surrounding GLOOM.`);
+      } else if (manifestationStr === 'glitch_streaks') {
+        additionalNotes.push(`${timestamp} - Every photo came out as GLITCH STREAKS, like it was moving just as I pressed the shutter. Or maybe it was INTERFERING with the camera itself. I COULDN'T TELL what was REAL anymore.`);
+      } else if (manifestationStr === 'faint_glitch') {
+        additionalNotes.push(`${timestamp} - On my EIGHTH photo, I caught a FAINT GLITCH in the corner. Just a FLICKER. PROOF it was there, REFUSING TO BE SEEN.`);
+      }
+    }
+    
+    // Add thermal detail if not covered - MAKE IT URGENT
+    if (!notes.some(n => n.toLowerCase().includes('cold') || n.toLowerCase().includes('thermal'))) {
+      const timestamp = getNextTimestamp();
+      if (thermalReading === 'deep_cold') {
+        additionalNotes.push(`${timestamp} - The COLD HIT ME FIRST. Not just cold - BONE-DEEP, UNNATURAL COLD. My thermal scanner read 4°C, then 2°C, then BELOW ZERO. My breath turned to FOG INSTANTLY. My hands went NUMB.`);
+      } else if (thermalReading === 'cold_spot') {
+        additionalNotes.push(`${timestamp} - My thermal scanner picked up COLD SPOTS appearing and disappearing RANDOMLY. Temperature would PLUMMET, then return to normal seconds later. NO PATTERN. NO LOGIC.`);
+      }
+    }
+    
+    // Add movement/behavior notes based on personality - MAKE THEM PANICKED
+    if (notes.length + additionalNotes.length < 8) {
+      const timestamp = getNextTimestamp();
+      if (spiritBoxPersonality === 'aggressive') {
+        additionalNotes.push(`${timestamp} - Movement is FAST. VERY FAST. I CAN'T KEEP UP.`);
+        if (notes.length + additionalNotes.length < 9) {
+          additionalNotes.push(`${getNextTimestamp()} - My equipment STRUGGLES to track it. One moment HERE, the next GONE. IMPOSSIBLE TO FOLLOW.`);
+        }
+      } else if (spiritBoxPersonality === 'shy') {
+        additionalNotes.push(`${timestamp} - Something about its RELUCTANCE to be seen made me DEEPLY UNCOMFORTABLE. What is it HIDING FROM?`);
+      } else if (spiritBoxPersonality === 'chaotic') {
+        additionalNotes.push(`${timestamp} - Equipment started MALFUNCTIONING. My flashlight FLICKERED. The EMF display GLITCHED. I got out before it could do WORSE.`);
+      } else if (spiritBoxPersonality === 'contradictory') {
+        additionalNotes.push(`${timestamp} - Cold spots appeared BEHIND ME. ALWAYS BEHIND ME. I'd turn around and they'd be GONE.`);
+        if (notes.length + additionalNotes.length < 9) {
+          additionalNotes.push(`${getNextTimestamp()} - Through the Spirit Box, between the drifts, I heard: "${sampleWords.toUpperCase()}." I left when I realized I was LAUGHING. NOT BECAUSE ANYTHING WAS FUNNY.`);
+        }
+      }
+    }
+    
+    // Insert additional notes at appropriate positions (mix them in, don't just append)
+    additionalNotes.forEach((additionalNote, idx) => {
+      const insertIndex = Math.min(notes.length - 1, Math.floor(notes.length / 2) + idx);
+      notes.splice(insertIndex, 0, additionalNote);
+    });
+  }
+  
+  // Generate detailed evidence list based on behaviors
+  const evidence: string[] = [];
+  
+  // EMF evidence with descriptive names
+  if (spiritBoxPersonality === 'aggressive') {
+    evidence.push('Aggressive EMF Spikes');
+  } else if (spiritBoxPersonality === 'shy') {
+    evidence.push('Shy EMF Readings');
+  } else if (spiritBoxPersonality === 'chaotic') {
+    evidence.push('Unstable EMF');
+  } else if (spiritBoxPersonality === 'contradictory') {
+    evidence.push('Mischievous EMF Pattern');
+  }
+  
+  // Camera manifestation evidence
+  if (manifestationStr === 'faint_silhouette') {
+    evidence.push('Faint Silhouette');
+  } else if (manifestationStr === 'motion_blur') {
+    evidence.push('Motion Blur');
+  } else if (manifestationStr === 'screaming_face') {
+    evidence.push('Screaming Face');
+  } else if (manifestationStr === 'invisible') {
+    evidence.push('Invisible');
+  } else if (manifestationStr === 'half_formed_body') {
+    evidence.push('Half-Formed Body');
+  } else if (manifestationStr === 'shadow_silhouette') {
+    evidence.push('Shadow Silhouette');
+  } else if (manifestationStr === 'glitch_streaks') {
+    evidence.push('Glitch Streaks');
+  } else if (manifestationStr === 'faint_glitch') {
+    evidence.push('Faint Glitch');
+  }
+  
+  // Thermal evidence
+  if (thermalReading === 'deep_cold') {
+    evidence.push('Deep Cold');
+  } else if (thermalReading === 'cold_spot') {
+    evidence.push('Cold Spots');
+  }
+  
+  // Add Spirit Box evidence based on response rate
+  if (responseRate < 0.4) {
+    evidence.push('Weak Whispers');
+  } else if (responseRate > 0.7) {
+    evidence.push('Strong Communication');
+  } else {
+    evidence.push('Static Peaks');
+  }
+  
+  // Determine agent status based on threat level and fate
+  let agentStatus: 'MISSING' | 'DECEASED' | 'RETIRED' | 'ACTIVE' = 'ACTIVE';
+  if (fieldJournal.fate === 'deceased') {
+    agentStatus = 'DECEASED';
+  } else if (fieldJournal.fate === 'missing') {
+    agentStatus = 'MISSING';
+  } else if (fieldJournal.fate === 'traumatized') {
+    agentStatus = threatLevel === 'EXTREME' ? 'DECEASED' : 'RETIRED';
+  } else {
+    agentStatus = 'RETIRED';
+  }
+  
+  // Generate final timestamp
+  const finalTimestamp = getNextTimestamp();
+  
+  // Generate detailed final entry
+  let finalEntry = '';
+  if (agentStatus === 'DECEASED') {
+    finalEntry = `Agent ${fieldJournal.agentName} found deceased at ${finalTimestamp}. Cause of death: Unknown. File marked DECEASED. Note: Classic ${name} behavior - ${evidence.slice(0, 3).join(', ').toLowerCase()}. ${threatLevel === 'EXTREME' ? 'Extreme danger.' : 'High danger.'}`;
+  } else if (agentStatus === 'MISSING') {
+    finalEntry = `Agent ${fieldJournal.agentName} failed to check in at ${finalTimestamp}. Search team found this journal. No sign of agent. File marked MISSING. Note: Classic ${name} behavior - ${evidence.slice(0, 3).join(', ').toLowerCase()}.`;
+  } else if (agentStatus === 'RETIRED') {
+    finalEntry = `Agent ${fieldJournal.agentName} submitted transfer request. Experiencing ${fieldJournal.fate === 'traumatized' ? 'severe psychological trauma' : 'disorientation'}. File marked RETIRED. Note: Entity exhibits ${evidence.slice(0, 2).join(' and ').toLowerCase()} - approach with caution.`;
+  } else {
+    finalEntry = `Agent ${fieldJournal.agentName} completed investigation. File marked ACTIVE. Note: Classic ${name} behavior - ${evidence.slice(0, 3).join(', ').toLowerCase()}.`;
+  }
+  
+  // Generate location name based on ghost type
+  const locationMap: Record<GhostType, string> = {
+    [GhostType.WRAITH]: 'Whitmore Estate',
+    [GhostType.SHADE]: 'Oakwood Cemetery',
+    [GhostType.POLTERGEIST]: 'Hillcrest Manor',
+    [GhostType.BANSHEE]: 'Ravenwood Asylum',
+    [GhostType.PHANTOM]: 'Blackwater Mill',
+    [GhostType.ONYX]: 'Shadowbrook Mansion',
+    [GhostType.TRICKSTER]: 'Old Harbor Lighthouse',
+  };
+  const location = locationMap[id] || `Investigation Site ${id}`;
+  
+  return {
+    id: `journal-${id}`,
+    date: fieldJournal.date,
+    location,
+    agentName: fieldJournal.agentName,
+    agentStatus,
+    threatLevel,
+    notes,
+    evidence,
+    photos: ghostImageMap[id] ? [ghostImageMap[id]] : undefined,
+    finalEntry,
+  };
+}
+
+// This will be populated when the app initializes
+export let MOCK_JOURNALS: JournalEntry[] = [];
+
+// Function to initialize journals from ghost store
+// Call this when the app loads or when ghost store is available
+export function initializeJournalsFromGhostStore(getAllGhosts: () => GhostData[]): void {
+  try {
+    const ghosts = getAllGhosts();
+    if (!ghosts || ghosts.length === 0) {
+      console.warn('⚠️ No ghosts found in store, skipping journal initialization');
+      return;
+    }
+    
+    console.log('📚 Initializing journals from', ghosts.length, 'ghosts');
+    
+    // Log first ghost to debug structure
+    if (ghosts[0]) {
+      console.log('📋 Sample ghost structure:', {
+        id: ghosts[0].id,
+        name: ghosts[0].name,
+        hasFieldJournal: !!ghosts[0].fieldJournal,
+        hasSpiritBoxResponse: !!ghosts[0].spiritBoxResponse,
+        hasCameraManifestations: !!ghosts[0].cameraManifestations,
+        hasThermalReading: !!ghosts[0].thermalReading,
+        fieldJournalKeys: ghosts[0].fieldJournal ? Object.keys(ghosts[0].fieldJournal) : [],
+        spiritBoxResponseKeys: ghosts[0].spiritBoxResponse ? Object.keys(ghosts[0].spiritBoxResponse) : [],
+      });
+    }
+    
+    MOCK_JOURNALS = ghosts
+      .filter(ghost => ghost && ghost.id) // Filter out invalid ghosts
+      .map(ghost => {
+        try {
+          const journal = createJournalEntryFromGhost(ghost);
+          console.log(`✅ Created journal for ${ghost.id}:`, {
+            id: journal.id,
+            notesCount: journal.notes.length,
+            evidenceCount: journal.evidence.length,
+          });
+          return journal;
+        } catch (error) {
+          console.error(`❌ Failed to create journal for ghost ${ghost.id}:`, error);
+          return null;
+        }
+      })
+      .filter((journal): journal is JournalEntry => journal !== null); // Remove null entries
+    
+    console.log(`📚 Initialized ${MOCK_JOURNALS.length} field journals from ghost store`);
+    if (MOCK_JOURNALS.length > 0) {
+      console.log('📖 Sample journal:', {
+        id: MOCK_JOURNALS[0].id,
+        notes: MOCK_JOURNALS[0].notes.length,
+        evidence: MOCK_JOURNALS[0].evidence,
+      });
+    }
+  } catch (error) {
+    console.error('❌ Failed to initialize journals from ghost store:', error);
+  }
+}
 
 // Helper to get journal by ID
 export function getJournalById(id: string): JournalEntry | undefined {
   return MOCK_JOURNALS.find((j) => j.id === id);
 }
-

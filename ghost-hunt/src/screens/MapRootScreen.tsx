@@ -1,13 +1,16 @@
 // Main map screen - Detective Corkboard Aesthetic
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from 'react-leaflet';
 import type { Map } from 'leaflet';
 import { useGameState } from '../context/GameStateContext';
 import { useMapData } from '../context/MapDataContext';
 import { useFieldJournals } from '../context/FieldJournalsContext';
+import { usePOIHotspots } from '../hooks/usePOIHotspots';
+import { generateRandomSupplies, generateRandomFieldJournals } from '../utils/randomSpawn';
 import { getJournalById } from '../data/fieldJournals';
 import { JournalReadingModal } from '../components/JournalReadingModal';
 import { DevModeBadge } from '../components/DevModeBadge';
+import { LoadingScreen } from '../components/LoadingScreen';
 import { MapClickHandler } from '../components/MapClickHandler';
 import { SupplyMarker } from '../components/SupplyMarker';
 import { FieldJournalMarker } from '../components/FieldJournalMarker';
@@ -15,18 +18,26 @@ import { CollectionRadius } from '../components/CollectionRadius';
 import { PlayerMarker } from '../components/PlayerMarker';
 import { TopStatusBar } from '../components/HUD/TopStatusBar';
 import { CompassIndicator } from '../components/HUD/CompassIndicator';
+import { MusicToggleButton } from '../components/HUD/MusicToggleButton';
 import { useCompass } from '../hooks/useCompass';
 import { isInRange, COLLECTION_RADIUS } from '../utils/distance';
 import { useNavigate } from 'react-router-dom';
 import { divIcon } from 'leaflet';
-import { UnifiedBackpack } from '../components/Backpack';
+import { CarouselWrapper } from '../components/MapCarousel';
+import { CorkBoardView } from '../components/MapCarousel/CorkBoard';
+import { PlantArtView } from '../components/MapCarousel/PlantArtView';
+import { ShopView } from '../components/MapCarousel/Shop';
 import corkboardTexture from '../assets/texture/corkboardtexture.png';
 import wrinkledPaper from '../assets/texture/wrinkledpaper.png';
+import { playPaperClick } from '../utils/soundEffects';
 import dust from '../assets/texture/dust.png';
 import tape from '../assets/texture/tape.png';
 import filmgrain from '../assets/texture/filmgrain.png';
-import abandonedHouseImage from '../assets/images/abandonedhouse.png';
-import creepyClassroomImage from '../assets/images/creepyclassroom.png';
+// New location images (replacing copyrighted ones)
+import victorianMansionImage from '../assets/images/locations/victorianmansion.png';
+import hospitalImage from '../assets/images/locations/hospital.png';
+// @ts-ignore - PNG file extension
+import classroomImage from '../assets/images/locations/classroom.PNG';
 import type { Hotspot } from '../types/game';
 import 'leaflet/dist/leaflet.css';
 
@@ -244,9 +255,23 @@ function HandDrawnCircle({ position }: { position: [number, number]; label: stri
   );
 }
 
+// Helper function to generate a stable random number from a seed
+function seededRandom(seed: string): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    const char = seed.charCodeAt(i);
+    hash = ((hash << 5) - hash) + char;
+    hash = hash & hash; // Convert to 32-bit integer
+  }
+  return (Math.abs(hash) % 1000) / 1000;
+}
+
 // Paper tag label marker
 function PaperTagMarker({ position, label, status }: { position: [number, number]; label: string; status: 'locked' | 'unlocked' }) {
-  const rotation = Math.random() * 6 - 3;
+  // Use label as seed for stable rotation
+  const stableRotation = (seededRandom(label) * 6 - 3).toFixed(2);
+  // Use label + position for stable tape rotation
+  const tapeRotation = (seededRandom(label + position[0] + position[1]) * 10 - 5).toFixed(2);
   const icon = divIcon({
     html: `
       <div style="
@@ -262,7 +287,7 @@ function PaperTagMarker({ position, label, status }: { position: [number, number
           color: ${status === 'locked' ? '#666' : '#1a0f0a'};
           white-space: nowrap;
           box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-          transform: rotate(${rotation}deg);
+          transform: rotate(${stableRotation}deg);
           ${status === 'locked' ? 'text-decoration: line-through; opacity: 0.6;' : ''}
           border: 1px solid rgba(139, 69, 19, 0.2);
         ">${label}</div>
@@ -271,7 +296,7 @@ function PaperTagMarker({ position, label, status }: { position: [number, number
           position: absolute;
           top: -4px;
           left: 50%;
-          transform: translateX(-50%) rotate(-5deg);
+          transform: translateX(-50%) rotate(${tapeRotation}deg);
           width: 20px;
           height: 8px;
           background-image: url(${tape});
@@ -285,7 +310,7 @@ function PaperTagMarker({ position, label, status }: { position: [number, number
     iconAnchor: [50, 20],
   });
 
-  return <Marker position={position} icon={icon} />;
+  return <Marker position={position} icon={icon} zIndexOffset={2000} interactive={false} />;
 }
 
 // Red push pin marker
@@ -299,6 +324,7 @@ function RedPinMarker({ position }: { position: [number, number] }) {
         background: radial-gradient(circle at 30% 30%, #cc0000, #990000);
         transform: rotate(-45deg);
         box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+        pointer-events: none;
       "></div>
     `,
     className: 'red-pin-marker',
@@ -306,33 +332,176 @@ function RedPinMarker({ position }: { position: [number, number] }) {
     iconAnchor: [7, 7],
   });
 
-  return <Marker position={position} icon={icon} />;
+  return <Marker position={position} icon={icon} zIndexOffset={2000} interactive={false} />;
 }
 
 export function MapRootScreen() {
   const { playerPosition } = useGameState();
-  const { supplyNodes, hotspots, fieldJournalNodes, removeSupplyNode, removeFieldJournalNode } = useMapData();
+  const { 
+    supplyNodes, 
+    hotspots, 
+    fieldJournalNodes, 
+    removeSupplyNode, 
+    removeFieldJournalNode,
+    setHotspots,
+    setSupplyNodes,
+    setFieldJournalNodes
+  } = useMapData();
   const { addJournal } = useFieldJournals();
+  
+  // Calculate fetch radius based on map's visible area at minZoom (16)
+  // At zoom 16, visible area is roughly 1.5-2km depending on screen size
+  // We'll fetch a bit more to cover the full visible area
+  const calculateFetchRadius = () => {
+    // At zoom level 16, one tile = ~1.5km
+    // For a typical screen, we see about 2-3 tiles, so ~3-4.5km visible
+    // Fetch 1.5x the visible area to ensure coverage
+    // This matches the most zoomed out view
+    return 3000; // 3km radius - covers full visible area at minZoom
+  };
+
+  // Fetch real-world POI hotspots (Pokemon Go style - preload larger area)
+  const { 
+    poiHotspots, 
+    isLoading: isLoadingPOIs, 
+    error: poiError,
+    refresh: refreshPOIs 
+  } = usePOIHotspots({
+    playerLat: playerPosition.lat,
+    playerLng: playerPosition.lng,
+    enabled: true,
+    radiusMeters: calculateFetchRadius(), // Matches most zoomed out view
+    maxHotspots: 20, // More hotspots in preloaded area
+    refreshDistanceMeters: 800, // Refresh when player moves 800m (new cell)
+  });
+  
+  // Track if we've loaded POIs at least once (for initial loading screen)
+  // Show loading screen only on the very first load when we have no POIs yet
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  
+  // Mark as loaded once POIs finish loading (success or error) OR if we already have POIs from cache
+  useEffect(() => {
+    // If we have POIs (from cache or fresh load) and we're not loading, mark as loaded
+    if ((poiHotspots.length > 0 || poiError) && !isLoadingPOIs) {
+      setHasLoadedOnce(true);
+    }
+  }, [poiHotspots.length, poiError, isLoadingPOIs]);
+  
+  // Show loading screen if we're loading AND we don't have POIs yet AND we haven't loaded once
+  const showLoadingScreen = isLoadingPOIs && poiHotspots.length === 0 && !hasLoadedOnce;
+  
+  // Use POI hotspots if available, otherwise fall back to mock hotspots
+  // But keep mock hotspots visible even when POIs are loading (they're in Calgary now)
+  const activeHotspots = poiHotspots.length > 0 ? poiHotspots : hotspots;
+  
+  // Debug logging
+  useEffect(() => {
+    console.log('🗺️ Hotspot status:', {
+      poiHotspots: poiHotspots.length,
+      mockHotspots: hotspots.length,
+      activeHotspots: activeHotspots.length,
+      isLoadingPOIs,
+      poiError
+    });
+  }, [poiHotspots.length, hotspots.length, activeHotspots.length, isLoadingPOIs, poiError]);
+  
+  // Track last spawn position to prevent constant regeneration
+  const lastSpawnPosition = useRef<{ lat: number; lng: number } | null>(null);
+  const SPAWN_REFRESH_DISTANCE = 300; // Only regenerate when player moves 300m (like Pokemon Go spawns)
+  
+  // Generate random supplies and journals when player position changes significantly
+  // Use useCallback to memoize calculateDistance to prevent re-renders
+  const memoizedCalculateDistance = useCallback((lat1: number, lng1: number, lat2: number, lng2: number): number => {
+    const R = 6371e3; // Earth radius in meters
+    const φ1 = lat1 * Math.PI / 180;
+    const φ2 = lat2 * Math.PI / 180;
+    const Δφ = (lat2 - lat1) * Math.PI / 180;
+    const Δλ = (lng2 - lng1) * Math.PI / 180;
+
+    const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+              Math.cos(φ1) * Math.cos(φ2) *
+              Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c; // Distance in meters
+  }, []);
+
+  // Generate tools scattered across the entire visible area (not just near player)
+  // Use POI locations as anchor points for consistent coverage
+  useEffect(() => {
+    // Only generate if we have POI hotspots (real-world mode)
+    // Generate once when POIs are loaded, not on every player movement
+    if (poiHotspots.length === 0) return;
+    
+    // Only generate once when POIs first load, or if player moved very far (1km)
+    if (lastSpawnPosition.current) {
+      const distance = memoizedCalculateDistance(
+        lastSpawnPosition.current.lat,
+        lastSpawnPosition.current.lng,
+        playerPosition.lat,
+        playerPosition.lng
+      );
+      
+      if (distance < 1000) {
+        // Don't regenerate yet - keep existing scattered tools
+        return;
+      }
+    }
+    
+    // Extract POI locations for anchor points
+    const poiLocations = poiHotspots.map(poi => ({ lat: poi.lat, lng: poi.lng }));
+    
+    // Generate spawns scattered across the entire POI fetch area (2.5km radius)
+    // Use player position as center, but scatter across the full radius
+    const fetchRadius = 2500; // Same as POI fetch radius
+    
+    const newSupplies = generateRandomSupplies(
+      playerPosition.lat, 
+      playerPosition.lng,
+      poiLocations,
+      fetchRadius
+    );
+    const newJournals = generateRandomFieldJournals(
+      playerPosition.lat, 
+      playerPosition.lng,
+      poiLocations,
+      fetchRadius
+    );
+    
+    setSupplyNodes(newSupplies);
+    setFieldJournalNodes(newJournals);
+    lastSpawnPosition.current = { lat: playerPosition.lat, lng: playerPosition.lng };
+    
+    console.log(`🎲 Generated ${newSupplies.length} supplies and ${newJournals.length} journals scattered across ${fetchRadius}m radius`);
+  }, [poiHotspots.length, playerPosition.lat, playerPosition.lng, memoizedCalculateDistance]);
+  
   const [selectedJournalForReading, setSelectedJournalForReading] = useState<string | null>(null);
   const [journalNodeToRemove, setJournalNodeToRemove] = useState<string | null>(null);
   const [showJournalNotification, setShowJournalNotification] = useState(false);
   const mapRef = useRef<Map | null>(null);
   const navigate = useNavigate();
   const [playerHeading, setPlayerHeading] = useState<number | null>(null);
-  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(
-    hotspots.length > 0 ? hotspots[0] : null
-  );
+  const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
+  
+  // Update selected hotspot when hotspots change
+  useEffect(() => {
+    if (activeHotspots.length > 0 && (!selectedHotspot || !activeHotspots.find(h => h.id === selectedHotspot.id))) {
+      setSelectedHotspot(activeHotspots[0]);
+    } else if (activeHotspots.length === 0) {
+      setSelectedHotspot(null);
+    }
+  }, [activeHotspots, selectedHotspot]);
   const [isPolaroidZoomed, setIsPolaroidZoomed] = useState(false);
   const [zoomedPolaroidData, setZoomedPolaroidData] = useState<{ image: string; name: string } | null>(null);
   const [isMapFullscreen, setIsMapFullscreen] = useState(false);
   
-  // Map hotspot names to images
+  // Map hotspot names to images - using new location images
   const hotspotImageMap: Record<string, string> = {
-    'Abandoned Victorian House': abandonedHouseImage,
-    'Abandoned Classroom': creepyClassroomImage,
-    'Haunted Hospital': abandonedHouseImage, // Using house image as placeholder
-    'Cursed Chapel': creepyClassroomImage, // Using classroom image as placeholder
-    'Forgotten Asylum': abandonedHouseImage, // Using house image as placeholder
+    'Abandoned Victorian House': victorianMansionImage,
+    'Abandoned Classroom': classroomImage,
+    'Haunted Hospital': hospitalImage,
+    'Cursed Chapel': victorianMansionImage, // Using mansion image as placeholder
+    'Forgotten Asylum': hospitalImage, // Using hospital image as placeholder
   };
   
   // Polaroid positions on the edges of the screen (not covering the map)
@@ -374,16 +543,21 @@ export function MapRootScreen() {
 
   const handleRecenter = () => {
     if (mapRef.current) {
-      mapRef.current.setView([playerPosition.lat, playerPosition.lng], 16, {
+      mapRef.current.setView([playerPosition.lat, playerPosition.lng], 18, {
         animate: true,
       });
     }
   };
 
   // Helper function to render a polaroid
-  const renderPolaroid = (hotspot: Hotspot) => {
-    const image = hotspotImageMap[hotspot.name] || abandonedHouseImage;
-    const position = polaroidPositions[hotspot.name] || { top: '100px', right: '10px', rotation: -5 };
+  const renderPolaroid = (hotspot: Hotspot & { position?: { top?: string; bottom?: string; left?: string; right?: string; rotation: number } }) => {
+    // Always use predefined images for specific hotspot names, otherwise fallback
+    let image = hotspotImageMap[hotspot.name];
+    if (!image) {
+      // For POI hotspots, use a default image based on type or fallback
+      image = victorianMansionImage;
+    }
+    const position = hotspot.position || polaroidPositions[hotspot.name] || { top: '100px', right: '10px', rotation: -5 };
     
     return (
       <div 
@@ -538,7 +712,8 @@ export function MapRootScreen() {
     );
   };
 
-  return (
+  // Render the map view content
+  const renderMapView = () => (
     <div style={{ height: '100vh', width: '100vw', position: 'relative', overflow: 'hidden' }}>
       {/* Full-screen Corkboard Background */}
       <div style={{
@@ -570,48 +745,69 @@ export function MapRootScreen() {
         }} />
       </div>
 
-      {/* Top Status Bar - Game UI */}
-      <TopStatusBar />
+      {/* Top Status Bar removed - now rendered conditionally in MapRootScreen */}
 
-      {/* Fullscreen Toggle Button - Eye Icon */}
+      {/* Eye Toggle Button - Hide/Show Polaroids & Stickies - Hide during initial loading */}
+      {(!isLoadingPOIs || hasLoadedOnce) && (
       <button
         onClick={() => setIsMapFullscreen(!isMapFullscreen)}
         style={{
-          position: 'fixed',
+          position: 'absolute',
           top: '80px',
           left: '20px',
           zIndex: 1000,
-          width: '48px',
-          height: '48px',
-          background: '#d8d4c8',
-          border: '2px solid #1a0f0a',
+          width: '50px',
+          height: '50px',
+          background: '#d8d4c8', // Aged paper color
+          border: '2px solid #1a0f0a', // Dark ink
           borderRadius: '4px',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          fontSize: '24px',
+          fontSize: '22px',
           color: '#1a0f0a',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
+          fontFamily: '"Courier New", monospace',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.1)',
           transition: 'all 0.2s ease',
-          transform: 'rotate(-0.3deg)',
+          transform: 'rotate(-0.5deg)',
+          overflow: 'hidden',
         }}
         onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = '#8b0000';
-          e.currentTarget.style.color = '#f4f0e6';
-          e.currentTarget.style.transform = 'rotate(0.3deg) scale(1.1)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(139, 0, 0, 0.6)';
+          e.currentTarget.style.backgroundColor = '#c4b49a'; // Darker aged paper
+          e.currentTarget.style.transform = 'rotate(-0.5deg) scale(1.05)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.9), inset 0 1px 2px rgba(255, 255, 255, 0.1)';
         }}
         onMouseLeave={(e) => {
           e.currentTarget.style.backgroundColor = '#d8d4c8';
-          e.currentTarget.style.color = '#1a0f0a';
-          e.currentTarget.style.transform = 'rotate(-0.3deg) scale(1)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.6)';
+          e.currentTarget.style.transform = 'rotate(-0.5deg) scale(1)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.8), inset 0 1px 2px rgba(255, 255, 255, 0.1)';
         }}
-        title={isMapFullscreen ? 'Exit fullscreen (or press ESC)' : 'Enter fullscreen'}
+        title={isMapFullscreen ? 'Show polaroids and stickies' : 'Hide polaroids and stickies'}
       >
-        {isMapFullscreen ? '👁️‍🗨️' : '👁️'}
+        {/* Damage overlay for analog horror effect */}
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: `
+            radial-gradient(circle at 20% 30%, rgba(139, 69, 19, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, rgba(0, 0, 0, 0.08) 0%, transparent 50%)
+          `,
+          pointerEvents: 'none',
+          mixBlendMode: 'multiply',
+        }} />
+        {/* Eye icon */}
+        <span style={{ position: 'relative', zIndex: 1 }}>
+          {isMapFullscreen ? '👁️‍🗨️' : '👁️'}
+        </span>
       </button>
+      )}
+
+      {/* Music Toggle Button - Mute/Unmute Background Music */}
+      <MusicToggleButton />
 
       {/* Compass Indicator - Game UI Element */}
       {playerHeading !== null && (
@@ -693,7 +889,7 @@ export function MapRootScreen() {
           >
             <MapContainer
               center={[playerPosition.lat, playerPosition.lng]}
-              zoom={16}
+              zoom={18}
               minZoom={16}
               maxZoom={20}
               style={{ height: '100%', width: '100%' }}
@@ -720,7 +916,7 @@ export function MapRootScreen() {
               <CollectionRadius />
 
               {/* Investigation radius circles for all hotspots */}
-              {hotspots.map((hotspot) => {
+              {activeHotspots.map((hotspot) => {
                 const inRange = isInRange(playerPosition, { lat: hotspot.lat, lng: hotspot.lng });
                 return (
                   <InvestigationRadiusCircle
@@ -740,7 +936,7 @@ export function MapRootScreen() {
               )}
 
               {/* Hotspot markers - red pins + paper tags */}
-              {hotspots.map((hotspot) => (
+              {activeHotspots.map((hotspot) => (
                 <div key={hotspot.id}>
                   <RedPinMarker position={[hotspot.lat, hotspot.lng]} />
                   <PaperTagMarker
@@ -750,6 +946,7 @@ export function MapRootScreen() {
                   />
                   <Marker
                     position={[hotspot.lat, hotspot.lng]}
+                    zIndexOffset={2001}
                     eventHandlers={{
                       click: () => {
                         setSelectedHotspot(hotspot);
@@ -978,14 +1175,16 @@ export function MapRootScreen() {
       {/* Multiple Polaroid photos on screen edges - Hidden in fullscreen */}
       {!isMapFullscreen && (
         <div style={{
-          position: 'fixed',
+          position: 'absolute',
           inset: 0,
           zIndex: 470,
           pointerEvents: 'none',
         }}>
+          {/* Only show polaroids for predefined hotspots (Abandoned Victorian House, Abandoned Classroom) */}
+          {/* Always check the original hotspots array for polaroid names, not activeHotspots */}
           {hotspots
             .filter(hotspot => polaroidPositions[hotspot.name])
-            .map(hotspot => renderPolaroid(hotspot))}
+            .map((hotspot) => renderPolaroid(hotspot))}
         </div>
       )}
 
@@ -1315,41 +1514,6 @@ export function MapRootScreen() {
         </>
       )}
 
-      {/* Exit Fullscreen Button - Only visible in fullscreen mode */}
-      {isMapFullscreen && (
-        <button
-          onClick={() => setIsMapFullscreen(false)}
-          style={{
-            position: 'fixed',
-            top: '80px',
-            right: '20px',
-            zIndex: 1000,
-            padding: '10px 20px',
-            background: '#8b0000',
-            border: '2px solid #1a0f0a',
-            borderRadius: '4px',
-            color: '#f4f0e6',
-            fontFamily: '"Courier New", monospace',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            textTransform: 'uppercase',
-            letterSpacing: '1px',
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
-            transition: 'all 0.2s ease',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = '#cc0000';
-            e.currentTarget.style.transform = 'scale(1.05)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = '#8b0000';
-            e.currentTarget.style.transform = 'scale(1)';
-          }}
-        >
-          Exit Fullscreen
-        </button>
-      )}
 
       {/* Zoomed Sticky Note Modal */}
       {zoomedStickyNote && (
@@ -1654,8 +1818,76 @@ export function MapRootScreen() {
         📍
       </button>
 
-      {/* Unified Backpack - Overworld Mode */}
-      <UnifiedBackpack mode="overworld" />
     </div>
+  );
+
+  const isModalOpen = !!selectedJournalForReading;
+  
+  return (
+    <>
+      {/* Full-screen loading screen - only show on initial load when we have no POIs yet */}
+      <LoadingScreen 
+        isLoading={showLoadingScreen} 
+        message="Loading real-world landmarks"
+      />
+      
+      {/* Top Status Bar - hide when modal is open or during initial loading */}
+      {!isModalOpen && (!isLoadingPOIs || hasLoadedOnce) && <TopStatusBar />}
+      
+      {/* POI Error Indicator */}
+      {poiError && poiHotspots.length === 0 && (
+        <div style={{
+          position: 'fixed',
+          top: '80px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 10000,
+          background: 'rgba(139, 0, 0, 0.95)',
+          border: '2px solid #cc0000',
+          borderRadius: '8px',
+          padding: '12px 24px',
+          fontFamily: '"Courier New", monospace',
+          fontSize: '11px',
+          color: '#f4f0e6',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.8)',
+          maxWidth: '400px',
+          textAlign: 'center',
+        }}>
+          ⚠️ Using fallback locations (POI fetch failed)
+        </div>
+      )}
+      
+      {/* Debug: Show POI status */}
+      {process.env.NODE_ENV === 'development' && (
+        <div style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '20px',
+          zIndex: 10000,
+          background: 'rgba(26, 15, 10, 0.9)',
+          border: '1px solid #8b0000',
+          borderRadius: '4px',
+          padding: '8px 12px',
+          fontFamily: '"Courier New", monospace',
+          fontSize: '10px',
+          color: '#f4f0e6',
+        }}>
+          POIs: {poiHotspots.length} | Loading: {isLoadingPOIs ? 'Yes' : 'No'} | Error: {poiError || 'None'}
+        </div>
+      )}
+      
+      {/* Carousel content - switches between views - hide during initial loading */}
+      {(!isLoadingPOIs || hasLoadedOnce) && (
+        <CarouselWrapper 
+          initialIndex={2}
+          hideNavigation={isModalOpen}
+        >
+          <CorkBoardView />
+          <PlantArtView />
+          {renderMapView()}
+          <ShopView />
+        </CarouselWrapper>
+      )}
+    </>
   );
 }

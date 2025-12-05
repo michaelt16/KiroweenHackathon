@@ -40,60 +40,11 @@ export function ToolTransition({ isTransitioning, onComplete }: ToolTransitionPr
         transition: 'opacity 0.2s ease-out',
       }}
     >
-      {/* Static burst effect */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `
-            repeating-linear-gradient(
-              0deg,
-              rgba(255, 255, 255, 0.03) 0px,
-              transparent 2px,
-              transparent 4px
-            ),
-            repeating-linear-gradient(
-              90deg,
-              rgba(255, 255, 255, 0.03) 0px,
-              transparent 2px,
-              transparent 4px
-            )
-          `,
-          animation: 'staticNoise 0.1s infinite',
-        }}
-      />
+      {/* Static burst effect - Green net effect removed */}
+      {/* Grid pattern removed per user request */}
       
-      {/* Flash overlay */}
-      <div
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'radial-gradient(circle at center, rgba(45, 212, 191, 0.2) 0%, transparent 70%)',
-          animation: 'flash 0.3s ease-out',
-        }}
-      />
-      
-      <style>{`
-        @keyframes staticNoise {
-          0% { transform: translate(0, 0); }
-          25% { transform: translate(-2px, 2px); }
-          50% { transform: translate(2px, -2px); }
-          75% { transform: translate(-2px, -2px); }
-          100% { transform: translate(2px, 2px); }
-        }
-        
-        @keyframes flash {
-          0% { opacity: 0; }
-          50% { opacity: 1; }
-          100% { opacity: 0; }
-        }
-      `}</style>
+      {/* Flash overlay - Green/teal effect removed */}
+      {/* Radial gradient removed per user request */}
     </div>
   );
 }

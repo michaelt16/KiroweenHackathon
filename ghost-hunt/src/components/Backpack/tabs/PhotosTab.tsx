@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { playPaperClick } from '../../../utils/soundEffects';
 
 interface Photo {
   id: string;
@@ -15,6 +16,7 @@ const PhotosTab: React.FC<PhotosTabProps> = ({ photos = [] }) => {
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   const handlePhotoClick = (photo: Photo) => {
+    playPaperClick();
     setSelectedPhoto(photo);
   };
 

@@ -10,12 +10,16 @@ import { Tape } from '../components/analog/base/Tape';
 import { DamageOverlay } from '../components/analog/base/DamageOverlay';
 import { BackToMapButton } from '../components/analog/elements/BackToMapButton';
 import { useFieldJournals } from '../context/FieldJournalsContext';
+import { useMapData } from '../context/MapDataContext';
 import type { JournalEntry } from '../types/game';
-import ghost1Image from '../assets/images/ghost1.png';
-import ghost2Image from '../assets/images/ghost2.png';
 
-export function FieldJournalsScreen() {
-  const { collectedJournals } = useFieldJournals();
+interface FieldJournalsScreenProps {
+  hideBackButton?: boolean;
+}
+
+export function FieldJournalsScreen({ hideBackButton = false }: FieldJournalsScreenProps) {
+  const { collectedJournals, resetJournals } = useFieldJournals();
+  const { resetFieldJournalNodes } = useMapData();
   const [selectedEntry, setSelectedEntry] = useState<JournalEntry | null>(
     collectedJournals.length > 0 ? collectedJournals[0] : null
   );
@@ -30,7 +34,14 @@ export function FieldJournalsScreen() {
     } else if (collectedJournals.length === 0) {
       setSelectedEntry(null);
     }
-  }, [collectedJournals]);
+  }, [collectedJournals, selectedEntry]);
+  
+  // Reset to first page when entry changes (must be before early returns)
+  useEffect(() => {
+    if (selectedEntry) {
+      setCurrentPage(0);
+    }
+  }, [selectedEntry?.id]);
   
   // If no journals collected, show empty state
   if (collectedJournals.length === 0) {
@@ -44,7 +55,7 @@ export function FieldJournalsScreen() {
         alignItems: 'center',
         justifyContent: 'center',
       }}>
-        <BackToMapButton />
+        {!hideBackButton && <BackToMapButton />}
         <div style={{
           maxWidth: '600px',
           textAlign: 'center',
@@ -61,12 +72,9 @@ export function FieldJournalsScreen() {
     );
   }
   
-  if (!selectedEntry) {
-    return null;
-  }
-  
   // Split content into pages
-  const getPages = (entry: JournalEntry) => {
+  const getPages = (entry: JournalEntry | null) => {
+    if (!entry) return [];
     const pages: React.ReactNode[][] = [];
     let currentPageContent: React.ReactNode[] = [];
     
@@ -104,12 +112,11 @@ export function FieldJournalsScreen() {
     return pages;
   };
   
-  const pages = getPages(selectedEntry);
+  const pages = selectedEntry ? getPages(selectedEntry) : [];
   
-  // Reset to first page when entry changes
-  useEffect(() => {
-    setCurrentPage(0);
-  }, [selectedEntry.id]);
+  if (!selectedEntry) {
+    return null;
+  }
 
   return (
     <div
@@ -133,10 +140,12 @@ export function FieldJournalsScreen() {
         maxWidth: '900px',
         margin: '0 auto',
       }}>
-        {/* Back to Map Button */}
-        <div style={{ marginBottom: '20px' }}>
-          <BackToMapButton />
-        </div>
+        {/* Back to Map Button - Hidden in investigation mode */}
+        {!hideBackButton && (
+          <div style={{ marginBottom: '20px' }}>
+            <BackToMapButton />
+          </div>
+        )}
         
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
@@ -146,6 +155,38 @@ export function FieldJournalsScreen() {
           <TypewrittenText variant="faded" fontSize="11px" style={{ marginTop: '-10px', color: '#999' }}>
             CURSED FILES - RECOVERED FROM FIELD - AGENT CASUALTIES
           </TypewrittenText>
+          
+          {/* Reset button - Clear collection and restore journals to map */}
+          {collectedJournals.length > 0 && (
+            <button
+              onClick={() => {
+                if (window.confirm('Reset all collected journals? They will be removed from your collection and can be picked up again from the map.')) {
+                  // Clear the collection
+                  resetJournals();
+                  // Restore all journal nodes to the map
+                  resetFieldJournalNodes();
+                  // Clear selected entry
+                  setSelectedEntry(null);
+                  setCurrentPage(0);
+                }
+              }}
+              style={{
+                marginTop: '12px',
+                padding: '8px 16px',
+                background: '#8b0000',
+                border: '2px solid #4a0000',
+                borderRadius: '4px',
+                color: '#f4f0e6',
+                fontFamily: '"Courier New", monospace',
+                fontSize: '11px',
+                cursor: 'pointer',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+              }}
+            >
+              🔄 Reset All Journals
+            </button>
+          )}
         </div>
 
         {/* Journal Entry Selector - Collapsible */}
@@ -507,10 +548,10 @@ export function FieldJournalsScreen() {
                         }}>
                           <HandwrittenText
                             urgency={urgency}
-                            fontSize={urgency === 'frantic' ? '22px' : urgency === 'urgent' ? '20px' : '18px'}
-                            style={{ marginBottom: 0 }}
+                            fontSize={urgency === 'frantic' ? '26px' : urgency === 'urgent' ? '22px' : '20px'}
+                            style={{ marginBottom: 0, lineHeight: urgency === 'frantic' ? '1.4' : '1.6' }}
                           >
-                            <span style={{ fontWeight: 'bold' }}>{timestamp}</span> - {note}
+                            <span style={{ fontWeight: 'bold', fontSize: urgency === 'frantic' ? '28px' : '22px' }}>{timestamp}</span> - {note}
                           </HandwrittenText>
                           {/* Add blood smear for deceased agents on certain entries */}
                           {selectedEntry.agentStatus === 'DECEASED' && index >= selectedEntry.notes.length - 2 && (

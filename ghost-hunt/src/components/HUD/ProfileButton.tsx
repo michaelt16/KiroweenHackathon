@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import pfp from '../../assets/images/agent/pfp.png';
 import wrinkledpaper from '../../assets/texture/wrinkledpaper.png';
 import dust from '../../assets/texture/dust.png';
+import { playButtonClick } from '../../utils/soundEffects';
 
 interface ProfileButtonProps {
   onOpenProfile: () => void;
@@ -45,12 +46,14 @@ export function ProfileButton({ onOpenProfile }: ProfileButtonProps) {
         alignItems: 'center',
         gap: '8px',
         pointerEvents: 'auto',
-        marginBottom: '8px',
       }}
     >
       {/* Mini ID Card - Clickable */}
       <button
-        onClick={onOpenProfile}
+        onClick={() => {
+          playButtonClick();
+          onOpenProfile();
+        }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onTouchStart={() => setIsPressed(true)}

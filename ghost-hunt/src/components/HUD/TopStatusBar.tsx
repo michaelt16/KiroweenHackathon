@@ -1,11 +1,40 @@
-// Top Status Bar - Game-like Mobile UI with Horizontal ID Card
+// Top Status Bar - 5 Even Items
+import { useState, useEffect } from 'react';
 import { useSupplies } from '../../context/SuppliesContext';
 import { HorizontalIDCard } from '../analog/elements/HorizontalIDCard';
 import './TopStatusBar.css';
 
-export function TopStatusBar() {
+interface TopStatusBarProps {
+  position?: 'top' | 'left';
+}
+
+export function TopStatusBar({ position = 'top' }: TopStatusBarProps) {
   const { supplies } = useSupplies();
   const level = 1; // TODO: Get from game state
+  
+  // Get money from localStorage or default to 0
+  const [money, setMoney] = useState<number>(() => {
+    const saved = localStorage.getItem('ghost-hunt-money');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  // Listen for money updates (if updated elsewhere)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('ghost-hunt-money');
+      if (saved) {
+        setMoney(parseInt(saved, 10));
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    // Also check periodically in case updated in same tab
+    const interval = setInterval(handleStorageChange, 500);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
   const getRank = (level: number) => {
     if (level >= 20) return 'SENIOR INVESTIGATOR';
     if (level >= 10) return 'INVESTIGATOR';
@@ -14,9 +43,9 @@ export function TopStatusBar() {
   };
 
   return (
-    <div className="top-status-bar">
-      {/* Left: Horizontal ID Card */}
-      <div className="status-section" style={{ position: 'relative', zIndex: 2 }}>
+    <div className={`top-status-bar ${position === 'left' ? 'top-status-bar-left' : ''}`}>
+      {/* Item 1: ID Card */}
+      <div className="status-item-wrapper">
         <HorizontalIDCard
           agentName="AGENT_001"
           agentId="PI-0001-A"
@@ -26,37 +55,32 @@ export function TopStatusBar() {
         />
       </div>
 
-      {/* Center: Supplies Quick View */}
-      <div className="status-section status-supplies" style={{ position: 'relative', zIndex: 2 }}>
-        <div className="supply-item">
-          <span className="supply-icon">🎞️</span>
-          <span className="supply-count">{supplies.film}</span>
-        </div>
-        <div className="supply-item">
-          <span className="supply-icon">⚡</span>
-          <span className="supply-count">{supplies.boosts}</span>
-        </div>
-        <div className="supply-item">
-          <span className="supply-icon">🔮</span>
-          <span className="supply-count">{supplies.charms}</span>
-        </div>
+      {/* Item 2: Film */}
+      <div className="status-item-wrapper supply-item">
+        <span className="supply-icon">🎞️</span>
+        <span className="supply-count">{supplies.film}</span>
       </div>
 
-      {/* Right: Signal/Status */}
-      <div className="status-section" style={{ position: 'relative', zIndex: 2 }}>
-        <div className="status-item">
-          <div className="signal-indicator">
-            <div className="signal-dot signal-active" />
-            <div className="signal-dot signal-active" />
-            <div className="signal-dot signal-active" />
-          </div>
-          <div className="status-content">
-            <div className="status-label">SIGNAL</div>
-            <div className="status-value">ONLINE</div>
-          </div>
+      {/* Item 3: Boost */}
+      <div className="status-item-wrapper supply-item">
+        <span className="supply-icon">⚡</span>
+        <span className="supply-count">{supplies.boosts}</span>
+      </div>
+
+      {/* Item 4: Charm */}
+      <div className="status-item-wrapper supply-item">
+        <span className="supply-icon">🔮</span>
+        <span className="supply-count">{supplies.charms}</span>
+      </div>
+
+      {/* Item 5: Money */}
+      <div className="status-item-wrapper money-item">
+        <div className="money-icon">💰</div>
+        <div className="money-content">
+          <div className="money-label">BALANCE</div>
+          <div className="money-value">${money.toLocaleString()}</div>
         </div>
       </div>
     </div>
   );
 }
-

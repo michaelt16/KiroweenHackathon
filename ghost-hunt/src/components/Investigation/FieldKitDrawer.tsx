@@ -5,13 +5,14 @@ import { PhotosTab } from './FieldKit/PhotosTab';
 import { EvidenceTab } from './FieldKit/EvidenceTab';
 import { CodexTab } from './FieldKit/CodexTab';
 import { FieldJournalsScreen } from '../../screens/FieldJournalsScreen';
+import { ToolIcon } from '../Equipment/ToolIcon';
 
 type TabType = 'tools' | 'photos' | 'evidence' | 'journal' | 'codex';
 
 interface FieldKitDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  activeToolIcon?: string;
+  activeTool?: 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
 }
 
 // Static decoration data - defined outside component to prevent re-creation
@@ -31,7 +32,7 @@ const STITCHES = [
   { side: 'right' as const, offset: '8px' },
 ];
 
-export function FieldKitDrawer({ isOpen, onClose, activeToolIcon = '📡' }: FieldKitDrawerProps) {
+export function FieldKitDrawer({ isOpen, onClose, activeTool = 'radar' }: FieldKitDrawerProps) {
   const [activeTab, setActiveTab] = useState<TabType>('tools');
 
   const tabs: { id: TabType; label: string }[] = [
@@ -69,10 +70,16 @@ export function FieldKitDrawer({ isOpen, onClose, activeToolIcon = '📡' }: Fie
           boxShadow: '0 -4px 12px rgba(0,0,0,0.6)',
         }}
       >
-        {/* Active Tool Icon */}
-        <span style={{ fontSize: '20px' }}>
-          {activeToolIcon}
-        </span>
+        {/* Active Tool Icon - CSS Tool Icon */}
+        <div style={{ 
+          width: '24px', 
+          height: '24px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}>
+          <ToolIcon toolType={activeTool} size={24} />
+        </div>
         
         {/* Pull indicator */}
         <div style={{
@@ -291,7 +298,7 @@ export function FieldKitDrawer({ isOpen, onClose, activeToolIcon = '📡' }: Fie
               height: '100%',
               overflow: 'auto',
             }}>
-              <FieldJournalsScreen />
+              <FieldJournalsScreen hideBackButton={true} />
             </div>
           )}
           {activeTab === 'codex' && <CodexTab />}

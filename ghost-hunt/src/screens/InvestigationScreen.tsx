@@ -18,6 +18,7 @@ import { useCompass } from '../hooks/useCompass';
 import { spawnGhostPosition } from '../utils/gps';
 import type { GPSPosition } from '../utils/gps';
 import { preloadAllTextures } from '../utils/texturePreloader';
+import { calculateEMFLevel } from '../utils/toolBehaviors';
 
 // Import new investigation tools
 import { RadarTool } from '../components/Investigation/Tools/RadarTool';
@@ -210,6 +211,14 @@ function InvestigationContent() {
     };
   }, [gps, compass, requestOrientationPermission, devMode]);
 
+  // Initialize Dev Mode position when Dev Mode is enabled
+  useEffect(() => {
+    if (devMode && !investigationPlayerPosition) {
+      console.log('🎮 Dev Mode enabled: Initializing position');
+      updatePlayerPosition(devPosition);
+    }
+  }, [devMode, investigationPlayerPosition, devPosition, updatePlayerPosition]);
+
   // Spawn ghost at random GPS position when player position is first available
   useEffect(() => {
     if (investigationPlayerPosition && !ghostGPSPosition) {
@@ -303,6 +312,7 @@ function InvestigationContent() {
       />
 
       {/* Investigation Tools - Conditional rendering based on activeTool */}
+      {console.log('🔧 Current activeTool:', activeTool)}
       {activeTool === 'radar' && (
         <RadarTool
           mode="investigation"
@@ -320,15 +330,8 @@ function InvestigationContent() {
       {activeTool === 'emf' && (
         <EMFTool
           mode="investigation"
-          emfLevel={
-            // EMF level based on distance (closer = higher)
-            ghostDistance < 10 ? 5 :
-            ghostDistance < 20 ? 4 :
-            ghostDistance < 30 ? 3 :
-            ghostDistance < 50 ? 2 :
-            ghostDistance < 80 ? 1 : 0
-          }
-          isFlickering={ghostDistance < 10}
+          emfLevel={calculateEMFLevel(ghostDistance)}
+          isFlickering={ghostDistance < 3 && calculateEMFLevel(ghostDistance) === 5}
         />
       )}
       
@@ -433,13 +436,7 @@ function InvestigationContent() {
       <FieldKitDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(!isDrawerOpen)}
-        activeToolIcon={
-          activeTool === 'radar' ? '📡' :
-          activeTool === 'emf' ? '📊' :
-          activeTool === 'thermal' ? '🌡️' :
-          activeTool === 'audio' ? '📻' :
-          activeTool === 'camera' ? '📷' : '📡'
-        }
+        activeTool={activeTool}
       />
 
       {/* Exit Button - Repositioned to top-right without top bar */}

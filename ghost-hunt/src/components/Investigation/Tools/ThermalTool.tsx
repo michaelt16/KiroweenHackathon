@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo } from 'react';
+import { useState, useEffect, useMemo, memo, useRef } from 'react';
 import smoothPlastic from '../../../assets/texture/smoothplastictexture.png';
 import scratchedPlasticDark from '../../../assets/texture/scratchedplasticdark.png';
 import wrinkledPaper from '../../../assets/texture/wrinkledpaper.png';
@@ -7,6 +7,11 @@ import dust from '../../../assets/texture/dust.png';
 import tape from '../../../assets/texture/tape.png';
 import filmgrain from '../../../assets/texture/filmgrain.png';
 import crtTexture from '../../../assets/texture/crtexture.png';
+import metalTexture from '../../../assets/texture/metalscratchedtexture.png';
+import rust from '../../../assets/texture/brownrust.png';
+import { useGhostRelationship } from '../../../hooks/useGhostRelationship';
+import { calculateThermalReading } from '../../../utils/toolBehaviors';
+import { useInvestigationStore } from '../../../stores/investigationStore';
 
 /**
  * ThermalTool - Production component for FLIR E5-style thermal scanner
@@ -40,16 +45,57 @@ const ThermalToolComponent = ({
   const [mockTemperature, setMockTemperature] = useState(68);
   const [mockHotSpot, setMockHotSpot] = useState(false);
 
+  // Investigation mode: Get ghost relationship data
+  const relationship = useGhostRelationship();
+  const logEvidence = useInvestigationStore((state) => state.logEvidence);
+  const lastLoggedCategoryRef = useRef<string | null>(null);
+
+  // Calculate thermal reading in investigation mode
+  const thermalReading = useMemo(() => {
+    if (mode === 'investigation' && relationship.isValid && relationship.ghostBehavior) {
+      // Convert enum to string type (ThermalReading enum -> string union)
+      const thermalCategory = relationship.ghostBehavior.thermalReading as 'normal' | 'cold_spot' | 'deep_cold';
+      return calculateThermalReading(
+        relationship.distance,
+        thermalCategory
+      );
+    }
+    return null;
+  }, [mode, relationship.isValid, relationship.distance, relationship.ghostBehavior?.thermalReading]);
+
+  // Convert thermal reading to cold spots format for display
+  const investigationColdSpots = useMemo(() => {
+    if (mode === 'investigation' && thermalReading) {
+      // If we have a cold reading, create a cold spot visualization
+      if (thermalReading.category === 'cold_spot' || thermalReading.category === 'deep_cold') {
+        // Generate 1-2 cold spots at random positions
+        const spotCount = thermalReading.category === 'deep_cold' ? 2 : 1;
+        const spots = [];
+        for (let i = 0; i < spotCount; i++) {
+          spots.push({
+            x: 80 + Math.random() * 160, // Random X position (80-240px)
+            y: 60 + Math.random() * 120,  // Random Y position (60-180px)
+            intensity: thermalReading.category === 'deep_cold' ? 0.8 : 0.6, // Higher intensity for deep cold
+          });
+        }
+        return spots;
+      }
+    }
+    return [];
+  }, [mode, thermalReading]);
+
   // Memoize data calculations
   const effectiveColdSpots = useMemo(() => 
-    mode === 'view' ? [mockColdSpot] : coldSpots,
-    [mode, mockColdSpot, coldSpots]
+    mode === 'view' ? [mockColdSpot] : (mode === 'investigation' ? investigationColdSpots : coldSpots),
+    [mode, mockColdSpot, investigationColdSpots, coldSpots]
   );
   
-  const effectiveTemperature = useMemo(() => 
-    mode === 'view' ? mockTemperature : temperature,
-    [mode, mockTemperature, temperature]
-  );
+  const effectiveTemperature = useMemo(() => {
+    if (mode === 'investigation' && thermalReading) {
+      return thermalReading.temperature;
+    }
+    return mode === 'view' ? mockTemperature : temperature;
+  }, [mode, mockTemperature, temperature, thermalReading]);
   
   const effectiveHotSpot = useMemo(() => 
     mode === 'view' ? mockHotSpot : hotSpotDetected,
@@ -57,6 +103,39 @@ const ThermalToolComponent = ({
   );
   
   const scanLines = mockScanLines;
+
+  // Log cold readings to evidence store (only once per category change)
+  useEffect(() => {
+    if (mode === 'investigation' && thermalReading) {
+      const category = thermalReading.category;
+      
+      // Only log cold_spot or deep_cold readings (not normal)
+      if ((category === 'cold_spot' || category === 'deep_cold') && 
+          category !== lastLoggedCategoryRef.current) {
+        const evidenceEntry = {
+          id: `thermal-${Date.now()}-${Math.random()}`,
+          timestamp: Date.now(),
+          type: 'thermal' as const,
+          data: {
+            temperature: thermalReading.temperature,
+            category: category,
+            distance: relationship.distance,
+          },
+        };
+        
+        logEvidence(evidenceEntry);
+        lastLoggedCategoryRef.current = category;
+        console.log('🌡️ Thermal: Cold reading logged', {
+          category,
+          temperature: thermalReading.temperature,
+          distance: relationship.distance,
+        });
+      } else if (category === 'normal' && lastLoggedCategoryRef.current !== null) {
+        // Reset logged category when returning to normal
+        lastLoggedCategoryRef.current = null;
+      }
+    }
+  }, [mode, thermalReading, relationship.distance, logEvidence]);
 
   useEffect(() => {
     if (mode === 'view') {
@@ -99,6 +178,11 @@ const ThermalToolComponent = ({
 
   const isFreezingCold = effectiveTemperature < 40;
   const isCold = effectiveTemperature < 50;
+
+  // Convert Fahrenheit to Celsius for display
+  const temperatureCelsius = useMemo(() => {
+    return (effectiveTemperature - 32) * (5 / 9);
+  }, [effectiveTemperature]);
 
   return (
     <>
@@ -590,24 +674,9 @@ const ThermalToolComponent = ({
                 ⚠ WARNING
               </div>
               
-              {/* HOT SPOT WARNING label */}
-              <div style={{
-                position: 'absolute',
-                bottom: '5%',
-                right: '8%',
-                fontFamily: '"Caveat", cursive',
-                fontSize: '11px',
-                color: 'rgba(255,150,0,0.5)',
-                transform: 'rotate(-2deg)',
-                textShadow: '0 1px 2px rgba(0,0,0,0.9)',
-                pointerEvents: 'none',
-                zIndex: 20,
-              }}>
-                HOT SPOT WARNING
-              </div>
             </div>
             
-            {/* Screen frame - EMF-style bezel with dark metal feel */}
+            {/* Thermal Display Container */}
             <div style={{
               position: 'absolute',
               top: '8%',
@@ -615,57 +684,296 @@ const ThermalToolComponent = ({
               transform: 'translateX(-50%)',
               width: 'min(90vw, 800px)',
               aspectRatio: '4 / 3',
-              backgroundColor: '#050505',
-              borderRadius: '6px',
-              boxShadow: 
-                'inset 0 3px 6px rgba(255,255,255,0.04), ' +
-                'inset 0 -8px 16px rgba(0,0,0,0.95), ' +
-                '0 0 40px rgba(0,0,0,0.9)',
               zIndex: 11,
             }}>
-              
-              {/* Screen glow - EMF style */}
+              {/* Recessed Display Panel */}
               <div style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                pointerEvents: 'none',
-                background: `
-                  radial-gradient(circle at 50% 45%, rgba(0, 255, 180, 0.16), transparent 65%),
-                  radial-gradient(circle at 50% 100%, rgba(0, 255, 80, 0.12), transparent 70%)
-                `,
-                mixBlendMode: 'screen',
-                zIndex: 1,
-                borderRadius: '6px',
-                ...(effectiveHotSpot ? {
-                  boxShadow: '0 0 50px rgba(255, 120, 0, 0.55)',
-                  transition: 'box-shadow 0.18s ease-out',
-                } : {
-                  boxShadow: '0 0 25px rgba(0, 255, 100, 0.25)',
-                  transition: 'box-shadow 0.18s ease-out',
-                }),
-              }} />
-              
-              {/* THERMAL SCREEN */}
-              <div style={{
-                position: 'absolute',
-                top: '4%',
-                left: '4%',
-                right: '4%',
-                bottom: '4%',
-                borderRadius: '4px',
-                background: '#1a0a2a',
+                position: 'relative',
+                width: '100%',
+                height: '100%',
+                borderRadius: '8px',
+                background: '#0a0a0a',
                 boxShadow: 
-                  'inset 0 12px 30px rgba(0,0,0,0.95), ' +
-                  'inset 0 6px 15px rgba(0,0,0,0.9), ' +
-                  'inset 0 0 80px rgba(100,150,255,0.25)',
-                border: '2px solid #000',
+                  'inset 0 8px 20px rgba(0,0,0,0.95), ' +
+                  'inset 0 4px 10px rgba(0,0,0,0.9), ' +
+                  '0 2px 6px rgba(0,0,0,0.8)',
+                border: '3px solid #1a1a1a',
                 overflow: 'hidden',
-                zIndex: 2,
               }}>
-                {/* Thermographic gradient */}
+                {/* THICK Metallic Bezel Ring - Raised Above Display Panel */}
+                <div style={{
+                  position: 'absolute',
+                  top: '-28px',
+                  left: '-28px',
+                  right: '-28px',
+                  bottom: '-28px',
+                  borderRadius: '12px',
+                  background: `
+                    linear-gradient(135deg, 
+                      #5a5a5a 0%, 
+                      #4a4a4a 15%, 
+                      #3a3a3a 30%, 
+                      #4a4a4a 50%, 
+                      #3a3a3a 70%, 
+                      #2a2a2a 85%, 
+                      #1a1a1a 100%
+                    ),
+                    url(${metalTexture})
+                  `,
+                  backgroundBlendMode: 'overlay',
+                  backgroundSize: 'cover, cover',
+                  boxShadow: 
+                    'inset 0 4px 8px rgba(255,255,255,0.2), ' +
+                    'inset 0 -4px 8px rgba(0,0,0,0.9), ' +
+                    'inset 0 0 80px rgba(0,0,0,0.5), ' +
+                    '0 10px 25px rgba(0,0,0,0.95), ' +
+                    '0 15px 35px rgba(0,0,0,0.85)',
+                  filter: 'brightness(0.85)',
+                  border: '5px solid rgba(0,0,0,0.8)',
+                  borderTop: '4px solid rgba(255,255,255,0.1)',
+                  zIndex: 12,
+                  overflow: 'hidden',
+                }}>
+                  {/* Rust/wear on bezel */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundImage: `url(${rust})`,
+                    backgroundSize: 'cover',
+                    mixBlendMode: 'multiply',
+                    opacity: 0.4,
+                    pointerEvents: 'none',
+                    zIndex: 2,
+                  }} />
+                  
+                  {/* Dust on bezel */}
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    backgroundImage: `url(${dust})`,
+                    backgroundSize: 'cover',
+                    mixBlendMode: 'multiply',
+                    opacity: 0.3,
+                    pointerEvents: 'none',
+                    zIndex: 3,
+                  }} />
+                  
+                  {/* Brushed metal highlight */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '20%',
+                    left: '10%',
+                    right: '10%',
+                    height: '30%',
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
+                    borderRadius: '50%',
+                    transform: 'rotate(-45deg)',
+                    pointerEvents: 'none',
+                    zIndex: 4,
+                  }} />
+                  
+                  {/* Rust spot on bezel */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '15%',
+                    right: '20%',
+                    width: '40px',
+                    height: '40px',
+                    backgroundImage: `url(${rust})`,
+                    backgroundSize: 'cover',
+                    mixBlendMode: 'multiply',
+                    opacity: 0.4,
+                    borderRadius: '50%',
+                    pointerEvents: 'none',
+                    zIndex: 5,
+                  }} />
+                  
+                  {/* Dust/grime on bezel */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '30%',
+                    left: '25%',
+                    width: '60px',
+                    height: '60px',
+                    backgroundImage: `url(${dust})`,
+                    backgroundSize: 'cover',
+                    mixBlendMode: 'multiply',
+                    opacity: 0.3,
+                    borderRadius: '50%',
+                    pointerEvents: 'none',
+                    zIndex: 5,
+                  }} />
+                  
+                  {/* Bezel scratches */}
+                  {[
+                    { top: '10%', left: '12%', width: '45px', angle: -30, opacity: 0.65 },
+                    { bottom: '25%', right: '15%', width: '50px', angle: 35, opacity: 0.6 },
+                    { top: '25%', right: '10%', width: '38px', angle: -22, opacity: 0.58 },
+                    { top: '35%', left: '14%', width: '42px', angle: 28, opacity: 0.62 },
+                    { bottom: '40%', left: '16%', width: '40px', angle: -25, opacity: 0.6 },
+                  ].map((scratch, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        position: 'absolute',
+                        ...(scratch.top ? { top: scratch.top } : {}),
+                        ...(scratch.bottom ? { bottom: scratch.bottom } : {}),
+                        ...(scratch.left ? { left: scratch.left } : {}),
+                        ...(scratch.right ? { right: scratch.right } : {}),
+                        width: scratch.width,
+                        height: '1.5px',
+                        background: 'rgba(0,0,0,0.7)',
+                        transform: `rotate(${scratch.angle}deg)`,
+                        opacity: scratch.opacity,
+                        boxShadow: '0 0 2px rgba(0,0,0,0.8)',
+                        pointerEvents: 'none',
+                        zIndex: 6,
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Tape patch on bezel */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '25%',
+                    left: '10%',
+                    width: '50px',
+                    height: '20px',
+                    backgroundImage: `url(${tape})`,
+                    backgroundSize: 'cover',
+                    transform: 'rotate(-15deg)',
+                    opacity: 0.7,
+                    boxShadow: '0 1px 3px rgba(0,0,0,0.5)',
+                    pointerEvents: 'none',
+                    zIndex: 6,
+                  }} />
+                  
+                  {/* Fingerprint smudges on bezel */}
+                  {[
+                    { top: '35%', left: '30%', size: '25px' },
+                    { bottom: '40%', right: '28%', size: '20px' },
+                  ].map((smudge, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        position: 'absolute',
+                        ...(smudge.top ? { top: smudge.top } : {}),
+                        ...(smudge.bottom ? { bottom: smudge.bottom } : {}),
+                        ...(smudge.left ? { left: smudge.left } : {}),
+                        ...(smudge.right ? { right: smudge.right } : {}),
+                        width: smudge.size,
+                        height: smudge.size,
+                        background: 'radial-gradient(circle, rgba(0,0,0,0.3) 0%, transparent 70%)',
+                        borderRadius: '50%',
+                        pointerEvents: 'none',
+                        filter: 'blur(2px)',
+                        zIndex: 6,
+                      }}
+                    />
+                  ))}
+                  
+                  {/* Bezel screws at cardinal points */}
+                  {[
+                    { top: '18px', left: '50%', transform: 'translateX(-50%)' },
+                    { bottom: '18px', left: '50%', transform: 'translateX(-50%)' },
+                    { top: '50%', left: '18px', transform: 'translateY(-50%)' },
+                    { top: '50%', right: '18px', transform: 'translateY(-50%)' },
+                  ].map((pos, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        position: 'absolute',
+                        ...pos,
+                        width: '12px',
+                        height: '12px',
+                        borderRadius: '50%',
+                        background: 'radial-gradient(circle at 30% 30%, #6a6a6a 0%, #3a3a3a 40%, #1a1a1a 80%, #0a0a0a 100%)',
+                        boxShadow: 
+                          'inset 0 2px 3px rgba(255,255,255,0.3), ' +
+                          'inset 0 -2px 3px rgba(0,0,0,0.9), ' +
+                          '0 2px 4px rgba(0,0,0,0.8)',
+                        border: '1px solid rgba(0,0,0,0.7)',
+                        zIndex: 20,
+                      }}
+                    >
+                      {/* Screw slot */}
+                      <div style={{
+                        position: 'absolute',
+                        top: '50%',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '8px',
+                        height: '1.5px',
+                        background: '#0a0a0a',
+                        boxShadow: '0 0 2px rgba(0,0,0,0.9)',
+                      }} />
+                    </div>
+                  ))}
+                  
+                  {/* DEEP Shadow beneath bezel */}
+                  <div style={{
+                    position: 'absolute',
+                    top: '32px',
+                    left: '32px',
+                    right: '32px',
+                    bottom: '32px',
+                    borderRadius: '8px',
+                    boxShadow: 
+                      'inset 0 0 60px rgba(0,0,0,0.99), ' +
+                      'inset 0 0 100px rgba(0,0,0,0.98), ' +
+                      'inset 0 0 140px rgba(0,0,0,0.96), ' +
+                      'inset 0 0 180px rgba(0,0,0,0.94)',
+                    pointerEvents: 'none',
+                    zIndex: 1,
+                  }} />
+                </div>
+                
+                {/* Screen glow - Thermal style - Enhanced cool blue */}
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  pointerEvents: 'none',
+                  background: `
+                    radial-gradient(circle at 50% 45%, rgba(100, 200, 255, 0.25), transparent 65%),
+                    radial-gradient(circle at 50% 100%, rgba(80, 180, 255, 0.20), transparent 70%),
+                    radial-gradient(circle at 30% 60%, rgba(120, 220, 255, 0.15), transparent 50%)
+                  `,
+                  mixBlendMode: 'screen',
+                  zIndex: 1,
+                  borderRadius: '8px',
+                  boxShadow: '0 0 40px rgba(100, 200, 255, 0.35), 0 0 80px rgba(80, 180, 255, 0.2)',
+                  transition: 'box-shadow 0.18s ease-out',
+                }} />
+                
+                {/* THERMAL SCREEN - Enhanced cool blue tones */}
+                <div style={{
+                  position: 'absolute',
+                  top: '6%',
+                  left: '6%',
+                  right: '6%',
+                  bottom: '6%',
+                  borderRadius: '4px',
+                  background: '#0a1a2a',
+                  boxShadow: 
+                    'inset 0 15px 40px rgba(0,0,0,0.99), ' +
+                    'inset 0 8px 25px rgba(0,0,0,0.98), ' +
+                    'inset 0 4px 12px rgba(0,0,0,0.97), ' +
+                    'inset 0 0 120px rgba(100,180,255,0.35), ' +
+                    'inset 0 0 200px rgba(80,160,255,0.25)',
+                  border: '3px solid #000',
+                  overflow: 'hidden',
+                  zIndex: 13,
+                }}>
+                {/* Thermographic gradient - Enhanced cool blue tones */}
                 <div style={{
                   position: 'absolute',
                   top: 0,
@@ -673,15 +981,15 @@ const ThermalToolComponent = ({
                   right: 0,
                   bottom: 0,
                   background: `
-                    radial-gradient(ellipse at 30% 40%, rgba(40,20,60,0.95) 0%, rgba(20,10,40,0.85) 30%, rgba(10,5,25,0.75) 60%, rgba(5,2,15,0.9) 100%),
-                    radial-gradient(ellipse at 70% 60%, rgba(20,40,80,0.7) 0%, rgba(10,20,50,0.6) 40%, transparent 80%),
+                    radial-gradient(ellipse at 30% 40%, rgba(20,40,80,0.95) 0%, rgba(15,30,60,0.85) 30%, rgba(10,20,50,0.75) 60%, rgba(5,15,40,0.9) 100%),
+                    radial-gradient(ellipse at 70% 60%, rgba(30,60,120,0.7) 0%, rgba(20,50,100,0.6) 40%, transparent 80%),
                     linear-gradient(180deg, 
-                      rgba(120,80,180,0.4) 0%, 
-                      rgba(80,120,220,0.3) 20%,
-                      rgba(120,170,255,0.25) 40%,
-                      rgba(255,200,100,0.2) 60%,
-                      rgba(255,150,50,0.15) 80%,
-                      rgba(255,255,255,0.1) 100%
+                      rgba(40,80,160,0.5) 0%, 
+                      rgba(60,120,200,0.4) 20%,
+                      rgba(80,160,240,0.35) 40%,
+                      rgba(100,180,255,0.3) 60%,
+                      rgba(120,200,255,0.25) 80%,
+                      rgba(140,220,255,0.2) 100%
                     )
                   `,
                   zIndex: 1,
@@ -782,21 +1090,23 @@ const ThermalToolComponent = ({
                   />
                 ))}
                 
-                {/* Temperature readout */}
+                {/* Temperature readout - Larger and more prominent */}
                 <div style={{
                   position: 'absolute',
-                  top: '10px',
-                  left: '10px',
+                  top: '15px',
+                  left: '15px',
                   fontFamily: '"Courier New", monospace',
-                  fontSize: '14px',
-                  color: isCold ? '#6699ff' : '#ffffff',
+                  fontSize: '24px',
+                  fontWeight: 'bold',
+                  color: isCold ? '#88ccff' : '#ffffff',
                   textShadow: isCold 
-                    ? '0 0 8px rgba(102,153,255,0.8), 0 0 16px rgba(102,153,255,0.5)'
-                    : '0 0 4px rgba(255,255,255,0.5)',
+                    ? '0 0 12px rgba(136,204,255,0.9), 0 0 24px rgba(102,153,255,0.7), 0 0 36px rgba(80,140,255,0.5)'
+                    : '0 0 8px rgba(255,255,255,0.7), 0 0 16px rgba(200,220,255,0.5)',
                   pointerEvents: 'none',
                   zIndex: 20,
+                  letterSpacing: '1px',
                 }}>
-                  {effectiveTemperature.toFixed(1)}°F
+                  {effectiveTemperature.toFixed(1)}°F / {temperatureCelsius.toFixed(1)}°C
                 </div>
                 
                 {/* Crosshair */}
@@ -830,26 +1140,25 @@ const ThermalToolComponent = ({
                   }} />
                 </div>
                 
-                {/* Anomaly warning */}
-                {(isFreezingCold || effectiveHotSpot) && (
+                {/* Cold anomaly warning only */}
+                {isFreezingCold && (
                   <div style={{
                     position: 'absolute',
-                    bottom: '10px',
+                    bottom: '15px',
                     left: '50%',
                     transform: 'translateX(-50%)',
                     fontFamily: '"Courier New", monospace',
-                    fontSize: '12px',
-                    color: effectiveHotSpot ? '#ff8800' : '#6699ff',
-                    textShadow: effectiveHotSpot
-                      ? '0 0 8px rgba(255,136,0,0.8)'
-                      : '0 0 8px rgba(102,153,255,0.8)',
+                    fontSize: '14px',
+                    color: '#88ccff',
+                    textShadow: '0 0 10px rgba(136,204,255,0.9), 0 0 20px rgba(102,153,255,0.7)',
                     animation: 'blink 1s infinite',
                     pointerEvents: 'none',
                     zIndex: 20,
                   }}>
-                    {effectiveHotSpot ? '⚠ HOT SPOT DETECTED' : '❄ COLD ANOMALY'}
+                    ❄ COLD ANOMALY
                   </div>
                 )}
+                </div>
               </div>
             </div>
           </div>
@@ -924,3 +1233,4 @@ const ThermalToolComponent = ({
 // Memoize the component to prevent unnecessary re-renders
 export const ThermalTool = memo(ThermalToolComponent);
 export default ThermalTool;
+

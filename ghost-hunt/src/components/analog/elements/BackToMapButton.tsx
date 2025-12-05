@@ -2,6 +2,7 @@
 import { useNavigate } from 'react-router-dom';
 import wrinkledPaper from '../../../assets/texture/wrinkledpaper.png';
 import dust from '../../../assets/texture/dust.png';
+import { playButtonClick } from '../../../utils/soundEffects';
 
 interface BackToMapButtonProps {
   style?: React.CSSProperties;
@@ -16,7 +17,10 @@ export function BackToMapButton({ style }: BackToMapButtonProps) {
 
   return (
     <button
-      onClick={() => navigate('/')}
+      onClick={() => {
+        playButtonClick();
+        navigate('/');
+      }}
       style={{
         background: '#d8d4c8', // Aged paper
         border: '2px solid #1a0f0a',

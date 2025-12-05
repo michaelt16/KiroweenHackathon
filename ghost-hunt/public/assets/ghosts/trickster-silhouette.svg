@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="200" height="300">
+  <!-- Trickster: Playful, mischievous, asymmetric, slightly tilted -->
+  
+  <!-- Tilted body -->
+  <ellipse cx="105" cy="150" rx="42" ry="75" fill="#1a1a1a" opacity="0.85" transform="rotate(8 105 150)" />
+  
+  <!-- Upper body -->
+  <ellipse cx="100" cy="95" rx="38" ry="50" fill="#1a1a1a" opacity="0.9" transform="rotate(-5 100 95)" />
+  
+  <!-- Tilted head with playful angle -->
+  <ellipse cx="98" cy="50" rx="32" ry="38" fill="#1a1a1a" opacity="0.92" transform="rotate(12 98 50)" />
+  
+  <!-- Asymmetric arms - one raised, one lowered -->
+  <path d="M 70 100 Q 45 85 25 75" stroke="#1a1a1a" stroke-width="12" fill="none" opacity="0.85" />
+  <path d="M 130 110 Q 155 130 175 145" stroke="#1a1a1a" stroke-width="12" fill="none" opacity="0.85" />
+  
+  <!-- Playful gesture - finger pointing -->
+  <circle cx="25" cy="75" r="6" fill="#1a1a1a" opacity="0.9" />
+  
+  <!-- Mischievous eyes - one winking -->
+  <ellipse cx="88" cy="45" rx="5" ry="7" fill="#0a0a0a" opacity="0.85" />
+  <path d="M 105 43 Q 110 45 115 43" stroke="#0a0a0a" stroke-width="2" fill="none" opacity="0.85" />
+  
+  <!-- Slight grin -->
+  <path d="M 85 58 Q 98 62 111 58" stroke="#0a0a0a" stroke-width="2" fill="none" opacity="0.8" />
+  
+  <!-- Playful lower body - dancing pose -->
+  <path d="M 85 215 Q 75 245 70 275" stroke="#1a1a1a" stroke-width="16" fill="none" opacity="0.8" />
+  <path d="M 115 215 Q 130 250 140 280" stroke="#1a1a1a" stroke-width="16" fill="none" opacity="0.8" />
+  
+  <!-- Small details suggesting movement/playfulness -->
+  <circle cx="60" cy="120" r="4" fill="#1a1a1a" opacity="0.6" />
+  <circle cx="145" cy="140" r="4" fill="#1a1a1a" opacity="0.6" />
+  <circle cx="90" cy="200" r="3" fill="#1a1a1a" opacity="0.5" />
+</svg>

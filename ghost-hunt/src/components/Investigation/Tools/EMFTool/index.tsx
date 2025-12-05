@@ -29,6 +29,9 @@ import { WeldSeams } from '../shared/hardware/WeldSeams';
 import { TapePatches } from '../shared/hardware/TapePatches';
 import { EtchedLabel } from '../shared/labels/EtchedLabel';
 import { TextureOverlays } from '../shared/textures/TextureOverlays';
+import { useInvestigationStore } from '../../../../stores/investigationStore';
+import { useGhostRelationship } from '../../../../hooks/useGhostRelationship';
+import { calculateEMFLevel } from '../../../../utils/toolBehaviors';
 
 const EMFToolComponent = ({ 
   mode, 
@@ -38,6 +41,15 @@ const EMFToolComponent = ({
   // Internal state for view mode
   const [mockEmfLevel, setMockEmfLevel] = useState(0);
   const [mockFlickering, setMockFlickering] = useState(false);
+  
+  // Investigation mode state
+  const [calculatedEmfLevel, setCalculatedEmfLevel] = useState(0);
+  const [investigationFlickering, setInvestigationFlickering] = useState(false);
+  const [screenShake, setScreenShake] = useState(false);
+  const [lastLoggedLevel, setLastLoggedLevel] = useState(0);
+  
+  // ✅ Use centralized ghost relationship hook (single source of truth)
+  const relationship = useGhostRelationship();
 
   // Mock animation for view mode
   useEffect(() => {
@@ -66,10 +78,83 @@ const EMFToolComponent = ({
       setMockFlickering(false);
     }
   }, [mode]);
+  
+  // Investigation mode: Calculate EMF level from centralized relationship
+  useEffect(() => {
+    if (mode === 'investigation' && relationship.isValid) {
+      // ✅ Use centralized relationship data (distance only - no personality)
+      const distance = relationship.distance;
+        
+      // Calculate EMF level using pure distance
+        const level = calculateEMFLevel(distance);
+        
+      console.log('📊 EMF:', distance.toFixed(1) + 'm', '→ Level', level);
+        
+        setCalculatedEmfLevel(level);
+        
+        // Visual feedback for level 4-5
+        if (level >= 4) {
+          // Flickering effect
+          setInvestigationFlickering(true);
+          setTimeout(() => setInvestigationFlickering(false), 200);
+          
+          // Screen shake for level 5
+          if (level === 5) {
+            setScreenShake(true);
+            setTimeout(() => setScreenShake(false), 300);
+          }
+          
+          // Log evidence when reaching level 4-5 (only once per level change)
+          if (level !== lastLoggedLevel && level >= 4) {
+            const evidenceEntry = {
+              id: `emf-${Date.now()}-${Math.random()}`,
+              timestamp: Date.now(),
+              type: 'emf' as const,
+              data: {
+                level,
+                distance: Math.round(distance * 10) / 10, // Round to 1 decimal
+              },
+            };
+            
+            useInvestigationStore.getState().logEvidence(evidenceEntry);
+            setLastLoggedLevel(level);
+          }
+        } else {
+          // Reset last logged level when dropping below 4
+          if (lastLoggedLevel >= 4 && level < 4) {
+            setLastLoggedLevel(level);
+          }
+        }
+    } else {
+      // Reset investigation state when not in investigation mode or invalid relationship
+      setCalculatedEmfLevel(0);
+      setInvestigationFlickering(false);
+      setScreenShake(false);
+      if (mode !== 'investigation') {
+      setLastLoggedLevel(0);
+      }
+    }
+  }, [
+    mode, 
+    relationship.isValid,
+    relationship.distance,
+    lastLoggedLevel,
+  ]);
 
   // Use mock data in view mode, real data in investigation mode
-  const effectiveEmfLevel = mode === 'view' ? mockEmfLevel : emfLevel;
-  const effectiveFlickering = mode === 'view' ? mockFlickering : isFlickering;
+  const effectiveEmfLevel = mode === 'view' 
+    ? mockEmfLevel 
+    : (mode === 'investigation' ? calculatedEmfLevel : emfLevel);
+  const effectiveFlickering = mode === 'view' 
+    ? mockFlickering 
+    : (mode === 'investigation' ? investigationFlickering : isFlickering);
+
+  console.log('🎯 EMFTool render:', {
+    mode,
+    calculatedEmfLevel,
+    effectiveEmfLevel,
+    effectiveFlickering
+  });
 
   return (
     <div style={{
@@ -82,6 +167,8 @@ const EMFToolComponent = ({
       height: '100vh',
       overflow: 'hidden',
       background: '#0a0a0a',
+      // Screen shake animation for level 5
+      animation: screenShake ? 'emfScreenShake 0.3s ease-in-out' : 'none',
     }}>
       {/* Layer 0: Background gradient */}
       <div style={{
@@ -94,6 +181,22 @@ const EMFToolComponent = ({
         opacity: 0.3,
         zIndex: 0,
       }} />
+      
+      {/* Red glow overlay for level 4-5 */}
+      {effectiveEmfLevel >= 4 && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'radial-gradient(ellipse at center, rgba(255,0,0,0.15) 0%, transparent 70%)',
+          opacity: effectiveEmfLevel === 5 ? 0.8 : 0.5,
+          animation: effectiveFlickering ? 'emfRedPulse 0.2s ease-in-out' : 'none',
+          pointerEvents: 'none',
+          zIndex: 25,
+        }} />
+      )}
       
       {/* Layer 1: Metal Casing with all components */}
       <MetalCasing>
@@ -169,3 +272,26 @@ const EMFToolComponent = ({
 };
 
 export const EMFTool = memo(EMFToolComponent);
+
+// Add CSS animations for screen shake and red pulse
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes emfScreenShake {
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-2px, 2px); }
+    20% { transform: translate(2px, -2px); }
+    30% { transform: translate(-2px, -2px); }
+    40% { transform: translate(2px, 2px); }
+    50% { transform: translate(-2px, 2px); }
+    60% { transform: translate(2px, -2px); }
+    70% { transform: translate(-2px, -2px); }
+    80% { transform: translate(2px, 2px); }
+    90% { transform: translate(-2px, 2px); }
+  }
+  
+  @keyframes emfRedPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.8; }
+  }
+`;
+document.head.appendChild(style);

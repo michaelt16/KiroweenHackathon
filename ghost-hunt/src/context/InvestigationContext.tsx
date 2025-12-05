@@ -12,6 +12,8 @@ import type { TraitState, EvidenceTrait } from '../data/ghosts';
 import type { GPSPosition } from '../utils/gps';
 import { haversineDistance, calculateBearing } from '../utils/gps';
 import { throttle } from '../utils/throttle';
+import { useInvestigationStore } from '../stores/investigationStore';
+import { GhostType as StoreGhostType } from '../stores/ghostStore';
 
 type ToolId = 'radar' | 'emf' | 'thermal' | 'audio' | 'camera';
 
@@ -327,19 +329,39 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
   }, [state.ghostType]);
 
   const initializeInvestigation = useCallback(() => {
-    // Randomize ghost type
-    const ghostTypes: GhostType[] = ['Wraith', 'Shade', 'Poltergeist'];
+    // Randomize ghost type - ALL 7 GHOSTS AVAILABLE
+    const ghostTypes: GhostType[] = ['Wraith', 'Shade', 'Poltergeist', 'Banshee', 'Phantom', 'Onyx', 'Trickster'];
     const randomGhost = ghostTypes[Math.floor(Math.random() * ghostTypes.length)];
     
     console.log('🎲 Randomized ghost type:', randomGhost);
     setGhostType(randomGhost);
+    
+    // Map investigation ghost type to store ghost type - ALL 7 GHOSTS
+    const storeGhostTypeMap: Record<GhostType, StoreGhostType> = {
+      'Wraith': StoreGhostType.WRAITH,
+      'Shade': StoreGhostType.SHADE,
+      'Poltergeist': StoreGhostType.POLTERGEIST,
+      'Banshee': StoreGhostType.BANSHEE,
+      'Phantom': StoreGhostType.PHANTOM,
+      'Onyx': StoreGhostType.ONYX,
+      'Trickster': StoreGhostType.TRICKSTER,
+      'Peccy': StoreGhostType.WRAITH, // Fallback
+    };
+    
+    // Update investigation store with ghost type (use getState to avoid re-renders)
+    useInvestigationStore.getState().setActiveGhostType(storeGhostTypeMap[randomGhost]);
   }, [setGhostType]);
 
   // GPS Methods
   const updatePlayerPosition = useCallback((position: GPSPosition) => {
-    console.log('📍 Player position updated:', position);
     setPlayerPosition(position);
     setGpsAccuracy(position.accuracy);
+    
+    // Update investigation store for tool integration (use getState to avoid re-renders)
+    useInvestigationStore.getState().updatePlayerPosition({
+      lat: position.lat,
+      lng: position.lng,
+    });
     
     // Throttled recalculation of distance and bearing (5Hz max)
     if (ghostGPSPosition) {
@@ -352,6 +374,9 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
     console.log(`🧭 Player heading updated: ${heading.toFixed(0)}° (±${accuracy.toFixed(0)}°)`);
     setPlayerHeading(heading);
     setCompassAccuracy(accuracy);
+    
+    // Update investigation store for tool integration (use getState to avoid re-renders)
+    useInvestigationStore.getState().updatePlayerHeading(heading);
   }, []);
 
   const requestOrientationPermission = useCallback(async (): Promise<boolean> => {
@@ -378,6 +403,12 @@ export function InvestigationProvider({ children }: { children: ReactNode }) {
   const updateGhostGPSPosition = useCallback((position: GPSPosition) => {
     console.log('👻 Ghost GPS position set:', position);
     setGhostGPSPosition(position);
+    
+    // Update investigation store for tool integration (use getState to avoid re-renders)
+    useInvestigationStore.getState().setSimulatedGhostPosition({
+      lat: position.lat,
+      lng: position.lng,
+    });
     
     // Recalculate distance and bearing if player position exists
     if (playerPosition) {

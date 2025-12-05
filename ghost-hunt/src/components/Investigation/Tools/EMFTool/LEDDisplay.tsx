@@ -19,6 +19,8 @@ const LEDDisplayComponent = ({
   columns = 5, 
   segmentsPerColumn = 8 
 }: LEDDisplayProps) => {
+  console.log('💡 LEDDisplay: Rendering with emfLevel =', emfLevel, 'isFlickering =', isFlickering);
+  
   return (
     <>
       <style>{`
@@ -300,8 +302,9 @@ const LEDDisplayComponent = ({
             >
               {[...Array(segmentsPerColumn)].map((_, segmentIndex) => {
                 // Segments fill from bottom to top
-                const reverseIndex = segmentsPerColumn - 1 - segmentIndex;
-                const segmentActive = isActive && (reverseIndex < (emfLevel >= level ? segmentsPerColumn : 0));
+                // segmentIndex 0 = bottom, segmentIndex 7 = top
+                // All segments should be lit when this column's level is active
+                const segmentActive = isActive;
                 
                 // Color assignment based on level
                 const isLevel5 = level === 5 && emfLevel >= 5;

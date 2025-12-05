@@ -6,9 +6,10 @@ interface PaperBaseProps {
   children: React.ReactNode;
   variant?: 'aged' | 'clean' | 'damaged';
   seed?: string | number;
+  style?: React.CSSProperties;
 }
 
-export function PaperBase({ children, variant = 'aged', seed = Date.now() }: PaperBaseProps) {
+export function PaperBase({ children, variant = 'aged', seed = Date.now(), style }: PaperBaseProps) {
   const colors = {
     aged: '#d8d4c8',
     clean: '#f4f0e6',
@@ -30,6 +31,7 @@ export function PaperBase({ children, variant = 'aged', seed = Date.now() }: Pap
       overflowY: 'auto',
       overflowX: 'hidden',
       WebkitOverflowScrolling: 'touch',
+      ...style,
     }}>
       {/* Wrinkled texture layer */}
       <div style={{

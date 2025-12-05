@@ -2,169 +2,25 @@ import { useState } from 'react';
 import { PolaroidPhoto } from '../analog/elements/PolaroidPhoto';
 import { HandwrittenText } from '../analog/elements/HandwrittenText';
 import { TypewrittenText } from '../analog/elements/TypewrittenText';
-import { OfficialStamp } from '../analog/elements/OfficialStamp';
 import { DamageOverlay } from '../analog/base/DamageOverlay';
 import wrinkledpaper from '../../assets/texture/wrinkledpaper.png';
 import approvedstamp from '../../assets/texture/approvedstamp.png';
-import ghost1Image from '../../assets/images/ghost1.png';
-import ghost2Image from '../../assets/images/ghost2.png';
-import ghost3Image from '../../assets/images/ghost3.png';
-import peccyImage from '../../assets/images/peccy.png';
-
-
-interface Ghost {
-  id: string;
-  name: string;
-  threatLevel: 'LOW' | 'MEDIUM' | 'HIGH' | 'EXTREME';
-  description: string;
-  emfReaction: string;
-  thermalReaction: string;
-  audioReaction: string;
-  cameraReaction: string;
-  identificationSteps: string[];
-  weaknesses: string[];
-  imageUrl?: string;
-  isLocked: boolean;
-}
-
-// Expanded ghost data with tool reactions
-const GHOST_DATA: Ghost[] = [
-  {
-    id: '001',
-    name: 'WRAITH',
-    threatLevel: 'HIGH',
-    description: 'A fast-moving entity with strong electromagnetic presence. Known for rapid sanity drain and aggressive behavior. Moves quickly through walls and responds aggressively to provocation.',
-    emfReaction: 'HIGH to EXTREME (60-100 mG). Constant high activity, frequent red bars. EMF meter goes crazy.',
-    thermalReaction: 'NORMAL (58-65°F). Rare cold spots (20% chance). Usually shows normal temperature.',
-    audioReaction: 'LOW (20-40%). Rare whispers (15% chance). Mostly quiet, infrequent communication.',
-    cameraReaction: 'Rarely manifests in photos. Best identified through EMF readings.',
-    identificationSteps: [
-      '1. Check EMF Meter → HIGH/EXTREME readings',
-      '2. Check Thermal Scanner → Normal temps, no cold spots',
-      '3. Check Audio Receiver → Very few whispers',
-      '4. Conclusion: High EMF + No Cold + No Audio = WRAITH'
-    ],
-    weaknesses: ['Salt barriers temporarily slow movement', 'UV light'],
-    imageUrl: ghost1Image,
-    isLocked: false,
-  },
-  {
-    id: '002',
-    name: 'SHADE',
-    threatLevel: 'MEDIUM',
-    description: 'A shy, passive entity that prefers darkness and solitude. Communicates through whispers and cold spots. Rarely aggressive unless provoked. Most active when investigator is alone.',
-    emfReaction: 'LOW (10-20 mG). Low, stable readings. Usually shows NORMAL or SLIGHT ACTIVITY.',
-    thermalReaction: 'FREEZING (20-35°F). Frequent cold spots (70% chance). Often shows FREEZING with many blue spots.',
-    audioReaction: 'VERY HIGH (80-100%). Frequent whispers (60% chance). Constant activity, frequent communication.',
-    cameraReaction: 'Rarely appears in photos. Best identified through Thermal and Audio.',
-    identificationSteps: [
-      '1. Check EMF Meter → LOW readings',
-      '2. Check Thermal Scanner → FREEZING temps, many cold spots',
-      '3. Check Audio Receiver → Frequent whispers',
-      '4. Conclusion: Low EMF + Cold + Whispers = SHADE'
-    ],
-    weaknesses: ['Light sources', 'Group presence', 'Easiest to identify in complete darkness'],
-    imageUrl: ghost2Image,
-    isLocked: false,
-  },
-  {
-    id: '003',
-    name: 'POLTERGEIST',
-    threatLevel: 'HIGH',
-    description: 'A chaotic entity known for physical disturbances and visual anomalies. Highly active and unpredictable. Feeds on fear and chaos. Can throw multiple objects at once.',
-    emfReaction: 'MODERATE (30-50 mG). Medium readings with fluctuation. Shows SLIGHT to MODERATE ACTIVITY.',
-    thermalReaction: 'NORMAL (62-68°F). Very rare cold spots (10% chance). Usually shows normal temperature.',
-    audioReaction: 'LOW-MEDIUM (30-50%). Rare whispers (20% chance). Moderate activity, occasional whispers.',
-    cameraReaction: 'Frequently appears in photos. Best identified through camera manifestations.',
-    identificationSteps: [
-      '1. Check EMF Meter → MODERATE readings',
-      '2. Check Thermal Scanner → Normal temps',
-      '3. Check Audio Receiver → Few whispers',
-      '4. Take photos → Look for manifestations',
-      '5. Conclusion: Medium EMF + No Cold + No Audio + Photos = POLTERGEIST'
-    ],
-    weaknesses: ['Calm environment', 'Smudge sticks', 'Keep area organized to track activity'],
-    imageUrl: ghost3Image,
-    isLocked: false,
-  },
-  {
-    id: '004',
-    name: 'PECCY',
-    threatLevel: 'LOW',
-    description: 'Non-ghost anomaly. Small, rounded figure with bright orange glow. Appears near Amazon fulfillment centers, warehouses, and industrial sites. Behavior resembles a lost child mascot - curious, playful, never hostile. Vanishes when approached directly. Investigators report feeling watched but never threatened. Entity seems drawn to familiar workplace environments, possibly seeking something or someone it remembers.',
-    emfReaction: 'HIGH (60-80 mG). Strong EMF spikes from excitement, not aggression. Equipment reacts to emotional energy. Peccy doesn\'t understand he\'s triggering the tools.',
-    thermalReaction: 'WARM (70-75°F). Opposite of typical ghost behavior. Shows warm readings on thermal camera. No cold spots detected.',
-    audioReaction: 'NONE (0%). No whispers or verbal communication. Silent entity. May cause equipment static from proximity.',
-    cameraReaction: 'FREQUENTLY VISIBLE. Orange silhouette appears in photos. Subject often waving or tilting head. Film may overexpose due to energy presence. Best documented anomaly.',
-    identificationSteps: [
-      '1. Check Location → Warehouse, fulfillment center, or industrial site',
-      '2. Check EMF Meter → HIGH readings (excitement, not threat)',
-      '3. Check Thermal Scanner → WARM temps (not cold like ghosts)',
-      '4. Check Audio Receiver → No whispers or communication',
-      '5. Take photos → Orange glow, friendly posture, often waving',
-      '6. Conclusion: High EMF + Warm + No Audio + Visible = PECCY'
-    ],
-    weaknesses: [
-      'Sensitive to fear - disappears if investigators scream or run',
-      'Avoids direct approach - vanishes when confronted',
-      'Speak softly and calmly to observe longer',
-      'DO NOT treat as hostile - he\'s just lost and curious',
-      'Never appears in residential or burial sites - only workplaces'
-    ],
-    imageUrl: peccyImage,
-    isLocked: false,
-  },
-  {
-    id: '005',
-    name: 'UNKNOWN',
-    threatLevel: 'LOW',
-    description: '???',
-    emfReaction: '???',
-    thermalReaction: '???',
-    audioReaction: '???',
-    cameraReaction: '???',
-    identificationSteps: ['Encounter to unlock'],
-    weaknesses: ['???'],
-    isLocked: true,
-  },
-  {
-    id: '006',
-    name: 'UNKNOWN',
-    threatLevel: 'LOW',
-    description: '???',
-    emfReaction: '???',
-    thermalReaction: '???',
-    audioReaction: '???',
-    cameraReaction: '???',
-    identificationSteps: ['Encounter to unlock'],
-    weaknesses: ['???'],
-    isLocked: true,
-  },
-  {
-    id: '007',
-    name: 'UNKNOWN',
-    threatLevel: 'LOW',
-    description: '???',
-    emfReaction: '???',
-    thermalReaction: '???',
-    audioReaction: '???',
-    cameraReaction: '???',
-    identificationSteps: ['Encounter to unlock'],
-    weaknesses: ['???'],
-    isLocked: true,
-  },
-
-];
+import { useGhostStore, GhostData } from '../../stores/ghostStore';
+import { playPaperClick } from '../../utils/soundEffects';
 
 // GhostCodexContent - Just the manila folder (tabs + content), no wood table background
 // This can be used standalone in the backpack drawer OR wrapped with wood table in /codex route
 
 export function GhostCodexContent() {
-  const [selectedGhost, setSelectedGhost] = useState<Ghost>(GHOST_DATA[0]);
+  // Get all ghosts from the store
+  const { getAllGhosts, isUnlocked } = useGhostStore();
+  const allGhosts = getAllGhosts();
+  
+  const [selectedGhost, setSelectedGhost] = useState<GhostData | null>(null);
   const [transitionKey, setTransitionKey] = useState(0);
 
-  const handleGhostSelect = (ghost: Ghost) => {
-    if (ghost.isLocked) return;
+  const handleGhostSelect = (ghost: GhostData) => {
+    // Allow viewing locked ghosts (they'll show silhouette + "???")
     setTransitionKey(prev => prev + 1);
     setSelectedGhost(ghost);
   };
@@ -241,13 +97,15 @@ export function GhostCodexContent() {
           </button>
           
           {/* Ghost tabs */}
-          {GHOST_DATA.map((ghost) => {
+          {allGhosts.map((ghost) => {
             const isActive = ghost.id === selectedGhost?.id;
+            const ghostIsUnlocked = isUnlocked(ghost.id);
+            const displayName = ghostIsUnlocked ? ghost.name : '???';
+            
             return (
               <button
                 key={ghost.id}
                 onClick={() => handleGhostSelect(ghost)}
-                disabled={ghost.isLocked}
                 style={{
                   flex: '1 1 25%', // 4 tabs per row
                   minWidth: isMobile ? '80px' : '120px',
@@ -260,12 +118,12 @@ export function GhostCodexContent() {
                   fontWeight: isActive ? 'bold' : 'normal',
                   textTransform: 'uppercase',
                   letterSpacing: '0.5px',
-                  cursor: ghost.isLocked ? 'not-allowed' : 'pointer',
+                  cursor: 'pointer',
                   position: 'relative',
                   transition: 'all 0.2s ease-in',
                   borderRight: '1px solid rgba(139, 69, 19, 0.3)',
                   borderBottom: '1px solid rgba(139, 69, 19, 0.3)',
-                  opacity: ghost.isLocked ? 0.4 : 1,
+                  opacity: ghostIsUnlocked ? 1 : 0.4,
                   boxShadow: isActive 
                     ? '0 -2px 4px rgba(0,0,0,0.1)' 
                     : 'inset 0 2px 4px rgba(0,0,0,0.2)',
@@ -291,7 +149,7 @@ export function GhostCodexContent() {
                     }} />
                   </>
                 )}
-                <span style={{ position: 'relative', zIndex: 1 }}>{ghost.name}</span>
+                <span style={{ position: 'relative', zIndex: 1 }}>{displayName}</span>
               </button>
             );
           })}
@@ -446,13 +304,16 @@ export function GhostCodexContent() {
   );
 }
 
-function GhostDetails({ ghost, threatColors }: { ghost: Ghost; threatColors: Record<string, string> }) {
+function GhostDetails({ ghost, threatColors }: { ghost: GhostData; threatColors: Record<string, string> }) {
   const isMobile = window.innerWidth < 768;
   const [expandedImage, setExpandedImage] = useState<string | null>(null);
+  const { isUnlocked } = useGhostStore();
+  const ghostIsUnlocked = isUnlocked(ghost.id);
   
-  if (ghost.isLocked) {
+  if (!ghostIsUnlocked) {
     return (
       <div style={{ textAlign: 'center', padding: '40px 20px' }}>
+        {/* Silhouette image */}
         <div style={{
           width: '200px',
           height: '200px',
@@ -463,11 +324,26 @@ function GhostDetails({ ghost, threatColors }: { ghost: Ghost; threatColors: Rec
           justifyContent: 'center',
           border: '3px solid #1a0f0a',
           transform: 'rotate(1deg)',
+          position: 'relative',
+          overflow: 'hidden',
         }}>
-          <TypewrittenText variant="faded" fontSize="48px">?</TypewrittenText>
+          {ghost.silhouetteUrl ? (
+            <img 
+              src={ghost.silhouetteUrl} 
+              alt="Ghost silhouette"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+                filter: 'brightness(0.3) contrast(1.5)',
+              }}
+            />
+          ) : (
+            <TypewrittenText variant="faded" fontSize="48px">?</TypewrittenText>
+          )}
         </div>
         <TypewrittenText variant="carbon" fontSize="18px" style={{ marginBottom: '12px' }}>
-          UNKNOWN ENTITY
+          ???
         </TypewrittenText>
         <HandwrittenText urgency="calm" fontSize="16px" color="#4a0000">
           Encounter to unlock
@@ -510,20 +386,27 @@ function GhostDetails({ ghost, threatColors }: { ghost: Ghost; threatColors: Rec
         <>
           <div 
             style={{ display: 'flex', justifyContent: 'center', cursor: 'pointer' }}
-            onClick={() => setExpandedImage(ghost.imageUrl!)}
+            onClick={() => {
+              playPaperClick();
+              setExpandedImage(ghost.imageUrl!);
+            }}
           >
             <PolaroidPhoto
               src={ghost.imageUrl}
               caption={`${ghost.name.toLowerCase()} sighting`}
-              damage="medium"
+              damage="heavy"
               seed={ghost.id}
+              extraDarkness={ghost.id === 'onyx' || ghost.name === 'Onyx'}
             />
           </div>
           
           {/* Expanded Polaroid modal */}
           {expandedImage && (
             <div
-              onClick={() => setExpandedImage(null)}
+              onClick={() => {
+                playPaperClick();
+                setExpandedImage(null);
+              }}
               style={{
                 position: 'fixed',
                 top: 0,
@@ -546,8 +429,9 @@ function GhostDetails({ ghost, threatColors }: { ghost: Ghost; threatColors: Rec
                 <PolaroidPhoto
                   src={expandedImage}
                   caption={`${ghost.name.toLowerCase()} sighting`}
-                  damage="medium"
+                  damage="heavy"
                   seed={ghost.id + '-expanded'}
+                  extraDarkness={ghost.id === 'onyx' || ghost.name === 'Onyx'}
                 />
               </div>
             </div>
@@ -569,7 +453,87 @@ function GhostDetails({ ghost, threatColors }: { ghost: Ghost; threatColors: Rec
         </HandwrittenText>
       </div>
 
-      {/* Tool Reactions */}
+      {/* Investigation Hints */}
+      <div style={{
+        background: 'rgba(139, 0, 0, 0.08)',
+        padding: isMobile ? '12px' : '20px',
+        border: '2px solid rgba(139, 0, 0, 0.25)',
+        transform: 'rotate(0.3deg)',
+        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.1)',
+      }}>
+        <TypewrittenText variant="standard" fontSize={isMobile ? "10px" : "12px"} style={{ 
+          marginBottom: isMobile ? '10px' : '16px',
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          fontWeight: 'bold',
+          color: '#8b0000',
+        }}>
+          Investigation Hints
+        </TypewrittenText>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '10px' : '14px' }}>
+          {/* Spirit Box Vocabulary */}
+          {ghost.wordFamilies && (
+            <div>
+              <TypewrittenText variant="standard" fontSize={isMobile ? "9px" : "10px"} style={{ marginBottom: '4px', fontWeight: 'bold' }}>
+                Spirit Box Vocabulary:
+              </TypewrittenText>
+              <HandwrittenText urgency="calm" fontSize={isMobile ? "13px" : "14px"} style={{ paddingLeft: '10px', lineHeight: '1.5' }}>
+                <span style={{ fontStyle: 'italic' }}>Emotion words:</span> {ghost.wordFamilies.emotion.join(', ')}
+                <br />
+                <span style={{ fontStyle: 'italic' }}>Theme words:</span> {ghost.wordFamilies.theme.join(', ')}
+                {ghost.spiritBoxResponse && (
+                  <>
+                    <br />
+                    <span style={{ fontStyle: 'italic' }}>Response rate:</span> {Math.round(ghost.spiritBoxResponse.frequency * 100)}% ({Array.isArray(ghost.spiritBoxResponse.personality) ? ghost.spiritBoxResponse.personality.join('/') : ghost.spiritBoxResponse.personality.toLowerCase()} personality)
+                  </>
+                )}
+              </HandwrittenText>
+            </div>
+          )}
+
+          {/* Photo Manifestations */}
+          <div>
+            <TypewrittenText variant="standard" fontSize={isMobile ? "9px" : "10px"} style={{ marginBottom: '4px', fontWeight: 'bold' }}>
+              Photo Manifestations:
+            </TypewrittenText>
+            <HandwrittenText urgency="calm" fontSize={isMobile ? "13px" : "14px"} style={{ paddingLeft: '10px', lineHeight: '1.5' }}>
+              {ghost.cameraManifestations.map((m, idx) => {
+                const manifestName = m.primary.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                const prob = Math.round(m.probability * 100);
+                return (
+                  <span key={idx}>
+                    {manifestName} ({prob}% chance)
+                    {idx < ghost.cameraManifestations.length - 1 ? ', ' : ''}
+                  </span>
+                );
+              })}
+            </HandwrittenText>
+          </div>
+
+          {/* Temperature Behavior */}
+          <div>
+            <TypewrittenText variant="standard" fontSize={isMobile ? "9px" : "10px"} style={{ marginBottom: '4px', fontWeight: 'bold' }}>
+              Temperature Behavior:
+            </TypewrittenText>
+            <HandwrittenText urgency="calm" fontSize={isMobile ? "13px" : "14px"} style={{ paddingLeft: '10px', lineHeight: '1.5' }}>
+              {(() => {
+                const reading = ghost.thermalReading.toLowerCase();
+                if (reading === 'deep_cold') {
+                  return 'Extreme cold - temperatures drop well below freezing, often to sub-zero levels. Breath visible, equipment may malfunction.';
+                } else if (reading === 'cold_spot') {
+                  return 'Cold spots - localized temperature drops appear suddenly and disappear. Temperature can drop 5-10°C in specific areas.';
+                } else if (reading === 'normal') {
+                  return 'Normal temperature - no significant temperature changes detected. Ambient temperature remains stable.';
+                }
+                return ghost.thermalReading.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+              })()}
+            </HandwrittenText>
+          </div>
+        </div>
+      </div>
+
+      {/* Characteristics */}
       <div style={{
         background: 'rgba(0,0,0,0.05)',
         padding: isMobile ? '12px' : '24px',
@@ -582,125 +546,26 @@ function GhostDetails({ ghost, threatColors }: { ghost: Ghost; threatColors: Rec
           letterSpacing: '1px',
           fontWeight: 'bold',
         }}>
-          Tool Reactions
+          Characteristics
         </TypewrittenText>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '8px' : '16px' }}>
-          <div>
-            <TypewrittenText variant="standard" fontSize={isMobile ? "10px" : "12px"} style={{ marginBottom: isMobile ? '4px' : '6px', fontWeight: 'bold' }}>
-              EMF:
-            </TypewrittenText>
-            <HandwrittenText urgency="calm" fontSize={isMobile ? "14px" : "15px"} style={{
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              lineHeight: '1.5',
-            }}>
-              {ghost.emfReaction}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: isMobile ? '6px' : '12px' }}>
+          {ghost.characteristics.map((characteristic, i) => (
+            <HandwrittenText 
+              key={i}
+              urgency="calm" 
+              fontSize={isMobile ? "14px" : "15px"}
+              style={{
+                paddingLeft: isMobile ? '10px' : '16px',
+                wordWrap: 'break-word',
+                overflowWrap: 'break-word',
+                lineHeight: '1.5',
+              }}
+            >
+              • {characteristic}
             </HandwrittenText>
-          </div>
-
-          <div>
-            <TypewrittenText variant="standard" fontSize={isMobile ? "10px" : "12px"} style={{ marginBottom: isMobile ? '4px' : '6px', fontWeight: 'bold' }}>
-              THERMAL:
-            </TypewrittenText>
-            <HandwrittenText urgency="calm" fontSize={isMobile ? "14px" : "15px"} style={{
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              lineHeight: '1.5',
-            }}>
-              {ghost.thermalReaction}
-            </HandwrittenText>
-          </div>
-
-          <div>
-            <TypewrittenText variant="standard" fontSize={isMobile ? "10px" : "12px"} style={{ marginBottom: isMobile ? '4px' : '6px', fontWeight: 'bold' }}>
-              AUDIO:
-            </TypewrittenText>
-            <HandwrittenText urgency="calm" fontSize={isMobile ? "14px" : "15px"} style={{
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              lineHeight: '1.5',
-            }}>
-              {ghost.audioReaction}
-            </HandwrittenText>
-          </div>
-
-          <div>
-            <TypewrittenText variant="standard" fontSize={isMobile ? "10px" : "12px"} style={{ marginBottom: isMobile ? '4px' : '6px', fontWeight: 'bold' }}>
-              CAMERA:
-            </TypewrittenText>
-            <HandwrittenText urgency="calm" fontSize={isMobile ? "14px" : "15px"} style={{
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              lineHeight: '1.5',
-            }}>
-              {ghost.cameraReaction}
-            </HandwrittenText>
-          </div>
+          ))}
         </div>
-      </div>
-
-      {/* Identification Steps */}
-      <div>
-        <TypewrittenText variant="faded" fontSize={isMobile ? "10px" : "12px"} style={{ 
-          marginBottom: isMobile ? '8px' : '16px',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-        }}>
-          How to Identify
-        </TypewrittenText>
-        {ghost.identificationSteps.map((step, i) => (
-          <HandwrittenText 
-            key={i}
-            urgency="calm" 
-            fontSize={isMobile ? "14px" : "15px"}
-            style={{ 
-              marginBottom: isMobile ? '6px' : '12px',
-              paddingLeft: i === ghost.identificationSteps.length - 1 ? '0' : (isMobile ? '10px' : '20px'),
-              color: i === ghost.identificationSteps.length - 1 ? '#8b0000' : '#1a0f0a',
-              fontWeight: i === ghost.identificationSteps.length - 1 ? 'bold' : 'normal',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              lineHeight: '1.5',
-            }}
-          >
-            {step}
-          </HandwrittenText>
-        ))}
-      </div>
-
-      {/* Weaknesses */}
-      <div style={{
-        background: 'rgba(139, 0, 0, 0.05)',
-        padding: isMobile ? '10px' : '20px',
-        border: '1px dashed rgba(139, 0, 0, 0.3)',
-        transform: 'rotate(0.5deg)',
-      }}>
-        <TypewrittenText variant="standard" fontSize={isMobile ? "10px" : "12px"} style={{ 
-          marginBottom: isMobile ? '6px' : '12px',
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
-          color: '#8b0000',
-          fontWeight: 'bold',
-        }}>
-          Weaknesses & Notes
-        </TypewrittenText>
-        {ghost.weaknesses.map((weakness, i) => (
-          <HandwrittenText 
-            key={i}
-            urgency="calm" 
-            fontSize={isMobile ? "14px" : "15px"}
-            style={{ 
-              marginBottom: isMobile ? '4px' : '8px',
-              paddingLeft: isMobile ? '10px' : '16px',
-              wordWrap: 'break-word',
-              overflowWrap: 'break-word',
-              lineHeight: '1.5',
-            }}
-          >
-            • {weakness}
-          </HandwrittenText>
-        ))}
       </div>
     </div>
   );

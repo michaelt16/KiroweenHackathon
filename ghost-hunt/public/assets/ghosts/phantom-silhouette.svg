@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" width="200" height="300">
+  <!-- Phantom: Nearly invisible, barely there, faint glitch -->
+  <defs>
+    <filter id="glitch">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+    </filter>
+  </defs>
+  
+  <!-- Very faint body - barely visible -->
+  <ellipse cx="100" cy="150" rx="40" ry="90" fill="#1a1a1a" opacity="0.25" filter="url(#glitch)" />
+  
+  <!-- Slightly more visible core -->
+  <ellipse cx="100" cy="120" rx="35" ry="60" fill="#1a1a1a" opacity="0.35" filter="url(#glitch)" />
+  
+  <!-- Faint head outline -->
+  <ellipse cx="100" cy="55" rx="28" ry="35" fill="#1a1a1a" opacity="0.4" filter="url(#glitch)" />
+  
+  <!-- Barely visible arms -->
+  <path d="M 70 110 Q 40 120 20 130" 
+        stroke="#1a1a1a" stroke-width="8" fill="none" opacity="0.2" filter="url(#glitch)" />
+  <path d="M 130 110 Q 160 120 180 130" 
+        stroke="#1a1a1a" stroke-width="8" fill="none" opacity="0.2" filter="url(#glitch)" />
+  
+  <!-- Glitch artifacts - random displaced fragments -->
+  <rect x="85" y="80" width="8" height="3" fill="#1a1a1a" opacity="0.5" />
+  <rect x="110" y="95" width="6" height="2" fill="#1a1a1a" opacity="0.4" />
+  <rect x="95" y="140" width="10" height="4" fill="#1a1a1a" opacity="0.45" />
+  <rect x="75" y="180" width="7" height="3" fill="#1a1a1a" opacity="0.35" />
+  <rect x="120" y="200" width="9" height="3" fill="#1a1a1a" opacity="0.4" />
+  
+  <!-- Very faint eye sockets -->
+  <ellipse cx="90" cy="50" rx="3" ry="4" fill="#0a0a0a" opacity="0.3" />
+  <ellipse cx="110" cy="50" rx="3" ry="4" fill="#0a0a0a" opacity="0.3" />
+  
+  <!-- Fading lower body -->
+  <ellipse cx="100" cy="230" rx="35" ry="50" fill="#1a1a1a" opacity="0.15" filter="url(#glitch)" />
+</svg>
