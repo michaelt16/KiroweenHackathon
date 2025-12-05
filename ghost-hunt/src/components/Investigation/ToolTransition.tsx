@@ -1,12 +1,12 @@
 // Tool Transition Effect - Static burst and fade
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface ToolTransitionProps {
   isTransitioning: boolean;
   onComplete: () => void;
 }
 
-export function ToolTransition({ isTransitioning, onComplete }: ToolTransitionProps) {
+export function ToolTransition({ isTransitioning, onComplete }: ToolTransitionProps): React.ReactNode {
   const [opacity, setOpacity] = useState(0);
 
   useEffect(() => {

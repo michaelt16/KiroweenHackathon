@@ -5,7 +5,7 @@
  * including FPS, frame time, and memory usage.
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PerformanceMonitor as PerfMonitor } from '../../utils/animationUtils';
 
 interface PerformanceMonitorProps {
@@ -16,7 +16,7 @@ interface PerformanceMonitorProps {
 export function PerformanceMonitor({
   enabled = false,
   position = 'top-right',
-}: PerformanceMonitorProps) {
+}: PerformanceMonitorProps): React.ReactNode {
   const [fps, setFps] = useState(0);
   const [frameTime, setFrameTime] = useState(0);
   const [minFps, setMinFps] = useState(0);

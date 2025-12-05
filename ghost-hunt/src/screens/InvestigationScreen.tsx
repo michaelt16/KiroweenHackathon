@@ -314,7 +314,6 @@ function InvestigationContent() {
       />
 
       {/* Investigation Tools - Conditional rendering based on activeTool */}
-      {console.log('🔧 Current activeTool:', activeTool)}
       {activeTool === 'radar' && (
         <RadarTool
           mode="investigation"
