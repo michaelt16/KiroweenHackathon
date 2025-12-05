@@ -546,7 +546,7 @@ export const useGhostStore = create<GhostStore>()(
   persist(
     (set, get) => ({
       ghosts: initialGhosts,
-      unlockedGhosts: new Set<GhostType>(),
+      unlockedGhosts: new Set<GhostType>(Object.values(GhostType)), // All ghosts unlocked from start
 
       // Query: Get a specific ghost by type
       getGhost: (type: GhostType) => {
@@ -622,9 +622,9 @@ export const useGhostStore = create<GhostStore>()(
       }),
       // Rehydrate Set from Array and restore imageUrls from initialGhosts
       onRehydrateStorage: () => (state) => {
-        if (state && Array.isArray(state.unlockedGhosts)) {
-          state.unlockedGhosts = new Set(state.unlockedGhosts as unknown as GhostType[]);
-        }
+        // Always unlock all ghosts from the start
+        state!.unlockedGhosts = new Set<GhostType>(Object.values(GhostType));
+        
         // Restore imageUrls and ensure all ghost data is complete after rehydration
         if (state?.ghosts) {
           Object.keys(state.ghosts).forEach((key) => {
@@ -637,8 +637,8 @@ export const useGhostStore = create<GhostStore>()(
                 // Always use initial images
                 imageUrl: initialGhosts[ghostType].imageUrl,
                 silhouetteUrl: initialGhosts[ghostType].silhouetteUrl,
-                // Preserve unlock state and encounter count from rehydrated data
-                isUnlocked: state!.unlockedGhosts.has(ghostType),
+                // All ghosts are unlocked from the start
+                isUnlocked: true,
                 encounterCount: state!.ghosts[ghostType].encounterCount || 0,
               };
             }
