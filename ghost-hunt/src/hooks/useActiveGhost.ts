@@ -52,8 +52,8 @@ export const useActiveGhost = (activeGhostType?: GhostType): GhostBehavior | nul
  * ```
  */
 export const useActiveGhostEMF = (activeGhostType?: GhostType) => {
-  const behavior = useActiveGhost(activeGhostType);
-  return behavior?.emfPersonality || null;
+  // EMF personality simplified - return null for now
+  return null;
 };
 
 /**

@@ -343,7 +343,7 @@ function UnlockedGhostView({
               fontSize={isMobile ? "14px" : "15px"}
               style={{ paddingLeft: '12px' }}
             >
-              {ghost.emfPersonality ? ghost.emfPersonality.charAt(0).toUpperCase() + ghost.emfPersonality.slice(1) + ' pattern' : 'Unknown pattern'}
+              EMF pattern varies by ghost type
             </HandwrittenText>
           </div>
 

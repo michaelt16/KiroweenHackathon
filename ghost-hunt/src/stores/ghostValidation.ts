@@ -1,7 +1,6 @@
 import {
   GhostType,
   GhostData,
-  EMFPersonality,
   CameraManifestationType,
   ThermalReading,
 } from './ghostStore';
@@ -17,7 +16,6 @@ export interface ValidationResult {
 }
 
 export interface DeductionOverlapReport {
-  emfPersonalities: Map<EMFPersonality, GhostType[]>;
   cameraManifestations: Map<CameraManifestationType, GhostType[]>;
   thermalReadings: Map<ThermalReading, GhostType[]>;
   spiritBoxWords: Map<string, GhostType[]>;
@@ -40,16 +38,7 @@ export function validateDeductionOverlap(
   // Generate overlap report
   const report = generateOverlapReport(ghosts);
 
-  // Requirement 13.1: Ensure at least 2 ghosts share each EMF personality
-  for (const [personality, ghostTypes] of report.emfPersonalities.entries()) {
-    if (ghostTypes.length < 2) {
-      errors.push(
-        `EMF Personality "${personality}" is only used by ${ghostTypes.length} ghost(s): ${ghostTypes.join(', ')}. Minimum 2 required.`
-      );
-    }
-  }
-
-  // Requirement 13.2: Ensure at least 2 ghosts share each camera manifestation
+  // Requirement 13.1: Ensure at least 2 ghosts share each camera manifestation
   // (except Phantom's guaranteed Invisible)
   for (const [manifestation, ghostTypes] of report.cameraManifestations.entries()) {
     // Phantom's INVISIBLE is allowed to be unique (95% probability)
@@ -72,7 +61,7 @@ export function validateDeductionOverlap(
     }
   }
 
-  // Requirement 13.3: Ensure at least 2 ghosts share each thermal reading
+  // Requirement 13.2: Ensure at least 2 ghosts share each thermal reading
   for (const [reading, ghostTypes] of report.thermalReadings.entries()) {
     if (ghostTypes.length < 2) {
       errors.push(
@@ -81,7 +70,7 @@ export function validateDeductionOverlap(
     }
   }
 
-  // Requirement 13.4: Ensure each Spirit Box word appears in at least 2 ghost families
+  // Requirement 13.3: Ensure each Spirit Box word appears in at least 2 ghost families
   for (const [word, ghostTypes] of report.spiritBoxWords.entries()) {
     if (ghostTypes.length < 2) {
       errors.push(
@@ -90,7 +79,7 @@ export function validateDeductionOverlap(
     }
   }
 
-  // Requirement 13.5: Ensure no ghost is uniquely identifiable by a single trait
+  // Requirement 13.4: Ensure no ghost is uniquely identifiable by a single trait
   if (report.uniquelyIdentifiableGhosts.length > 0) {
     errors.push(
       `The following ghosts are uniquely identifiable by a single trait: ${report.uniquelyIdentifiableGhosts.join(', ')}`
@@ -150,7 +139,6 @@ export function validateDeductionOverlap(
 export function generateOverlapReport(
   ghosts: Record<GhostType, GhostData>
 ): DeductionOverlapReport {
-  const emfPersonalities = new Map<EMFPersonality, GhostType[]>();
   const cameraManifestations = new Map<CameraManifestationType, GhostType[]>();
   const thermalReadings = new Map<ThermalReading, GhostType[]>();
   const spiritBoxWords = new Map<string, GhostType[]>();
@@ -158,12 +146,6 @@ export function generateOverlapReport(
   // Collect all traits
   for (const [ghostType, ghost] of Object.entries(ghosts)) {
     const type = ghostType as GhostType;
-
-    // EMF Personalities
-    if (!emfPersonalities.has(ghost.emfPersonality)) {
-      emfPersonalities.set(ghost.emfPersonality, []);
-    }
-    emfPersonalities.get(ghost.emfPersonality)!.push(type);
 
     // Camera Manifestations
     for (const manifestation of ghost.cameraManifestations) {
@@ -205,12 +187,6 @@ export function generateOverlapReport(
   for (const [ghostType, ghost] of Object.entries(ghosts)) {
     const type = ghostType as GhostType;
 
-    // Check if this ghost is the only one with its EMF personality
-    if (emfPersonalities.get(ghost.emfPersonality)?.length === 1) {
-      uniquelyIdentifiableGhosts.push(type);
-      continue;
-    }
-
     // Check if this ghost is the only one with its thermal reading
     if (thermalReadings.get(ghost.thermalReading)?.length === 1) {
       uniquelyIdentifiableGhosts.push(type);
@@ -241,7 +217,6 @@ export function generateOverlapReport(
   }
 
   return {
-    emfPersonalities,
     cameraManifestations,
     thermalReadings,
     spiritBoxWords,
@@ -277,13 +252,6 @@ export function printValidationReport(
   }
 
   console.log('=== DEDUCTION OVERLAP ANALYSIS ===\n');
-
-  console.log('EMF Personalities:');
-  for (const [personality, ghosts] of report.emfPersonalities.entries()) {
-    const status = ghosts.length >= 2 ? '✅' : '❌';
-    console.log(`  ${status} ${personality}: ${ghosts.length} ghosts (${ghosts.join(', ')})`);
-  }
-  console.log('');
 
   console.log('Camera Manifestations:');
   for (const [manifestation, ghosts] of report.cameraManifestations.entries()) {

@@ -114,7 +114,6 @@ const CameraToolComponent = ({
       // ✅ Use centralized relationship data
       const distance = relationship.distance;
       const manifestations = relationship.ghostBehavior.cameraManifestations || [];
-      const emfPersonality = relationship.ghostBehavior.emfPersonality;
       
       // ✅ Calculate EMF level to check if ghost is close enough
       const emfLevel = calculateEMFLevel(distance);
