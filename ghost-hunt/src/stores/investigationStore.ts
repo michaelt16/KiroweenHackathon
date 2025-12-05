@@ -196,9 +196,9 @@ const initialState = {
   photos: [],
   evidenceChecklist: {
     spiritBoxPersonality: 'unknown' as SpiritBoxPersonality,
-    whispers: 'unknown',
-    thermalReading: 'unknown',
-    cameraManifestation: 'unknown',
+    whispers: 'unknown' as 'unknown' | 'present' | 'ruled_out',
+    thermalReading: 'unknown' as ThermalReadingState,
+    cameraManifestation: 'unknown' as CameraManifestationState,
   },
   selectedGhost: null,
   spiritBoxState: {

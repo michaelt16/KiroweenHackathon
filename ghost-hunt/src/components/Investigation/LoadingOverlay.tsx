@@ -1,5 +1,5 @@
 // Loading overlay for investigation initialization
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface LoadingOverlayProps {
   isLoading: boolean;
@@ -7,7 +7,7 @@ interface LoadingOverlayProps {
   progress?: number; // 0-100
 }
 
-export function LoadingOverlay({ isLoading, message, progress }: LoadingOverlayProps) {
+export function LoadingOverlay({ isLoading, message, progress }: LoadingOverlayProps): React.ReactElement | null {
   const [dots, setDots] = useState('');
 
   // Animate dots
