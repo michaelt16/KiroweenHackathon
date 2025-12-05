@@ -299,13 +299,13 @@ function InvestigationContent() {
       {/* All filter overlays removed per user request */}
 
       {/* Loading Overlay */}
-      {isLoading && (
+      {isLoading ? (
         <LoadingOverlay
           isLoading={isLoading}
           message={loadingMessage}
           progress={loadingProgress}
         />
-      )}
+      ) : null}
       
       {/* Tool Transition Effect */}
       <ToolTransition
