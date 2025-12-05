@@ -60,7 +60,7 @@ export const MatchHistoryPolaroid: React.FC<MatchHistoryPolaroidProps> = ({ matc
         overflow: 'visible',
       }}>
         {/* Damaged border effects */}
-        {damage !== 'light' && (
+        {(damage === 'medium' || damage === 'heavy') && (
           <>
             {/* Worn edges */}
             <div style={{
@@ -147,7 +147,7 @@ export const MatchHistoryPolaroid: React.FC<MatchHistoryPolaroidProps> = ({ matc
             )}
             
             {/* Wrinkles on border */}
-            {damage !== 'light' && (
+            {(damage === 'medium' || damage === 'heavy') && (
               <>
                 <div style={{
                   position: 'absolute',

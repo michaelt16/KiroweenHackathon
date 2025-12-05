@@ -25,6 +25,41 @@ const GHOST_INFO: Record<GhostType, { traits: string[] }> = {
       '📷 Camera distortion frequent',
     ],
   },
+  Banshee: {
+    traits: [
+      '😱 Screaming face in photos',
+      '⚡ Aggressive EMF spikes',
+      '❄️ Cold spot presence',
+    ],
+  },
+  Phantom: {
+    traits: [
+      '👻 Nearly invisible in photos',
+      '❄️ Extreme cold',
+      '🔇 Reverse speech',
+    ],
+  },
+  Onyx: {
+    traits: [
+      '🌑 Shadow manifestations',
+      '❄️ Deep cold',
+      '🔇 Shy EMF pattern',
+    ],
+  },
+  Trickster: {
+    traits: [
+      '🎭 Contradictory traits',
+      '⚡ Mischievous patterns',
+      '📷 Glitch streaks',
+    ],
+  },
+  Peccy: {
+    traits: [
+      '📦 Found near warehouses',
+      '😊 Friendly, playful',
+      '⚡ Excitement spikes',
+    ],
+  },
 };
 
 export function DeductionUI() {

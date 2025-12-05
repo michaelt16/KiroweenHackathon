@@ -154,7 +154,7 @@ export function PolaroidPhoto({
             )}
             
             {/* Wrinkles on border */}
-            {damage !== 'light' && (
+            {(damage === 'medium' || damage === 'heavy') && (
               <>
                 <div style={{
                   position: 'absolute',

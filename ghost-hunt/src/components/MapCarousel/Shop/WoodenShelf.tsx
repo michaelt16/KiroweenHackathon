@@ -35,7 +35,6 @@ export const WoodenShelf: React.FC<WoodenShelfProps> = ({ top, children }) => {
         justifyContent: 'space-around',
         alignItems: 'center',
         padding: '0 min(20px, 4vw)',
-        position: 'relative',
         gap: 'min(8px, 2vw)',
         minHeight: '100px',
       }}

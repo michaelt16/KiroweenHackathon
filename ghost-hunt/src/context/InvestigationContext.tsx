@@ -72,7 +72,7 @@ interface InvestigationContextType extends InvestigationState {
   initializeSupplies: (supplies: SuppliesForRun) => void;
   initializeInvestigation: () => void;
   setEvidenceTrait: (trait: EvidenceTrait, state: TraitState) => void;
-  completeInvestigation: (selectedGhostId: GhostType) => void;
+  completeInvestigation: (selectedGhostId: GhostType) => { isCorrect: boolean; rewards: { money: number; xp: number } };
   
   // GPS methods
   updatePlayerPosition: (position: GPSPosition) => void;
@@ -105,13 +105,10 @@ const INITIAL_STATE: InvestigationState = {
 };
 
 const INITIAL_EVIDENCE: EvidenceState = {
-  emf: 'unknown',
+  spiritBoxPersonality: 'unknown',
   whispers: 'unknown',
-  cold: 'unknown',
-  static: 'unknown',
-  photos: 'unknown',
-  sanityBehavior: 'unknown',
-  movement: 'unknown',
+  thermalReading: 'unknown',
+  cameraManifestation: 'unknown',
 };
 
 export function InvestigationProvider({ children }: { children: ReactNode }) {

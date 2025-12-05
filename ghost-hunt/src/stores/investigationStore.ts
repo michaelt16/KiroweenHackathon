@@ -161,7 +161,7 @@ interface InvestigationStore {
   addWordHeard: (word: string) => void;
   
   // Investigation completion
-  completeInvestigation: (selectedGhost: GhostType) => void;
+  completeInvestigation: (selectedGhost: GhostType) => { isCorrect: boolean; rewards: { money: number; xp: number } };
 }
 
 // ============================================================================

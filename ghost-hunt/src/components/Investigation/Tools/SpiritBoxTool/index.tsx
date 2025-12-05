@@ -318,7 +318,7 @@ const SpiritBoxToolComponent = ({
   // Calculate EMF level for EMF check
   const emfLevel = useMemo(() => {
     if (mode === 'investigation' && relationship.isValid && relationship.ghostBehavior) {
-      return calculateEMFLevel(relationship.distance, relationship.ghostBehavior.emfPersonality);
+      return calculateEMFLevel(relationship.distance);
     }
     return 0;
   }, [mode, relationship.isValid, relationship.distance, relationship.ghostBehavior]);

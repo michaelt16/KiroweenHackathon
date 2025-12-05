@@ -117,7 +117,7 @@ const CameraToolComponent = ({
       const emfPersonality = relationship.ghostBehavior.emfPersonality;
       
       // ✅ Calculate EMF level to check if ghost is close enough
-      const emfLevel = calculateEMFLevel(distance, emfPersonality);
+      const emfLevel = calculateEMFLevel(distance);
       
       // ✅ Check if ghost is RIGHT in front (narrow cone ±15°)
       // relativeBearing: 0° = straight ahead, 180° = directly behind, 360° = also straight ahead

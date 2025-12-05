@@ -48,6 +48,66 @@ const GHOST_PROFILES: Record<
     },
     sanityDrain: 0.35,
   },
+  Banshee: {
+    movementSpeed: 0.7,
+    anomalyWeights: {
+      emf: 0.5,
+      cold: 0.2,
+      whisper: 0.1,
+      motion: 0.1,
+      static: 0.05,
+      silhouette: 0.05,
+    },
+    sanityDrain: 0.6,
+  },
+  Phantom: {
+    movementSpeed: 0.4,
+    anomalyWeights: {
+      emf: 0.2,
+      cold: 0.4,
+      whisper: 0.2,
+      motion: 0.1,
+      static: 0.05,
+      silhouette: 0.05,
+    },
+    sanityDrain: 0.4,
+  },
+  Onyx: {
+    movementSpeed: 0.3,
+    anomalyWeights: {
+      emf: 0.1,
+      cold: 0.4,
+      whisper: 0.3,
+      motion: 0.1,
+      static: 0.05,
+      silhouette: 0.05,
+    },
+    sanityDrain: 0.3,
+  },
+  Trickster: {
+    movementSpeed: 0.6,
+    anomalyWeights: {
+      emf: 0.2,
+      cold: 0.15,
+      whisper: 0.2,
+      motion: 0.2,
+      static: 0.15,
+      silhouette: 0.1,
+    },
+    sanityDrain: 0.5,
+  },
+  Peccy: {
+    movementSpeed: 0.5,
+    anomalyWeights: {
+      emf: 0.3,
+      cold: 0.1,
+      whisper: 0.2,
+      motion: 0.2,
+      static: 0.1,
+      silhouette: 0.1,
+    },
+    sanityDrain: 0.2,
+  },
 };
 
 export function useGhostBehavior() {

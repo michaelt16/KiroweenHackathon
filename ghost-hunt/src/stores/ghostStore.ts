@@ -105,6 +105,9 @@ export interface FieldJournal {
   fate: 'escaped' | 'traumatized' | 'missing' | 'deceased';
 }
 
+// EMF Personality type (exported for use in other files)
+export type EMFPersonality = 'calm' | 'unstable' | 'shy' | 'aggressive' | 'mischievous';
+
 export interface GhostData {
   id: GhostType;
   name: string;
@@ -112,6 +115,7 @@ export interface GhostData {
   difficulty: 'EASIEST' | 'EASY' | 'MEDIUM' | 'HARD' | 'HARDEST';
   
   // Behavioral Profile
+  emfPersonality: EMFPersonality;
   spiritBoxSignature: SpiritBoxSignature;
   spiritBoxResponse: ResponseBehavior;  // NEW: Spirit Box word pools and response frequency
   wordFamilies: WordFamily;  // LEGACY: Kept for backward compatibility
@@ -139,6 +143,7 @@ export interface GhostData {
 // ============================================================================
 
 export interface GhostBehavior {
+  emfPersonality: EMFPersonality;
   spiritBoxSignature: SpiritBoxSignature;
   spiritBoxResponse: ResponseBehavior;  // NEW: Spirit Box behavior
   wordFamilies: WordFamily;  // LEGACY: Kept for backward compatibility
@@ -176,6 +181,7 @@ const initialGhosts: Record<GhostType, GhostData> = {
     name: 'Wraith',
     threatLevel: 'HIGH',
     difficulty: 'EASIEST',
+    emfPersonality: 'aggressive',
     spiritBoxSignature: { knobA: 0.35, knobB: 0.72, tolerance: 0.06 },
     spiritBoxResponse: {
       frequency: 0.75, // 70-80% (Aggressive)
@@ -224,6 +230,7 @@ I got out before my sanity broke. Some of us aren't so lucky.`,
     name: 'Shade',
     threatLevel: 'MEDIUM',
     difficulty: 'EASY',
+    emfPersonality: 'shy',
     spiritBoxSignature: { knobA: 0.50, knobB: 0.45, tolerance: 0.06 },
     spiritBoxResponse: {
       frequency: 0.35, // 30-40% (Shy)
@@ -272,6 +279,7 @@ I left quickly. Something about its reluctance to be seen made me deeply uncomfo
     name: 'Poltergeist',
     threatLevel: 'HIGH',
     difficulty: 'MEDIUM',
+    emfPersonality: 'unstable',
     spiritBoxSignature: { knobA: 0.62, knobB: 0.38, tolerance: 0.06 },
     spiritBoxResponse: {
       frequency: 0.55, // 50-60% (Chaotic)
@@ -320,6 +328,7 @@ Equipment started malfunctioning. My flashlight flickered. The EMF meter's displ
     name: 'Banshee',
     threatLevel: 'EXTREME',
     difficulty: 'HARD',
+    emfPersonality: 'aggressive',
     spiritBoxSignature: { knobA: 0.28, knobB: 0.91, tolerance: 0.06 },
     spiritBoxResponse: {
       frequency: 0.35, // 30-40% (Shy)
@@ -372,6 +381,7 @@ I ran. I'm not ashamed to admit it. Some entities you don't investigate - you su
     name: 'Phantom',
     threatLevel: 'HIGH',
     difficulty: 'HARD',
+    emfPersonality: 'calm',
     spiritBoxSignature: { knobA: 0.18, knobB: 0.67, tolerance: 0.06 },
     spiritBoxResponse: {
       frequency: 0.55, // 50-60% (Chaotic)
@@ -424,6 +434,7 @@ I left before hypothermia set in. My fingers were blue. The cold followed me for
     name: 'Onyx',
     threatLevel: 'EXTREME',
     difficulty: 'HARD',
+    emfPersonality: 'shy',
     spiritBoxSignature: { knobA: 0.12, knobB: 0.23, tolerance: 0.06 },
     spiritBoxResponse: {
       frequency: 0.75, // 70-80% (Aggressive)
@@ -476,6 +487,7 @@ I felt it watching me from below. Waiting. I didn't go back down those stairs.`,
     name: 'Trickster',
     threatLevel: 'HIGH',
     difficulty: 'HARDEST',
+    emfPersonality: 'mischievous',
     spiritBoxSignature: { knobA: 0.48, knobB: 0.60, tolerance: 0.06 },
     spiritBoxResponse: {
       frequency: 0.75, // 70-80% (Aggressive frequency, but uses ALL words)
@@ -593,6 +605,7 @@ export const useGhostStore = create<GhostStore>()(
         if (!ghost) return null;
 
         return {
+          emfPersonality: ghost.emfPersonality,
           spiritBoxSignature: ghost.spiritBoxSignature,
           spiritBoxResponse: ghost.spiritBoxResponse,
           wordFamilies: ghost.wordFamilies,
