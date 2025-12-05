@@ -299,11 +299,13 @@ function InvestigationContent() {
       {/* All filter overlays removed per user request */}
 
       {/* Loading Overlay */}
-      <LoadingOverlay
-        isLoading={isLoading}
-        message={loadingMessage}
-        progress={loadingProgress}
-      />
+      {isLoading && (
+        <LoadingOverlay
+          isLoading={isLoading}
+          message={loadingMessage}
+          progress={loadingProgress}
+        />
+      )}
       
       {/* Tool Transition Effect */}
       <ToolTransition

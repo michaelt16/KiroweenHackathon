@@ -7,7 +7,7 @@ interface LoadingOverlayProps {
   progress?: number; // 0-100
 }
 
-export function LoadingOverlay({ isLoading, message, progress }: LoadingOverlayProps): React.ReactElement | null {
+export function LoadingOverlay({ isLoading, message, progress }: LoadingOverlayProps): React.ReactNode {
   const [dots, setDots] = useState('');
 
   // Animate dots
