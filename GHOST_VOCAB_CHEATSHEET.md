@@ -1,233 +1,223 @@
-# 👻 Ghost Vocabulary Cheatsheet
+# 👻 Ghost Hunt - Spirit Box Quick Reference
 
-## Quick Reference for Spirit Box Words
+## Investigation Mode Spirit Box Guide
 
----
-
-## 📋 WORD FAMILIES (From Ghost Mechanics)
-
-Each ghost has **two word families** that overlap with other ghosts:
-
-| Ghost | Emotion Family | Theme Family |
-|-------|---------------|--------------|
-| **Wraith** | soft, lost, cold | drift, fade, whisper |
-| **Shade** | silent, unknown, stay | (not specified in mechanics) |
-| **Poltergeist** | noisy, chaotic, mine | (not specified in mechanics) |
-| **Banshee** | anger, sorrow, leave | (not specified in mechanics) |
-| **Phantom** | hollow, gone, cold | (not specified in mechanics) |
-| **Onyx** | deep, below, hungry | (not specified in mechanics) |
-| **Trickster** | playful, teasing, behind, mine | (not specified in mechanics) |
-
-**⚠️ Note:** Word families overlap! No single word identifies a ghost uniquely.
+This guide helps you identify ghosts based on Spirit Box responses during investigations.
 
 ---
 
-## 🎤 SPIRIT BOX WORDS BY GHOST
+## 🎯 HOW THE SPIRIT BOX WORKS
 
-### 👻 WRAITH (Aggressive Personality - 75% response rate)
+### Three Questions You Can Ask:
+1. **"What do you want?"** - Intent/Motivation words
+2. **"Where are you?"** - Location/Presence words  
+3. **"Are you here?"** - Confirmation/Proximity words
 
-**Q1: "What do you want?"**
-- **Common:** help me, stay here, so cold, find me, go back
-- **Aggressive:** your fear, leave now, your pain, silence you, come closer
-- **Unique:** lost soul
+### Response System:
+- **Common Words (30-40%)**: Shared by all ghosts - not very helpful
+- **Personality Words (45-55%)**: Specific to ghost personality type - key for identification
+- **Unique Words (15%)**: Ghost-specific signature words - strongest clue!
 
-**Q2: "Where are you?"**
-- **Common:** right here, behind you, nearby now, all around, can't see
-- **Aggressive:** watching you, right above, waiting here, under you, next to you
-- **Unique:** thin veil
-
-**Q3: "Are you here?"**
-- **Common:** maybe so, i am, not now, almost here, very close
-- **Aggressive:** always here, run now, too late, with you, danger near
-- **Unique:** drifting by
-
----
-
-### 👻 SHADE (Shy Personality - 35% response rate)
-
-**Q1: "What do you want?"**
-- **Common:** help me, stay here, so cold, find me, go back
-- **Shy:** quiet please, go away, let me, hide now, need peace
-- **Unique:** still quiet
-
-**Q2: "Where are you?"**
-- **Common:** right here, behind you, nearby now, all around, can't see
-- **Shy:** far away, in shadows, hiding now, too dark, not close
-- **Unique:** deep corner
-
-**Q3: "Are you here?"**
-- **Common:** maybe so, i am, not now, almost here, very close
-- **Shy:** don't know, soft yes, not sure, stay back, i hide
-- **Unique:** watching softly
+### Ghost Personalities:
+- **Aggressive** (Wraith, Onyx): 75% response rate - threatening, direct
+- **Shy** (Banshee, Shade): 35% response rate - evasive, quiet
+- **Chaotic** (Poltergeist, Phantom): 55% response rate - playful, unpredictable
+- **Contradictory** (Trickster): 75% response rate - uses ALL personality types!
 
 ---
 
-### 👻 POLTERGEIST (Chaotic Personality - 55% response rate)
+## 📊 GHOST IDENTIFICATION CHART
 
-**Q1: "What do you want?"**
-- **Common:** help me, stay here, so cold, find me, go back
-- **Chaotic:** break things, make noise, hear me, play now, mine now
-- **Unique:** mess maker
-
-**Q2: "Where are you?"**
-- **Common:** right here, behind you, nearby now, all around, can't see
-- **Chaotic:** everywhere now, nowhere close, circling you, behind walls, moving fast
-- **Unique:** inside walls
-
-**Q3: "Are you here?"**
-- **Common:** maybe so, i am, not now, almost here, very close
-- **Chaotic:** echo here, laughing no, where again, shift now, almost here
-- **Unique:** here-here (glitch double)
+| Ghost | Personality | Response Rate | Key Traits | Unique Words |
+|-------|------------|---------------|------------|--------------|
+| **Wraith** | Aggressive | 75% | Fast-moving, strong EMF, aggressive words | lost soul, thin veil, drifting by |
+| **Onyx** | Aggressive | 75% | Deep/shadow presence, aggressive words | deep hunger, below earth, heavy breath |
+| **Banshee** | Shy | 35% | Mourning entity, shy/evasive words | mourning song, doorway edge, still listening |
+| **Shade** | Shy | 35% | Passive/quiet, shy/evasive words | still quiet, deep corner, watching softly |
+| **Poltergeist** | Chaotic | 55% | Physical disturbances, chaotic/playful words | mess maker, inside walls, here-here |
+| **Phantom** | Chaotic | 55% | Uncanny/invisible, chaotic/unpredictable words | empty echo, between worlds, fading in |
+| **Trickster** | Contradictory | 75% | Uses ALL personality types! | again again, look up, behind you |
 
 ---
 
-### 👻 BANSHEE (Shy Personality - 35% response rate)
+## 🎤 COMPLETE WORD LISTS BY QUESTION
 
-**Q1: "What do you want?"**
-- **Common:** help me, stay here, so cold, find me, go back
-- **Shy:** quiet please, go away, let me, hide now, need peace
-- **Unique:** mourning song
+### Q1: "What do you want?" (Intent/Motivation)
 
-**Q2: "Where are you?"**
-- **Common:** right here, behind you, nearby now, all around, can't see
-- **Shy:** far away, in shadows, hiding now, too dark, not close
-- **Unique:** doorway edge
+**Common Words (All Ghosts):**
+- help me, stay here, so cold, find me, go back
 
-**Q3: "Are you here?"**
-- **Common:** maybe so, i am, not now, almost here, very close
-- **Shy:** don't know, soft yes, not sure, stay back, i hide
-- **Unique:** still listening
+**Aggressive Words (Wraith, Onyx):**
+- your fear, leave now, your pain, silence you, come closer
 
----
+**Shy Words (Banshee, Shade):**
+- quiet please, go away, let me, hide now, need peace
 
-### 👻 PHANTOM (Chaotic Personality - 55% response rate)
+**Chaotic Words (Poltergeist, Phantom):**
+- break things, make noise, hear me, play now, mine now
 
-**Q1: "What do you want?"**
-- **Common:** help me, stay here, so cold, find me, go back
-- **Chaotic:** break things, make noise, hear me, play now, mine now
-- **Unique:** empty echo
-
-**Q2: "Where are you?"**
-- **Common:** right here, behind you, nearby now, all around, can't see
-- **Chaotic:** everywhere now, nowhere close, circling you, behind walls, moving fast
-- **Unique:** between worlds
-
-**Q3: "Are you here?"**
-- **Common:** maybe so, i am, not now, almost here, very close
-- **Chaotic:** echo here, laughing no, where again, shift now, almost here
-- **Unique:** fading in
+**Unique Words (15% chance):**
+- Wraith: **lost soul**
+- Banshee: **mourning song**
+- Shade: **still quiet**
+- Poltergeist: **mess maker**
+- Phantom: **empty echo**
+- Onyx: **deep hunger**
+- Trickster: **again again** (glitched repeat)
 
 ---
 
-### 👻 ONYX (Aggressive Personality - 75% response rate)
+### Q2: "Where are you?" (Location/Presence)
 
-**Q1: "What do you want?"**
-- **Common:** help me, stay here, so cold, find me, go back
-- **Aggressive:** your fear, leave now, your pain, silence you, come closer
-- **Unique:** deep hunger
+**Common Words (All Ghosts):**
+- right here, behind you, nearby now, all around, can't see
 
-**Q2: "Where are you?"**
-- **Common:** right here, behind you, nearby now, all around, can't see
-- **Aggressive:** watching you, right above, waiting here, under you, next to you
-- **Unique:** below earth
+**Aggressive Words (Wraith, Onyx):**
+- watching you, right above, waiting here, under you, next to you
 
-**Q3: "Are you here?"**
-- **Common:** maybe so, i am, not now, almost here, very close
-- **Aggressive:** always here, run now, too late, with you, danger near
-- **Unique:** heavy breath
+**Shy Words (Banshee, Shade):**
+- far away, in shadows, hiding now, too dark, not close
 
----
+**Chaotic Words (Poltergeist, Phantom):**
+- everywhere now, nowhere close, circling you, behind walls, moving fast
 
-### 👻 TRICKSTER (Contradictory - Uses ALL Personalities - 75% response rate)
-
-**⚠️ SPECIAL:** Trickster uses **ALL personality words** from Aggressive, Shy, AND Chaotic!
-
-**Q1: "What do you want?"**
-- **Common:** help me, stay here, so cold, find me, go back (40% chance)
-- **All Personalities:** your fear, leave now, your pain, silence you, come closer, quiet please, go away, let me, hide now, need peace, break things, make noise, hear me, play now, mine now (45% chance)
-- **Unique:** again again (glitched repeat) (15% chance)
-
-**Q2: "Where are you?"**
-- **Common:** right here, behind you, nearby now, all around, can't see (40% chance)
-- **All Personalities:** watching you, right above, waiting here, under you, next to you, far away, in shadows, hiding now, too dark, not close, everywhere now, nowhere close, circling you, behind walls, moving fast (45% chance)
-- **Unique:** look up (15% chance)
-
-**Q3: "Are you here?"**
-- **Common:** maybe so, i am, not now, almost here, very close (40% chance)
-- **All Personalities:** always here, run now, too late, with you, danger near, don't know, soft yes, not sure, stay back, i hide, echo here, laughing no, where again, shift now, almost here (45% chance)
-- **Unique:** behind you (even if said earlier) (15% chance)
-
-**🎯 IDENTIFYING TRICKSTER:** If you hear words from multiple personality types (aggressive + shy + chaotic), it's likely Trickster!
+**Unique Words (15% chance):**
+- Wraith: **thin veil**
+- Banshee: **doorway edge**
+- Shade: **deep corner**
+- Poltergeist: **inside walls**
+- Phantom: **between worlds**
+- Onyx: **below earth**
+- Trickster: **look up**
 
 ---
 
-## 🔍 DEDUCTION TIPS
+### Q3: "Are you here?" (Confirmation/Proximity)
 
-### Word Overlaps (No Single Word Solves It!)
+**Common Words (All Ghosts):**
+- maybe so, i am, not now, almost here, very close
 
-**"cold"** → Could be: Wraith, Phantom
-**"mine"** → Could be: Poltergeist, Trickster
-**"behind"** → Could be: Trickster, Banshee (from mechanics doc)
-**"deep"** → Could be: Phantom, Onyx (from mechanics doc)
+**Aggressive Words (Wraith, Onyx):**
+- always here, run now, too late, with you, danger near
 
-### Personality Clues
+**Shy Words (Banshee, Shade):**
+- don't know, soft yes, not sure, stay back, i hide
 
-- **Aggressive words** (your fear, leave now, watching you) → Wraith or Onyx
-- **Shy words** (quiet please, go away, far away) → Banshee or Shade
-- **Chaotic words** (break things, make noise, everywhere now) → Poltergeist or Phantom
-- **Mixed personalities** → Likely Trickster!
+**Chaotic Words (Poltergeist, Phantom):**
+- echo here, laughing no, where again, shift now, almost here
 
-### Unique Words (Strongest Clues)
-
-These are ghost-specific but still need other evidence:
-- **"lost soul"** → Wraith
-- **"mourning song"** → Banshee
-- **"still quiet"** → Shade
-- **"mess maker"** → Poltergeist
-- **"empty echo"** → Phantom
-- **"deep hunger"** → Onyx
-- **"again again"** → Trickster
+**Unique Words (15% chance):**
+- Wraith: **drifting by**
+- Banshee: **still listening**
+- Shade: **watching softly**
+- Poltergeist: **here-here** (glitch double)
+- Phantom: **fading in**
+- Onyx: **heavy breath**
+- Trickster: **behind you** (even if said earlier)
 
 ---
 
-## 📊 RESPONSE FREQUENCIES
+## 🔍 DEDUCTION STRATEGY
 
-| Ghost | Response Rate | Personality |
-|-------|--------------|-------------|
-| Wraith | 75% | Aggressive |
-| Onyx | 75% | Aggressive |
-| Trickster | 75% | Contradictory |
-| Poltergeist | 55% | Chaotic |
-| Phantom | 55% | Chaotic |
-| Banshee | 35% | Shy |
-| Shade | 35% | Shy |
+### Step 1: Identify Personality Type
+Listen for personality-specific words across multiple questions:
 
-**Low response rate?** Might be Banshee or Shade (shy ghosts).
+- **Aggressive words** (your fear, leave now, watching you, run now) → **Wraith or Onyx**
+- **Shy words** (quiet please, go away, far away, don't know) → **Banshee or Shade**
+- **Chaotic words** (break things, everywhere now, echo here) → **Poltergeist or Phantom**
+- **Mixed personalities** (aggressive + shy + chaotic) → **Trickster!**
+
+### Step 2: Listen for Unique Words
+Unique words (15% chance) are the strongest clues:
+
+| Unique Word | Ghost |
+|-------------|-------|
+| lost soul, thin veil, drifting by | **Wraith** |
+| mourning song, doorway edge, still listening | **Banshee** |
+| still quiet, deep corner, watching softly | **Shade** |
+| mess maker, inside walls, here-here | **Poltergeist** |
+| empty echo, between worlds, fading in | **Phantom** |
+| deep hunger, below earth, heavy breath | **Onyx** |
+| again again, look up, behind you | **Trickster** |
+
+### Step 3: Check Response Frequency
+- **High response rate (75%)** → Wraith, Onyx, or Trickster
+- **Medium response rate (55%)** → Poltergeist or Phantom
+- **Low response rate (35%)** → Banshee or Shade
+
+### Step 4: Combine with Other Tools
+Spirit Box alone can't identify a ghost! Use:
+- **Camera**: Check manifestation type (silhouette, blur, shadow, etc.)
+- **Thermal**: Check temperature reading (normal, cold spot, deep cold)
+- **EMF**: Check distance and proximity patterns
+
+---
+
+## 🎯 QUICK IDENTIFICATION FLOWCHART
+
+```
+1. Hear mixed personality words? → TRICKSTER
+   ↓ No
+2. Hear unique word?
+   - "lost soul" / "thin veil" → WRAITH
+   - "mourning song" / "doorway edge" → BANSHEE
+   - "still quiet" / "deep corner" → SHADE
+   - "mess maker" / "inside walls" → POLTERGEIST
+   - "empty echo" / "between worlds" → PHANTOM
+   - "deep hunger" / "below earth" → ONYX
+   ↓ No unique word heard
+3. Check personality pattern:
+   - Aggressive words + high response → WRAITH or ONYX
+   - Shy words + low response → BANSHEE or SHADE
+   - Chaotic words + medium response → POLTERGEIST or PHANTOM
+   ↓
+4. Use Camera/Thermal/EMF to confirm!
+```
 
 ---
 
-## 🎯 QUICK IDENTIFICATION GUIDE
+## 💡 INVESTIGATION TIPS
 
-1. **Hear "again again" or mixed personalities?** → Trickster
-2. **Hear "lost soul" or "thin veil"?** → Wraith
-3. **Hear "mourning song" or "doorway edge"?** → Banshee
-4. **Hear "still quiet" or "deep corner"?** → Shade
-5. **Hear "mess maker" or "here-here"?** → Poltergeist
-6. **Hear "empty echo" or "between worlds"?** → Phantom
-7. **Hear "deep hunger" or "below earth"?** → Onyx
+### Spirit Box Usage:
+- **Ask all 3 questions** - Different questions give different word pools
+- **Wait 15 seconds between responses** - Spirit Box has cooldown
+- **Listen for personality patterns** - One word isn't enough
+- **Note unique words immediately** - They're rare (15% chance)
+- **Track response frequency** - Low responses = shy ghost
 
-**Remember:** Always combine with Camera, EMF, and Thermal evidence!
+### Common Mistakes:
+- ❌ Relying on common words (they don't help)
+- ❌ Only asking one question (need multiple contexts)
+- ❌ Ignoring response frequency (it's a key clue!)
+- ❌ Not using other tools (Spirit Box alone can't solve it)
+
+### Pro Strategies:
+- ✅ Ask each question 2-3 times for pattern recognition
+- ✅ Combine personality words with unique words
+- ✅ Use Camera to narrow down between similar ghosts
+- ✅ Check Thermal reading to confirm ghost type
+- ✅ Watch for Trickster's contradictory behavior
 
 ---
 
-## 💡 PRO TIPS
+## 🎮 GAMEPLAY MECHANICS
 
-- **Unique words are rare** (15% chance) - if you hear one, note it!
-- **Personality words are common** (55% chance) - use them to narrow down
-- **Common words** (30% chance) - don't help much, everyone says them
-- **Trickster is tricky** - uses ALL personality types, watch for contradictions
-- **Shy ghosts respond less** - if you get few responses, might be Banshee/Shade
+### How Spirit Box Works in Investigation Mode:
+1. **Tune the knobs** to find the ghost's frequency (random each time)
+2. **Signal locks** when both knobs are within tolerance
+3. **Ask a question** using one of the three buttons
+4. **Ghost responds** (or shows "No response..." if it doesn't want to talk)
+5. **15-second cooldown** before you can ask again
+6. **New frequency** is generated after each response (must retune!)
+
+### Evidence Tab Integration:
+- Spirit Box responses are logged in the Evidence tab
+- Track personality type, words heard, and response frequency
+- Use evidence to narrow down possible ghosts
+- Select ghost type when you have enough evidence
 
 ---
+
+**Remember: No single tool can identify a ghost. Use Spirit Box + Camera + Thermal + EMF together!**
 
 **Good luck hunting! 👻**
